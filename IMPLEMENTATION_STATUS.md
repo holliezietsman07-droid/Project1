@@ -13,7 +13,22 @@ Scope: Stage 1 only. Public website preview, not a connected academy or producti
 - Original specification retained in PROJECT_BRIEF.md; Stage 1 execution instructions retained in WEB_BUILD_PLAN.md.
 
 ## Tested
-Pending final checks. Results and preview location will be recorded here before handover.
+Checked 20 October 2026; browser results recorded at 13:20 UTC.
+- Production build: pnpm build passed.
+- Type checks: pnpm exec tsc --noEmit -p tsconfig.app.json and pnpm exec tsc --noEmit -p tsconfig.node.json passed.
+- Lint: pnpm lint passed with no errors; six existing Fast Refresh warnings in unchanged shadcn components. Build also reports an older Browserslist dataset; neither prevents preview or compilation.
+- Headless Chrome: all seven public routes and the not-found route passed at desktop (1440px), tablet (768px), phone (390px) and small phone (320px), with one page heading and no horizontal overflow.
+- Desktop navigation, browser back/forward, pathway deep links, anchor focus, scrolling and keyboard skip-to-content passed.
+- Mobile menu opening, focus trap, Escape dismissal, focus return and navigation passed.
+- Exact package names/prices, unavailable checkout buttons and FAQ expansion passed; About founder note matches the supplied reference.
+- All account fields and submit controls remain disabled; attempted submission sends no account/payment request and creates no browser storage. Legacy payment-success navigation redirects to membership information without a payment claim.
+- No browser runtime/console errors or external service/photo requests were observed. Desktop, phone and sign-up screenshots were visually reviewed.
+- Repeatable browser check: node .elmony/stage-one-check.cjs; current results and screenshots are in .elmony/stage-one-results.json and .elmony/hka-*.png. This successful run supersedes the earlier incomplete browser result.
+
+## Running preview
+- Development website is running at http://127.0.0.1:8080/; HTTP 200 and browser-rendered routes confirmed.
+- Restart command: pnpm dev --host 127.0.0.1 --port 8080 --strictPort.
+- No external publication or production deployment performed; public Stage 1 is ready for review.
 
 ## Blocked / external dependencies
 - Original photographs await Hollie’s upload. Placeholder slots are centralised in src/lib/hka-content.ts and rendered by PhotoPlaceholder.tsx; no stock or generated photography.
