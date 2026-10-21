@@ -15,26 +15,29 @@ export const founderNote = [
 // Uploaded originals are served unchanged; framing is controlled by each existing photo slot.
 const originalPhotos = {
   horse: { src: "/images/IMG_5698.jpg", alt: "Bay horse wearing a bridle against a dark background", width: 1486, height: 1482 },
-  founder: { src: "/images/20260227_131818.jpg", alt: "A woman standing beside a chestnut horse in a paddock", width: 3060, height: 4080 },
-  grooming: { src: "/images/IMG_5697.JPG", alt: "A hand brushing a chestnut horse with a grooming brush", width: 1200, height: 800 },
-  equipment: { src: "/images/IMG_5696.JPG", alt: "Horse grooming brushes and canvas bags on a wooden bench", width: 5760, height: 3840 },
+  founder: { src: "/images/FOUNDER_PHOTO_Hollie_With Horse.jpg", alt: "A woman standing beside a chestnut horse in a paddock", width: 3060, height: 4080 },
+  grooming: { src: "/images/PATHWAY_02_Horse_Care_Ownership.jpg", alt: "A woman grooming a chestnut horse at a stable", width: 1920, height: 1280 },
+  equipment: { src: "/images/PATHWAY_03_Equestrian_Knowledge.jpeg", alt: "Horses grazing together in a green pasture", width: 678, height: 452 },
+  riding: { src: "/images/PATHWAY_01_Riding_Rider_Development.webp", alt: "A rider adjusting a saddle on a chestnut horse", width: 1600, height: 1000 },
+  young: { src: "/images/PATHWAY_04_Young_Riders_Pony_Learning.jpg", alt: "Two children caring for a pony at a stable", width: 1500, height: 1001 },
+  competition: { src: "/images/PATHWAY_05_Competition_Preparation.webp", alt: "A handler leading a bay horse across a competition field", width: 1100, height: 629 },
 } as const;
 
 export const brandLogo = {
-  src: "/images/ChatGPT Image Oct 19, 2026, 06_52_32 PM.png",
+  src: "/images/HKA_LOGO_MAIN.png",
   alt: "HKA Equestrian — Online Academy",
-  width: 1448,
-  height: 1086,
+  width: 1536,
+  height: 1024,
 } as const;
 
 export const photoSlots = {
   hero: { ...originalPhotos.horse, position: "60% 45%", tone: "sage" },
   founder: { ...originalPhotos.founder, position: "50% 60%", tone: "sand" },
-  riding: { ...originalPhotos.horse, position: "60% 40%", tone: "sage" },
+  riding: { ...originalPhotos.riding, position: "60% 40%", tone: "sage" },
   care: { ...originalPhotos.grooming, position: "50% 50%", tone: "sand" },
   knowledge: { ...originalPhotos.equipment, position: "50% 55%", tone: "stone" },
-  young: { ...originalPhotos.grooming, position: "50% 50%", tone: "clay" },
-  competition: { ...originalPhotos.horse, position: "60% 40%", tone: "olive" },
+  young: { ...originalPhotos.young, position: "50% 50%", tone: "clay" },
+  competition: { ...originalPhotos.competition, position: "60% 40%", tone: "olive" },
 } as const;
 export type PhotoSlot = keyof typeof photoSlots;
 
