@@ -9,7 +9,10 @@ import LearningPathways from "@/pages/LearningPathways";
 import Memberships from "@/pages/Memberships";
 import About from "@/pages/About";
 import AccountPage from "@/pages/AccountPage";
+import { DashboardIndex, DashboardPage } from "@/pages/Dashboard";
 import NotFound from "@/pages/NotFound";
+import { AccessGate } from "@/components/accounts/AccessGate";
+import { SessionContextProvider } from "@/contexts/SessionContext";
 
 const queryClient = new QueryClient();
 
@@ -19,20 +22,30 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
-          <Route element={<SiteLayout />}>
-            <Route path="/" element={<Index />} />
-            <Route path="/learning-pathways" element={<LearningPathways />} />
-            <Route path="/memberships" element={<Memberships />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/sign-in" element={<AccountPage key="sign-in" mode="sign-in" />} />
-            <Route path="/sign-up" element={<AccountPage key="sign-up" mode="sign-up" />} />
-            <Route path="/password-reset" element={<AccountPage key="password-reset" mode="password-reset" />} />
-            {/* An unverified redirect must never display a payment success claim. */}
-            <Route path="/payment/success" element={<Navigate to="/memberships" replace />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
+        <SessionContextProvider>
+          <Routes>
+            <Route element={<SiteLayout />}>
+              <Route path="/" element={<Index />} />
+              <Route path="/learning-pathways" element={<LearningPathways />} />
+              <Route path="/memberships" element={<Memberships />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/sign-in" element={<AccountPage key="sign-in" mode="sign-in" />} />
+              <Route path="/sign-up" element={<AccountPage key="sign-up" mode="sign-up" />} />
+              <Route path="/password-reset" element={<AccountPage key="password-reset" mode="password-reset" />} />
+              <Route path="/update-password" element={<AccountPage key="update-password" mode="update-password" />} />
+              <Route element={<AccessGate />}>
+                <Route path="/dashboard" element={<DashboardIndex />} />
+                <Route element={<AccessGate roles={["student"]} />}><Route path="/dashboard/student" element={<DashboardPage role="student" />} /></Route>
+                <Route element={<AccessGate roles={["guardian"]} />}><Route path="/dashboard/parent" element={<DashboardPage role="guardian" />} /></Route>
+                <Route element={<AccessGate roles={["coach"]} />}><Route path="/dashboard/coach" element={<DashboardPage role="coach" />} /></Route>
+                <Route element={<AccessGate roles={["admin"]} />}><Route path="/dashboard/admin" element={<DashboardPage role="admin" />} /></Route>
+              </Route>
+              {/* An unverified redirect must never display a payment success claim. */}
+              <Route path="/payment/success" element={<Navigate to="/memberships" replace />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </SessionContextProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

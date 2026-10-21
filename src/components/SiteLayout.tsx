@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { ArrowUpRight, Menu, Mail } from "lucide-react";
+import { Menu, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Wordmark } from "@/components/Wordmark";
+import { MemberNavigation } from "@/components/accounts/MemberNavigation";
 import { academy } from "@/lib/hka-content";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,12 @@ const titles: Record<string, string> = {
   "/sign-in": "Sign in",
   "/sign-up": "Sign up",
   "/password-reset": "Password reset",
+  "/update-password": "Update password",
+  "/dashboard": "Dashboard",
+  "/dashboard/student": "Student dashboard",
+  "/dashboard/parent": "Parent dashboard",
+  "/dashboard/coach": "Coach dashboard",
+  "/dashboard/admin": "Administrator dashboard",
 };
 
 export default function SiteLayout() {
@@ -57,8 +64,7 @@ export default function SiteLayout() {
             ))}
           </nav>
           <div className="hidden items-center gap-6 lg:flex">
-            <Link to="/sign-in" className="text-[13px] font-medium hover:underline">Sign in</Link>
-            <Button asChild className="h-11 rounded-sm px-5 text-xs"><Link to="/sign-up">Join the academy <ArrowUpRight aria-hidden="true" className="ml-2" /></Link></Button>
+            <MemberNavigation />
           </div>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
@@ -71,8 +77,7 @@ export default function SiteLayout() {
               </SheetHeader>
               <nav aria-label="Mobile navigation" className="flex flex-col gap-2">
                 {navigation.map((item) => <NavLink key={item.to} to={item.to} end onClick={() => setMenuOpen(false)} className={({ isActive }) => cn("rounded-sm px-3 py-3 text-base", isActive ? "bg-primary/10 font-semibold" : "hover:bg-primary/5")}>{item.label}</NavLink>)}
-                <Link to="/sign-in" onClick={() => setMenuOpen(false)} className="mt-3 border-t px-3 py-4">Sign in</Link>
-                <Button asChild className="h-12 rounded-sm"><Link to="/sign-up" onClick={() => setMenuOpen(false)}>Join the academy <ArrowUpRight aria-hidden="true" /></Link></Button>
+                <MemberNavigation mobile />
               </nav>
             </SheetContent>
           </Sheet>
@@ -94,7 +99,7 @@ export default function SiteLayout() {
             <p className="eyebrow mb-4">Let’s connect</p>
             <p className="text-sm text-muted-foreground">Questions about the academy?</p>
             <a href={"mailto:" + academy.email} className="mt-3 inline-flex min-h-11 items-center gap-2 break-all text-sm underline decoration-primary/30 underline-offset-4"><Mail className="size-4 shrink-0" aria-hidden="true" />{academy.email}</a>
-            <Link to="/sign-in" className="mt-3 block w-fit py-2 text-sm hover:underline">Member sign in <span className="ml-1 text-xs text-muted-foreground">· Coming soon</span></Link>
+            <Link to="/sign-in" className="mt-3 block w-fit py-2 text-sm hover:underline">Member sign in</Link>
           </div>
         </div>
         <div className="page-width flex flex-col justify-between gap-3 border-t border-primary/15 py-6 text-[11px] text-muted-foreground sm:flex-row">

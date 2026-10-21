@@ -1,5 +1,26 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 3 continuation — 21 October 2026
+
+### Completed
+- Confirmed connected Supabase project contains deployed Stage 3 academy tables, role functions, RLS policies and private storage structures from `supabase/migrations/202610210001_stage3_academy.sql`.
+- Connected existing sign-up, sign-in, verification resend, password reset and password update screens to the shared Supabase client and application session provider.
+- Added protected `/dashboard` routing with role destinations for student, parent or guardian, coach and administrator accounts.
+- Added role-aware dashboard navigation and RLS-backed summaries for learning, coaching, horses, achievements, linked students, submissions, enrolment requests and academy records.
+- Updated shared desktop and mobile account navigation to show dashboard and sign-out actions for authenticated members.
+- Preserved public designs, photographs, logo, branding, membership plans and payment behavior. Stage 4 work was not started.
+
+### Unfinished or externally dependent
+- Browser end-to-end registration, email confirmation, password recovery and all four role sessions require real test accounts and delivered Supabase emails; no credentials or account roles were invented.
+- Founder bootstrap, coach and administrator role assignment, guardian linking, course authoring and member data entry remain operational setup tasks using the deployed secure backend.
+- Preview runtime was unavailable at `127.0.0.1:8080`; it was not restarted because this continuation explicitly prohibited restarting or rebuilding the project.
+
+### Tested
+- TypeScript application check passed with `pnpm exec tsc --noEmit -p tsconfig.app.json`.
+- ESLint passed with zero errors; eight existing Fast Refresh and hooks warnings remain non-blocking.
+- Static route review confirmed visible sign-in and sign-up entry points, password reset and update routes, protected dashboard index, role redirects, role guards, failure states and shared Supabase client usage.
+- Connected Supabase metadata inspection confirmed all dashboard tables and required auth role functions are present remotely.
+
 Scope: Stage 1 public website, with original photographs in Home, About and Learning Pathways and the uploaded logo in the shared header and footer. Restored saved photograph version c41a2e72efaa7216f9ae7c904733db48ac0071df on 21 October 2026, preserving Stage 1 design baseline fb062122df32f315934f15fbd3d3c86d2bde68e2. Existing routes, copy, palette and section design retained; header accommodates the complete logo. This remains a public preview, not a connected academy or production release.
 
 ## Implemented
