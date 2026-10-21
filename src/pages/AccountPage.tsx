@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "@/contexts/SessionContext";
-import { db, errorText, isMinor } from "@/lib/academy";
+import { db, errorText, isEmailRateLimitError, isMinor, registrationErrorText } from "@/lib/academy";
 
 type AccountMode = "sign-in" | "sign-up" | "password-reset" | "update-password";
 const screens = {
@@ -22,6 +22,9 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
   const [details, setDetails] = useState<{ full_name: string; birth_date: string; timezone: string; account_type: string } | null>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [registrationCooldown, setRegistrationCooldown] = useState(false);
+  const registrationLock = useRef(false);
   const screen = screens[mode];
   if (recovery && mode !== "update-password") return <Navigate to="/update-password" replace />;
   if (!loading && session && (mode === "sign-in" || mode === "sign-up")) {
@@ -36,6 +39,34 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
     if (role === "guardian" && isMinor(birth)) { setMessage("A parent or guardian account requires an adult aged 18 or over."); return; }
     setMessage("");
     setDetails({ full_name: String(data.get("full_name")).trim(), birth_date: birth, timezone: String(data.get("timezone")).trim(), account_type: role });
+  }
+  async function register(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!details || registrationLock.current || registrationCooldown || registrationComplete) return;
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get('email')).trim();
+    const password = String(data.get('password'));
+    const confirmation = String(data.get('password_confirmation'));
+    if (password.length < 12) { setMessage('Use a password of at least 12 characters.'); return; }
+    if (password !== confirmation) { setMessage('Passwords do not match.'); return; }
+    registrationLock.current = true;
+    setBusy(true);
+    setMessage('');
+    try {
+      const { error } = await db().auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + '/dashboard', data: details } });
+      if (error) throw error;
+      setRegistrationComplete(true);
+      setMessage('Registration received. Check your inbox for the verification email before signing in.');
+    } catch (error) {
+      if (isEmailRateLimitError(error)) {
+        setRegistrationCooldown(true);
+        window.setTimeout(() => setRegistrationCooldown(false), 60_000);
+      }
+      setMessage(registrationErrorText(error));
+    } finally {
+      registrationLock.current = false;
+      setBusy(false);
+    }
   }
   async function resend(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setMessage("");
@@ -65,6 +96,12 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
         <div className="space-y-2"><Label htmlFor="account_type">Account type</Label><select id="account_type" name="account_type" className="h-11 w-full rounded-sm border bg-background px-3"><option value="student">Student / horse owner</option><option value="guardian">Parent / guardian (18+)</option></select></div>
         <p className="text-xs leading-6 text-muted-foreground">Your profile stays private. Students under 18 need a guardian relationship verified by the academy and accepted by their guardian before accessing lessons or uploading files. Coach and administrator roles are assigned by authorised administrators.</p>
         <Button className="h-12 w-full rounded-sm">Continue to account details</Button>
+      </form> : mode === 'sign-up' && details ? <form onSubmit={register} className='space-y-5'>
+        {!registrationComplete && <div className='text-sm'><p>Registering {details.full_name} as a {details.account_type}.</p><Button type='button' variant='link' className='px-0' onClick={() => setDetails(null)}>Change details</Button></div>}
+        <div className='space-y-2'><Label htmlFor='registration_email'>Email address</Label><Input id='registration_email' name='email' type='email' autoComplete='email' required disabled={busy || registrationComplete} /></div>
+        <div className='space-y-2'><Label htmlFor='registration_password'>Password</Label><Input id='registration_password' name='password' type='password' autoComplete='new-password' required minLength={12} disabled={busy || registrationComplete} /></div>
+        <div className='space-y-2'><Label htmlFor='registration_password_confirmation'>Confirm password</Label><Input id='registration_password_confirmation' name='password_confirmation' type='password' autoComplete='new-password' required minLength={12} disabled={busy || registrationComplete} /></div>
+        <Button className='h-12 w-full rounded-sm' disabled={busy || registrationCooldown || registrationComplete}>{registrationComplete ? 'Registration received' : registrationCooldown ? 'Please try again later' : busy ? 'Creating account…' : 'Create account'}</Button>
       </form> : mode === "update-password" && !session ? <p className="text-sm leading-7">Open the recovery link from your email, or <Link to="/password-reset" className="underline">request a new link</Link>.</p> : <>
         {details && <div className="mb-5 text-sm"><p>Registering {details.full_name} as a {details.account_type}.</p><Button variant="link" className="px-0" onClick={() => setDetails(null)}>Change details</Button></div>}
         <div onSubmitCapture={(event) => {

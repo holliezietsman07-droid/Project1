@@ -14,6 +14,17 @@ export const isMinor = (birth: string) => {
   const cutoff = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
   return new Date(birth + "T00:00:00") > cutoff;
 };
+export function isEmailRateLimitError(error: unknown) {
+  if (!error || typeof error !== 'object') return false;
+  const status = 'status' in error ? Number(error.status) : 0;
+  const code = 'code' in error ? String(error.code).toLowerCase() : '';
+  const message = 'message' in error ? String(error.message).toLowerCase() : '';
+  return message.includes('email rate limit') || code.includes('email_send_rate_limit') || (status === 429 && (message.includes('email') || code.includes('email')));
+}
+export function registrationErrorText(error: unknown) {
+  if (isEmailRateLimitError(error)) return 'Registration emails are temporarily limited. Please wait and try again later. If you already submitted, check your inbox before trying again.';
+  return errorText(error);
+}
 export function errorText(error: unknown) {
   if (error instanceof AuthApiError) {
     if (error.code === "invalid_credentials") return "Email or password is incorrect.";

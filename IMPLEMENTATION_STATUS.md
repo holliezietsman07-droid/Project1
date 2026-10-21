@@ -1,5 +1,30 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 3 registration-rate investigation — 21 October 2026
+
+### Findings
+- Connected project sqaydpbqycvaictieafk returned healthy public Auth settings: email/password sign-up is enabled, phone sign-up is disabled and mailer_autoconfirm is false. Email verification therefore remains required; no security setting was disabled or weakened.
+- The reported email rate limit exceeded response matches Supabase email-dispatch throttling rather than a database, profile-trigger or client-configuration failure. Supabase currently documents a combined default limit of two Auth emails per hour for its built-in SMTP service.
+- Public Auth settings do not expose the configured SMTP host, so custom-versus-default SMTP cannot be proved from the client API. The very low observed threshold is consistent with Supabase's default service. Owner action is required to confirm this under Supabase Authentication > Emails > SMTP Settings; no external Auth setting was changed during this investigation.
+- Recent Auth inspection found two accounts: pa***@gmail.com, created 13:11 UTC, remains unconfirmed and has a profile; 
+a***@gmail.com, created 13:12 UTC, was confirmed at 13:13 UTC and has signed in. This proves registration created records before or around the reported failure, but the failing address cannot be attributed without its full test email.
+
+### Registration safeguards completed
+- Replaced only the sign-up account-detail step with the existing branded inputs and direct Supabase signUp call so provider errors can be translated safely.
+- Added synchronous duplicate-submit locking, disabled controls while sending, password confirmation, a completed-registration lock and a 60-second retry pause after email throttling.
+- Added friendly rate-limit guidance: wait and try later, and check the inbox before submitting again. Existing sign-in, recovery, verification, routes, dashboards, branding and account metadata are preserved.
+
+### Production email recommendation and owner action
+- Recommended provider: Postmark custom SMTP, using a dedicated authentication subdomain and sender. It is transactional-email focused and is listed as a supported Supabase SMTP option. Verify the sending domain and configure SPF, DKIM and DMARC before production.
+- Configure credentials only in Supabase Authentication > Emails > SMTP Settings, keep email confirmation enabled, leave current limits unchanged until normal traffic is measured, and disable provider link tracking for confirmation links.
+- After SMTP configuration or the current cooldown expires, test one new controlled address through registration, confirmation and sign-in; avoid repeated resend attempts. References: https://supabase.com/docs/guides/auth/auth-smtp and https://supabase.com/docs/guides/deployment/going-into-prod.
+
+### Tested
+- Public Auth configuration endpoint returned HTTP 200 with sign-up enabled, email enabled and email auto-confirm disabled.
+- Connected database inspection verified recent Auth users and corresponding hka_profiles without exposing full addresses.
+- No live registration email was triggered during diagnosis, avoiding another quota event or unnecessary account.
+- TypeScript application check, focused ESLint and production build passed after the registration changes.
+
 ## Stage 3 continuation — 21 October 2026
 
 ### Completed
