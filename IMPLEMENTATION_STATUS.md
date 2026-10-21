@@ -28,13 +28,16 @@ All five uploaded files are kept under public/images/ with their original filena
 The four photographs are reused across the seven existing slots; no replacement or generated imagery was introduced. Photo paths, intrinsic dimensions and crop positions remain centralised in src/lib/hka-content.ts.
 
 ## Tested
-Checked 20 October 2026; latest browser results recorded at 13:58 UTC.
+Rechecked 21 October 2026; latest browser results recorded at 06:16 UTC.
+
+The supplied photographs were already present in Home, About and Learning Pathways, and the complete uploaded logo was already used in the shared header and footer. This review retains the existing Stage 1 design, source code, image files and placements; only this status document and local verification evidence were refreshed.
+
 - Production: pnpm run build passed.
 - Development: pnpm run build:dev --outDir .elmony/development-build passed.
 - App types: pnpm exec tsc --noEmit -p tsconfig.app.json passed.
 - Config types: pnpm exec tsc --noEmit -p tsconfig.node.json passed.
-- Lint: pnpm run lint passed with zero errors and six existing Fast Refresh warnings in unchanged shadcn components; the final photo-component revision also passed its focused lint check.
-- Browserslist: refreshed the existing dependency tree with pnpm update caniuse-lite browserslist. pnpm-lock.yaml now records caniuse-lite 1.0.30001817 and browserslist 4.29.4. Both latest builds complete without the outdated-browser-data warning; no application dependencies were added.
+- Lint: pnpm run lint passed with zero errors and six existing Fast Refresh warnings in unchanged shadcn components.
+- Browserslist: neither fresh build emitted the outdated-browser-data warning. The previous pnpm refresh is retained: pnpm-lock.yaml records caniuse-lite 1.0.30001817 and browserslist 4.29.4. No further package update was needed.
 - Integrity: all five SHA-256 hashes match the uploaded originals in public/images/, production dist/images/ and HTTP-served image responses; every asset returned HTTP 200.
 - Headless Chrome: 16 checks passed across 1440px desktop, 1024px laptop, 768px tablet, 390px phone and 320px small phone viewports. All seven public routes plus the not-found route remained reachable.
 - Every photo and both logos decoded successfully at every tested width. Declared and intrinsic dimensions match; photographs fill existing frames, logos retain their original proportions, and no colour filter, opacity change, horizontal overflow or header/navigation collision was found.
