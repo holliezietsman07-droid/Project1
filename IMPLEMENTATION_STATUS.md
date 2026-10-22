@@ -1,5 +1,21 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 4B Step 1 migration approval packet — 22 October 2026
+
+- **Status:** read-only review complete; migration has not been executed.
+- **Connected Supabase project:** sqaydpbqycvaictieafk, confirmed live through project metadata immediately before this report.
+- **Exact SQL awaiting approval:** [supabase/migrations/202610220002_stage4b_operations.sql](supabase/migrations/202610220002_stage4b_operations.sql). Approval applies to that file exactly; any later edit requires renewed review. SHA-256: F73C2EF3D3CCFDCD712B39028A1EAE171F251287FE6F561C66E87A13D0D8E686.
+- **Existing tables altered:** hka_profiles adds membership_tier and notification_preferences; hka_horses adds photo_path, birth_year, breed, sex, identification, height_hands, discipline, and training_goals; hka_files adds horse_id and replaces its purpose/shape constraint, insert policy, and file-access helpers; hka_ai_drafts expands its category constraint.
+- **New tables:** hka_horse_records, hka_owner_availability, hka_coaching_requests, and hka_announcements. All four enable RLS before authenticated access is granted.
+- **Other database objects:** four indexes; horse-limit and coaching-update triggers; hka_self_enrol_free and hka_approve_coaching_request authenticated RPCs; updated hka_file_read and hka_file_write; scoped grants and policies.
+- **Existing-data preservation:** migration is additive and transactional. It contains no account, profile, student, course, enrolment, progress, submission, assessment, file, horse, or learning-row deletion. Existing profiles receive free membership and notification defaults; existing horses receive optional/null or empty-string detail defaults. Remote pre-migration state remains three Auth users and three profiles, with the previously audited learning-data counts unchanged.
+- **Failure rollback:** because the script is wrapped in begin/commit, any SQL error rolls back the complete migration automatically.
+- **Backup before execution:** capture a Supabase database backup or point-in-time recovery marker immediately before approval execution, and export affected existing tables plus policies/functions. Record the backup timestamp and confirm restore availability before applying SQL.
+- **Post-commit rollback:** preferred recovery is restoring the pre-migration backup/PITR point. A manual compensating rollback is safe only before Stage 4B receives production data; it must first export Stage 4B rows, then drop the four new tables, four indexes, two triggers, four Stage 4B functions, added columns, grants/policies, and restore prior hka_files, file helper, and hka_ai_drafts definitions. Do not reuse the Stage 4 rollback file; it targets a different migration.
+- **Privilege safety:** remote hka_signup_profile accepts only student or guardian and coerces every other request to student. Remote hka_set_role requires an existing administrator, rejects self-modification, restricts accepted roles, and audits changes. Step 1 does not assign any user role.
+- **Remaining risks requiring post-migration verification:** live RLS/grant behavior is not proven until migration runs; concurrent Free-tier horse inserts can race past the count-based limit; coaching approval does not independently assert that assigned_coach currently has coach/admin role; every active authenticated member can read owner availability; manual rollback becomes data-destructive after Stage 4B use. These are bounded operational/security risks, not self-assigned-admin paths.
+- **Approval gate:** reply exactly **Approve Stage 4B Step 1 migration** to authorize execution of the linked SQL against project sqaydpbqycvaictieafk. Step 2 owner elevation remains separately blocked until Step 1 succeeds and is verified.
+
 ## Stage 4B Version 18 read-only activation verification — 22 October 2026
 
 ### Five-task audit
