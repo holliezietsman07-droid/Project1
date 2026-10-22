@@ -1,6 +1,6 @@
 # HKA Equestrian — Web: implementation status
 
-## Stage 4B Version 16 continuation — 22 October 2026
+## Stage 4B Version 18 read-only activation verification — 22 October 2026
 
 ### Five-task audit
 1. Student Dashboard: locally complete. Course access, progress, coaching requests, horse records, achievements and profile controls are wired to existing Supabase data. Stage 4B-only queries stay inactive until schema activation.
@@ -10,9 +10,12 @@
 5. Founder activation: prepared but not applied. The reviewed existing account is bound by authenticated user ID to the existing admin role, which the interface presents as Founder, Owner and Head Coach.
 
 ### Current verification
-- TypeScript and production compilation pass for Student Dashboard, Owner Dashboard and Academy Workspace. No active compilation error remains.
-- Four pre-activation runtime requests from owner-only Stage 4B panels are now gated until the profile exposes the approved Stage 4B schema.
-- Connected project remains sqaydpbqycvaictieafk. Read-only verification found Hollie Zietsman at user ID f7c3e52e-4f5e-47d0-8139-b28cb296d526, masked email h***@gmail.com, confirmed, active, signed in and currently role student.
+- TypeScript, focused source lint and production compilation pass for Student Dashboard, Owner Dashboard and Academy Workspace. No active compilation or integration error was found; Vite reports only its existing bundle-size advisory.
+- Pre-activation Stage 4B queries remain gated until the profile exposes the approved schema, so absent pending tables do not create active dashboard errors.
+- Connected project sqaydpbqycvaictieafk still has Stage 4 and not Stage 4B: the four new tables and three Stage 4B operational RPCs are absent, as expected before approval.
+- Read-only verification identified Hollie Zietsman at Auth user ID f7c3e52e-4f5e-47d0-8139-b28cb296d526, masked email h***@gmail.com. The account is email-confirmed, active, has signed in, is not suspended and currently has role student.
+- The account is suitable for Founder, Owner and Head Coach access because it is an existing confirmed adult profile bound to the reviewed immutable Auth UUID. The application maps these operational permissions to the existing admin role.
+- Current preservation baseline is 3 Auth users, 3 profiles, and zero enrolments, progress rows, submissions, horses, private files or AI drafts. No read-only verification changed these counts.
 
 ### Pending migration review
 - Adds membership and notification fields to profiles; adds horse detail fields; creates private horse records, owner availability, coaching requests and announcements; extends private-file metadata; adds indexes, RLS policies, grants, triggers and narrowly callable RPCs.
@@ -22,9 +25,11 @@
 - Founder bootstrap is a one-time, UUID-bound database-owner action with identity, confirmation, suspension and current-role checks. It contains no email-based or browser-side administrator check and records an audit event.
 
 ### Approval required and remaining work
-- Approval 1: apply supabase/migrations/202610220002_stage4b_operations.sql to activate Stage 4B data structures and permissions.
-- Approval 2: separately apply supabase/activation/202610220001_founder_role.sql to elevate the verified existing account from student to admin.
-- Neither approval has been assumed and no remote permission, role or schema write was made. After approval, remote RLS, storage, booking-conflict and role-specific browser flows still require live verification.
+- Approval 1: apply supabase/migrations/202610220002_stage4b_operations.sql. This adds two profile columns, nine horse/file columns, four RLS-enabled tables, constrained authenticated grants, private-file policy extensions, two trigger functions, two callable RPCs and four indexes. It deletes no account, student, course, learning or submission row.
+- Approval 2: after migration success, separately apply supabase/activation/202610220001_founder_role.sql. It validates the exact reviewed Auth UUID, confirmed and unsuspended identity and expected current role, changes only that profile role from student to admin, then writes one audit record. Founder, Owner and Head Coach are UI responsibilities represented by this existing admin role, not new self-selectable roles.
+- Public registration cannot grant admin or coach: hka_signup_profile accepts only student or guardian and coerces every other request to student. Authenticated users have column-limited profile updates that exclude role and suspended. hka_set_role requires an existing admin and rejects self-modification.
+- Neither approval has been assumed and no remote permission, role or schema write was made. After approval, remote RLS, private storage, booking-conflict and role-specific browser flows still require live verification.
+- Requested decision: approve migration and founder elevation separately, or approve migration only. No privileged action will run without that explicit choice.
 
 
 ## Stage 4B implementation — 22 October 2026
