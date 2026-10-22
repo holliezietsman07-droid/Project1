@@ -2,12 +2,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/contexts/SessionContext";
 import { listRows } from "@/lib/academy";
 
-export function useRows(table: string, filters: Record<string, string> = {}) {
+export function useRows(table: string, filters: Record<string, string> = {}, enabled = true) {
   const { session } = useSession();
   return useQuery({
     queryKey: ["academy", session?.user.id, table, filters],
     queryFn: () => listRows(table, filters),
-    enabled: Boolean(session),
+    enabled: Boolean(session) && enabled,
     retry: 1,
     refetchOnWindowFocus: true,
   });
