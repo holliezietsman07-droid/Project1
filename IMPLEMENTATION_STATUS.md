@@ -1,5 +1,40 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 4 implementation — 22 October 2026
+
+### A. Course and lesson management
+- Added dedicated pathway catalogue routes while preserving the five published pathway names, existing imagery and public design.
+- Added an authorised course workspace for coach and administrator roles: create draft courses, set pathway, level, duration, eligibility and membership access, add lesson, quiz or assignment drafts, preview records, publish/unpublish, duplicate and archive.
+- Added persistent schema for course metadata, modules, lesson objectives, draft/publication state and safe duplication in `supabase/migrations/202610220001_stage4_lms.sql`.
+- Existing private `hka-private` storage remains unchanged and protected. Student assignment uploads use the original file without image transformation, accept the existing allow-list and enforce the existing 50 MB limit.
+- Module assignment, drag-and-drop reordering and coach-facing course material upload controls remain incomplete in the UI; database support and ordering fields are prepared.
+
+### B. Student learning and assessments
+- Added protected course player with lesson navigation, account-backed completion, resume progress, written assignments and private image/PDF/video submissions.
+- Added quiz rendering for multiple choice, true/false and written responses, save-and-resume attempts, submission history records and server-side automatic scoring RPC.
+- Answer keys live in a separately protected table and are never selected by the student UI. Objective explanations are returned only after submission; written, practical and riding-video work remains pending human review.
+- Student dashboard now displays per-course completion progress and resume links.
+- No placeholder courses or educational lessons were published.
+
+### C. Coach feedback, parents and Premium preparation
+- Added coach review queue with score, comments, approve/feedback/resubmission decisions; coach results use existing student notifications and guardian visibility.
+- Preserved existing guardian consent and role RLS. Approved guardians can continue reading authorised student progress and feedback; nothing is made public.
+- Added future Premium review allowance records with two included personal reviews per period and usage counters. No payments, membership page changes or entitlements were activated.
+- Review allowance charging and automatic monthly provisioning remain intentionally disconnected until the existing billing model is approved for Stage 4 activation.
+
+### D. HKA AI Studio
+- Added authorised HKA AI Studio with riding lesson, horse care, assessment and competition template builders, private draft saving, editing, reopening and text download.
+- Horse-care templates explicitly state they are educational and not veterinary advice.
+- No AI provider or paid API was detected or activated. Current builder labels output as a template draft, not AI-generated content; secure provider-backed generation, regeneration and direct student/course assignment remain pending owner approval and credentials.
+
+### E. Integration status and verification
+- Application TypeScript check, production build and ESLint completed successfully. Existing eight non-blocking framework warnings remain.
+- Remote Stage 4 migration was not applied: initial execution failed on a transport-altered SQL delimiter and rolled back; exact schema inspection confirmed no Stage 4 objects or altered columns were committed. A corrected replay was then blocked by the external safety reviewer as an uncertain prior action.
+- Because the remote migration is pending, live course creation, publication, student access, quiz scoring, uploads, coach review, parent visibility and AI draft persistence could not be end-to-end tested with real role accounts.
+- Required owner action: explicitly approve replay of `supabase/migrations/202610220001_stage4_lms.sql` against connected project `sqaydpbqycvaictieafk`, then provide controlled student, guardian, coach and administrator test sessions for role-by-role integration testing.
+
+ 
+
 ## Stage 3 registration-rate investigation — 21 October 2026
 
 ### Findings

@@ -26,7 +26,7 @@ export default function LearningPathways() {
             <PhotoPlaceholder slot={pathway.photo} className="aspect-[1.4] w-full rounded-sm" />
             <div className="flex flex-col items-start justify-center">
               <p className="eyebrow mb-4 text-[#76633e]">Pathway 0{index + 1}</p>
-              <h2 id={pathway.id + "-title"} className="font-serif text-3xl leading-tight tracking-[-0.03em] sm:text-4xl">{pathway.title}</h2>
+              <h2 id={pathway.id + "-title"} className="font-serif text-3xl leading-tight tracking-[-0.03em] sm:text-4xl">{pathway.title}</h2><Button asChild variant={'outline'} className={'mt-5 h-11 rounded-sm'}><Link to={'/learning-pathways/' + pathway.id}>View pathway catalogue <ArrowRight aria-hidden={'true'} /></Link></Button>
               <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">{pathway.description} {pathway.audience}</p>
               <div className="mt-6 w-full border-l-2 border-[#B79B62] bg-card px-5 py-4">
                 <p className="text-xs font-medium">No published lessons yet</p>

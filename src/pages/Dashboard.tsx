@@ -1,6 +1,7 @@
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { BookOpen, CalendarDays, GraduationCap, HeartHandshake, ShieldCheck, Users } from "lucide-react";
 import { useSession } from "@/contexts/SessionContext";
+import { Progress } from '@/components/ui/progress';
 import { useRows } from "@/hooks/use-academy";
 import type { Role, Row } from "@/lib/academy";
 
@@ -19,6 +20,12 @@ function DataPanel({ id, title, table, empty }: { id: string; title: string; tab
     <div className="flex items-baseline justify-between gap-4"><h2 className="font-serif text-2xl">{title}</h2>{!query.isLoading && !query.error && <span className="text-xs text-muted-foreground">{rows.length} total</span>}</div>
     {query.isLoading ? <p className="mt-4 text-sm text-muted-foreground" role="status">Loading…</p> : query.error ? <p className="mt-4 text-sm text-destructive" role="alert">This section could not be loaded.</p> : rows.length ? <ul className="mt-4 divide-y divide-primary/10">{rows.slice(0, 5).map((row) => <li key={row.id} className="py-3 text-sm">{displayValue(row)}</li>)}</ul> : <p className="mt-4 text-sm leading-6 text-muted-foreground">{empty}</p>}
   </section>;
+}
+
+function StudentLearning() {
+  const enrolments=useRows('hka_enrolments'); const courses=useRows('hka_courses'); const lessons=useRows('hka_lessons'); const progress=useRows('hka_progress');
+  if(enrolments.isLoading||courses.isLoading||lessons.isLoading||progress.isLoading)return <p className={'mb-6 text-sm text-muted-foreground'}>Loading learning progress…</p>;
+  return <section className={'paper-card mb-6 p-6'}><div className={'flex items-baseline justify-between gap-4'}><h2 className={'font-serif text-2xl'}>Learning progress</h2><Link to={'/learning-pathways'} className={'text-xs underline'}>Browse courses</Link></div><div className={'mt-5 grid gap-4 md:grid-cols-2'}>{(enrolments.data??[]).map(enrol=>{const course=(courses.data??[]).find(c=>c.id===enrol.course_id);const courseLessons=(lessons.data??[]).filter(l=>l.course_id===enrol.course_id&&l.published);const done=new Set((progress.data??[]).filter(p=>p.completed_at).map(p=>p.lesson_id));const complete=courseLessons.filter(l=>done.has(l.id)).length;const percent=courseLessons.length?Math.round(complete/courseLessons.length*100):0;return <article key={enrol.id} className={'rounded-sm border border-primary/15 p-4'}><h3 className={'font-medium'}>{String(course?.title??'Enrolled course')}</h3><div className={'mt-3 flex items-center gap-3'}><Progress value={percent}/><span className={'text-xs'}>{percent}%</span></div><p className={'mt-2 text-xs text-muted-foreground'}>{complete} of {courseLessons.length} lessons complete</p>{course&&<Link to={'/academy/courses/'+course.id} className={'mt-3 inline-flex text-xs font-medium underline'}>Resume learning</Link>}</article>})}{!enrolments.data?.length&&<p className={'text-sm text-muted-foreground'}>No course enrolments yet.</p>}</div></section>;
 }
 
 type Panel = { id: string; title: string; table: string; empty: string };
@@ -60,7 +67,8 @@ export function DashboardPage({ role }: { role: Role }) {
   if (profile.role !== role) return <Navigate to={dashboardPath[profile.role]} replace />;
   const Icon = roleIcon[role];
   return <section className="page-width py-12 lg:py-16">
-    <div className="flex flex-col justify-between gap-6 border-b border-primary/15 pb-8 md:flex-row md:items-end"><div><p className="eyebrow mb-4 text-[#76633e]">{roleName[role]} dashboard</p><h1 className="section-heading">Welcome, {profile.full_name}.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">Your private academy space brings current learning, coaching and account updates together.</p></div><Icon aria-hidden="true" strokeWidth={1.25} className="size-12 text-[#826e45]" /></div>
+    <div className="flex flex-col justify-between gap-6 border-b border-primary/15 pb-8 md:flex-row md:items-end"><div><p className="eyebrow mb-4 text-[#76633e]">{roleName[role]} dashboard</p><h1 className="section-heading">Welcome, {profile.full_name}.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">Your private academy space brings current learning, coaching and account updates together.</p>{(role === 'coach' || role === 'admin') && <Link to={'/dashboard/academy'} className={'mt-5 inline-flex min-h-11 items-center rounded-sm bg-primary px-5 text-xs font-medium text-primary-foreground'}>Open academy workspace</Link>}{role === 'student' && <Link to={'/learning-pathways'} className={'mt-5 inline-flex min-h-11 items-center rounded-sm border border-primary/20 px-5 text-xs font-medium'}>Browse courses</Link>}</div><Icon aria-hidden="true" strokeWidth={1.25} className="size-12 text-[#826e45]" /></div>
+    {role === 'student' && <StudentLearning />}
     <nav aria-label={`${roleName[role]} dashboard navigation`} className="my-8 flex flex-wrap gap-3">{panels[role].map((panel) => <a key={panel.id} href={`#${panel.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-primary/20 px-4 text-sm hover:bg-primary/5">{panel.id.includes("coaching") ? <CalendarDays className="size-4" /> : panel.id.includes("student") || panel.id.includes("member") ? <Users className="size-4" /> : <BookOpen className="size-4" />}{panel.title}</a>)}</nav>
     <div className="grid gap-5 md:grid-cols-2">{panels[role].map((panel) => <DataPanel key={panel.id} {...panel} />)}</div>
   </section>;

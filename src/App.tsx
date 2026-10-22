@@ -6,6 +6,9 @@ import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import SiteLayout from "@/components/SiteLayout";
 import Index from "@/pages/Index";
 import LearningPathways from "@/pages/LearningPathways";
+import PathwayDetail from '@/pages/PathwayDetail';
+import CoursePlayer from '@/pages/CoursePlayer';
+import AcademyWorkspace from '@/pages/AcademyWorkspace';
 import Memberships from "@/pages/Memberships";
 import About from "@/pages/About";
 import AccountPage from "@/pages/AccountPage";
@@ -33,12 +36,15 @@ const App = () => (
               <Route path="/sign-up" element={<AccountPage key="sign-up" mode="sign-up" />} />
               <Route path="/password-reset" element={<AccountPage key="password-reset" mode="password-reset" />} />
               <Route path="/update-password" element={<AccountPage key="update-password" mode="update-password" />} />
+              <Route path={'/learning-pathways/:pathwayId'} element={<PathwayDetail />} />
               <Route element={<AccessGate />}>
                 <Route path="/dashboard" element={<DashboardIndex />} />
                 <Route element={<AccessGate roles={["student"]} />}><Route path="/dashboard/student" element={<DashboardPage role="student" />} /></Route>
                 <Route element={<AccessGate roles={["guardian"]} />}><Route path="/dashboard/parent" element={<DashboardPage role="guardian" />} /></Route>
                 <Route element={<AccessGate roles={["coach"]} />}><Route path="/dashboard/coach" element={<DashboardPage role="coach" />} /></Route>
                 <Route element={<AccessGate roles={["admin"]} />}><Route path="/dashboard/admin" element={<DashboardPage role="admin" />} /></Route>
+                <Route element={<AccessGate roles={['student']} />}><Route path={'/academy/courses/:courseId'} element={<CoursePlayer />} /></Route>
+                <Route element={<AccessGate roles={['coach', 'admin']} />}><Route path={'/dashboard/academy'} element={<AcademyWorkspace />} /></Route>
               </Route>
               {/* An unverified redirect must never display a payment success claim. */}
               <Route path="/payment/success" element={<Navigate to="/memberships" replace />} />
