@@ -1,5 +1,24 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 4 database deployment — 22 October 2026
+
+### Deployment
+- Confirmed connected Supabase project sqaydpbqycvaictieafk matches the HKA app environment and contains the expected Stage 3 schema.
+- Confirmed Stage 4 was absent before deployment. The reviewed migration contains no table, column, account or record deletion; policy replacements occur inside one transaction.
+- Established an equivalent rollback path in supabase/rollback/202610220001_stage4_lms.rollback.sql. It reverses only Stage 4 objects and extensions and is intentionally owner-approved emergency tooling because running it after live Stage 4 use would remove Stage 4-only records.
+- Applied supabase/migrations/202610220001_stage4_lms.sql once as a single transaction. Execution completed successfully.
+
+### Observed remote state
+- All seven LMS tables now exist: hka_modules, hka_questions, hka_answer_keys, hka_attempts, hka_responses, hka_review_allowances and hka_ai_drafts. RLS is enabled on every table.
+- All 21 intended columns exist across the five Stage 3 extensions: hka_courses, hka_lessons, hka_progress, hka_submissions and hka_assessments.
+- Both RPCs exist: hka_duplicate_course and hka_submit_attempt. New tables expose the expected 14 policies; grants restrict anonymous users to active pathway and published course catalogue reads.
+- Before and after counts match exactly: two auth users, two student profiles, and zero courses, lessons, progress rows, submissions, assessments and guardian links. Existing accounts, roles and records remained unchanged.
+
+### Testing limits
+- Schema, RLS enablement, policy definitions, grants, RPC presence and record preservation were verified remotely.
+- A non-mutating student and anonymous role probe timed out before returning results; it used session-local role settings inside an explicit rollback transaction and created no test records.
+- Course creation, lesson saving, quiz submission, progress persistence, coach review and parent access remain untested end to end because the project currently has only two student roles and no course data, coach, administrator or guardian test account. No roles or production records were changed to manufacture a passing test.
+
 ## Stage 4 repair and verification — 22 October 2026
 
 ### Application repair
@@ -9,21 +28,21 @@
 - ESLint reports zero errors and eight existing warnings: six shadcn Fast Refresh warnings plus two existing SessionContext hook/Fast Refresh warnings. Vite reports only the existing large-bundle advisory.
 - No Stage 1–3 page, photograph, branding, account, authentication record or course record was removed.
 
-### Remote database audit
-- Connected project sqaydpbqycvaictieafk still has the Stage 3 schema only. Existing hka_courses, hka_lessons, hka_progress, hka_submissions, assessments, enrolments, files, profiles, guardians and coach assignments retain RLS and their prior least-privilege policies.
-- Stage 4 tables hka_modules, hka_questions, hka_attempts and hka_ai_drafts are absent; Stage 4 columns and RPCs are also absent. This confirms the failed transaction committed no partial Stage 4 objects or changes.
-- Exact failure: the first migration transport reduced PostgreSQL function delimiters from paired dollar delimiters to a single $, producing SQLSTATE 42601 at hka_duplicate_course. This was a SQL transport/syntax failure, not an RLS, account-data or authentication failure.
-- The connected database does not expose supabase_migrations.schema_migrations; direct migration-history lookup returned relation-not-found. Object and policy metadata therefore provide the authoritative observed status.
-- No database write was made during this repair turn.
+### Pre-deployment remote database audit
+- Before approved deployment, connected project sqaydpbqycvaictieafk had the Stage 3 schema only. Existing tables and policies retained their Stage 3 RLS protections.
+- Stage 4 tables, columns and RPCs were absent, confirming the failed transaction committed no partial Stage 4 changes.
+- Exact earlier failure: migration transport corrupted PostgreSQL function delimiters, producing SQLSTATE 42601 at hka_duplicate_course; it was not an authentication, data or RLS failure.
+- Supabase migration history was unavailable remotely, so object and policy metadata provided the authoritative pre-deployment status.
+- No database write was made during the repair turn.
 
 ### Prepared migration repair
 - supabase/migrations/202610220001_stage4_lms.sql now uses named $stage$ function delimiters and explicitly drops every Stage 4 policy before recreating it, making policy replay idempotent.
 - Proposed migration remains transactional: add non-destructive Stage 4 columns, create new LMS/assessment/allowance/draft tables with RLS, add scoped grants and policies, then install duplicate-course and server-side assessment RPCs.
-- Migration was deliberately not applied. Owner approval is required before executing the corrected transaction against the connected project.
+- Migration was not applied during the repair turn; it was subsequently applied after owner approval as recorded above.
 
 ### Stage 4 functional status
 - Implemented in code: pathway catalogue, protected course player, account-backed progress, private assignments, quiz attempts, automatic objective scoring contract, coach review workspace, Premium allowance schema and private AI Studio draft workspace.
-- Untested against live data: course authoring/publishing, enrolled lesson access, uploads, quiz submission/scoring, coach feedback, guardian views, review allowances and AI draft persistence because the Stage 4 schema is not deployed.
+- Role-based end-to-end workflows remain untested because controlled coach, administrator and guardian sessions and seeded course data are unavailable.
 
 
 ## Stage 4 implementation — 22 October 2026
@@ -55,8 +74,8 @@
 
 ### E. Integration status and verification
 - Application TypeScript check, production build and ESLint completed successfully. Existing eight non-blocking framework warnings remain.
-- Remote Stage 4 migration was not applied: initial execution failed on a transport-altered SQL delimiter and rolled back; exact schema inspection confirmed no Stage 4 objects or altered columns were committed. A corrected replay was then blocked by the external safety reviewer as an uncertain prior action.
-- Because the remote migration is pending, live course creation, publication, student access, quiz scoring, uploads, coach review, parent visibility and AI draft persistence could not be end-to-end tested with real role accounts.
+- Initial Stage 4 execution failed on a transport-altered SQL delimiter and rolled back cleanly; the corrected transaction was later reviewed, approved and applied successfully.
+- Live role-based workflows remain untested because the project has no coach, administrator or guardian test roles and no course data; no production roles or records were altered for testing.
 - Required owner action: explicitly approve replay of `supabase/migrations/202610220001_stage4_lms.sql` against connected project `sqaydpbqycvaictieafk`, then provide controlled student, guardian, coach and administrator test sessions for role-by-role integration testing.
 
  
