@@ -1,6 +1,20 @@
 # HKA Equestrian — Web: implementation status
 
-## Stage 4B Step 1 migration approval packet — 22 October 2026
+## Stage 4B final migration safety review — 22 October 2026
+
+- **Status:** corrected migration is prepared but not deployed; owner-role elevation remains untouched. Connected project: sqaydpbqycvaictieafk.
+- **Corrected — membership:** migration now revokes table-level and all column-level profile UPDATE grants before regranting only full_name, timezone, avatar_path and notification_preferences. role, suspended, birth_date and membership_tier remain unavailable to students. The Free-tier horse trigger now locks the profile row before counting, preventing concurrent limit bypass.
+- **Corrected — calendar:** confirmed appointments are owner/admin-write-only. Approval serialises per coach and a GiST exclusion constraint independently rejects overlapping scheduled lessons. Rescheduling updates the existing appointment only after owner approval. Confirmed-lesson cancellation becomes cancellation_requested and requires the new owner-only review RPC; student requests cannot alter appointment identifiers or booking details.
+- **Corrected — files:** horse-file metadata references hka_horses with deletion restricted, replacement constraints preserve avatar, material, submission and certificate shapes, and no browser UPDATE grant was added for horse_id. Storage remains in private bucket hka-private behind authenticated metadata policies.
+- **Corrected — cleanup:** unrelated TypeScript fragment after COMMIT was removed. Student and owner controls now match cancellation and rescheduling approval states.
+- **Already safe:** live hka_horses has UNIQUE (id, student_id). Live compatibility counts are 3 profiles, 0 horses, 0 files, 0 scheduled appointments, 0 duplicate horse pairs, 0 invalid file shapes and 0 appointment overlaps. hka_profiles RLS is enabled; authenticated has no table UPDATE and cannot update id, birth_date, role, suspended or created_at. Public signup cannot assign admin, and hka_set_role remains admin-only, audited and self-change-blocked.
+- **Preservation:** migration contains no DELETE, TRUNCATE or replacement of existing records. New columns use compatible defaults; all schema work is wrapped in one transaction. Existing photographs, assignments, certificates and horse records therefore remain intact.
+- **Recovery:** confirm a Supabase backup/PITR restore point immediately before execution and record its timestamp. Any pre-COMMIT failure rolls back automatically. After COMMIT, prefer PITR/backup restore; do not run a destructive down migration after Stage 4B accepts data.
+- **Verification:** remote catalog, grants, constraints, bucket privacy and aggregate compatibility were inspected read-only. TypeScript, focused lint and production build pass. Migration structure/delimiters validate and SHA-256 is D52FFE2D60292A91A0324AE4F0427F617C2237ADE7401AFDA4FE1AD228954AA6. No isolated PostgreSQL instance is available locally, so no full DDL dry run was performed against live production under the no-deploy boundary.
+- **Remaining risk:** backup/PITR availability and timestamp require confirmation immediately before deployment; role-specific RLS and concurrent-booking behavior require post-migration verification with controlled accounts. No critical compatibility conflict was found.
+- **Readiness:** ready for separate explicit Step 1 approval after backup/PITR confirmation. Step 2 owner elevation remains separately blocked.
+
+## Superseded Stage 4B Step 1 migration approval packet — 22 October 2026
 
 - **Status:** read-only review complete; migration has not been executed.
 - **Connected Supabase project:** sqaydpbqycvaictieafk, confirmed live through project metadata immediately before this report.
