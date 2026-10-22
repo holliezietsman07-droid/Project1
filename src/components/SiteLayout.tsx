@@ -72,8 +72,8 @@ export default function SiteLayout() {
             </SheetTrigger>
             <SheetContent className="w-[min(88vw,360px)] overflow-y-auto [&>button]:flex [&>button]:size-11 [&>button]:items-center [&>button]:justify-center">
               <SheetHeader className="mb-8 text-left">
-                <SheetTitle className="font-serif text-2xl font-normal">HKA Equestrian</SheetTitle>
-                <SheetDescription>Online Academy</SheetDescription>
+                <Wordmark /><SheetTitle className="sr-only">HKA Equestrian</SheetTitle>
+                <SheetDescription hidden>Online Academy</SheetDescription>
               </SheetHeader>
               <nav aria-label="Mobile navigation" className="flex flex-col gap-2">
                 {navigation.map((item) => <NavLink key={item.to} to={item.to} end onClick={() => setMenuOpen(false)} className={({ isActive }) => cn("rounded-sm px-3 py-3 text-base", isActive ? "bg-primary/10 font-semibold" : "hover:bg-primary/5")}>{item.label}</NavLink>)}
