@@ -17,6 +17,8 @@ import NotFound from "@/pages/NotFound";
 import { AccessGate } from "@/components/accounts/AccessGate";
 import { SessionContextProvider } from "@/contexts/SessionContext";
 
+import { StudentPreview } from '@/components/accounts/OwnerDashboard';
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -44,6 +46,7 @@ const App = () => (
                 <Route element={<AccessGate roles={["coach"]} />}><Route path="/dashboard/coach" element={<DashboardPage role="coach" />} /></Route>
                 <Route element={<AccessGate roles={["admin"]} />}><Route path="/dashboard/admin" element={<DashboardPage role="admin" />} /></Route>
                 <Route element={<AccessGate roles={['student']} />}><Route path={'/academy/courses/:courseId'} element={<CoursePlayer />} /></Route>
+                <Route element={<AccessGate roles={['admin']} />}><Route path={'/dashboard/student-preview'} element={<StudentPreview />} /></Route>
                 <Route element={<AccessGate roles={['coach', 'admin']} />}><Route path={'/dashboard/academy'} element={<AcademyWorkspace />} /></Route>
               </Route>
               {/* An unverified redirect must never display a payment success claim. */}

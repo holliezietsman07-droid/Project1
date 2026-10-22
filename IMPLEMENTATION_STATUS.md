@@ -1,5 +1,26 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 4B implementation — 22 October 2026
+
+### Completed locally
+- Replaced the student summary with persistent course catalogue/enrolment, progress, coaching requests, confirmed schedule, private horse profiles and records, authorised achievements, feedback history, avatar/profile and notification controls.
+- Added Founder/Owner/Head Coach operations for live overview statistics, student progress and course access, development plans, coach assignments, coaching approvals, conflict-aware calendar management, membership visibility, shared horse records, announcements and academy settings.
+- Extended the academy workspace with course editing, modules, lesson reordering, private lesson materials, assessment questions and answer keys, coach marking, and all requested editable HKA AI Studio draft categories. AI provider generation remains inactive because no secure AI configuration exists.
+- Added a role-gated, read-only student preview that never impersonates a student or enables student mutations.
+- Prepared supabase/migrations/202610220002_stage4b_operations.sql with additive tables/columns, RLS, private horse-file rules, Free one-horse enforcement, safe free-course self-enrolment, coaching request approval and overlap checks. It has not been deployed.
+
+### Identity and approvals
+- Connected project remains sqaydpbqycvaictieafk.
+- Existing authenticated owner candidate is Hollie Zietsman, user ID f7c3e52e-4f5e-47d0-8139-b28cb296d526, masked email h***@gmail.com, current role student, active and recently signed in.
+- No account was created and no role, permission, database row or deployed schema was changed.
+- Explicit owner approval is required before applying the Stage 4B migration and separately before changing this existing user from student to administrator.
+- Current remote baseline contains 3 profiles and zero courses, enrolments, horses, appointments or submissions.
+
+### Current testing state
+- TypeScript check passes and ESLint reports zero errors with the same eight existing warnings.
+- Build was not run because this task expressly prohibits rebuilding the website.
+- Remote role, persistence, upload, booking-conflict and end-to-end browser tests remain pending the approved migration and authorised administrator role; no success was simulated.
+
 ## Stage 4 database deployment — 22 October 2026
 
 ### Deployment

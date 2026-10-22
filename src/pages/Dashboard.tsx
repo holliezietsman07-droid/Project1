@@ -5,6 +5,9 @@ import { Progress } from '@/components/ui/progress';
 import { useRows } from "@/hooks/use-academy";
 import type { Role, Row } from "@/lib/academy";
 
+import { StudentDashboard } from '@/components/accounts/StudentDashboard';
+import { OwnerDashboard } from '@/components/accounts/OwnerDashboard';
+
 const dashboardPath: Record<Role, string> = {
   student: "/dashboard/student", guardian: "/dashboard/parent", coach: "/dashboard/coach", admin: "/dashboard/admin",
 };
@@ -65,11 +68,12 @@ export function DashboardPage({ role }: { role: Role }) {
   const { profile } = useSession();
   if (!profile) return null;
   if (profile.role !== role) return <Navigate to={dashboardPath[profile.role]} replace />;
+  if (role === 'student') return <StudentDashboard />;
+  if (role === 'admin') return <OwnerDashboard />;
   const Icon = roleIcon[role];
   return <section className="page-width py-12 lg:py-16">
-    <div className="flex flex-col justify-between gap-6 border-b border-primary/15 pb-8 md:flex-row md:items-end"><div><p className="eyebrow mb-4 text-[#76633e]">{roleName[role]} dashboard</p><h1 className="section-heading">Welcome, {profile.full_name}.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">Your private academy space brings current learning, coaching and account updates together.</p>{(role === 'coach' || role === 'admin') && <Link to={'/dashboard/academy'} className={'mt-5 inline-flex min-h-11 items-center rounded-sm bg-primary px-5 text-xs font-medium text-primary-foreground'}>Open academy workspace</Link>}{role === 'student' && <Link to={'/learning-pathways'} className={'mt-5 inline-flex min-h-11 items-center rounded-sm border border-primary/20 px-5 text-xs font-medium'}>Browse courses</Link>}</div><Icon aria-hidden="true" strokeWidth={1.25} className="size-12 text-[#826e45]" /></div>
-    {role === 'student' && <StudentLearning />}
-    <nav aria-label={`${roleName[role]} dashboard navigation`} className="my-8 flex flex-wrap gap-3">{panels[role].map((panel) => <a key={panel.id} href={`#${panel.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-primary/20 px-4 text-sm hover:bg-primary/5">{panel.id.includes("coaching") ? <CalendarDays className="size-4" /> : panel.id.includes("student") || panel.id.includes("member") ? <Users className="size-4" /> : <BookOpen className="size-4" />}{panel.title}</a>)}</nav>
+    <div className="flex flex-col justify-between gap-6 border-b border-primary/15 pb-8 md:flex-row md:items-end"><div><p className="eyebrow mb-4 text-[#76633e]">{roleName[role]} dashboard</p><h1 className="section-heading">Welcome, {profile.full_name}.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">Your private academy space brings current learning, coaching and account updates together.</p>{role === 'coach' && <Link to={'/dashboard/academy'} className={'mt-5 inline-flex min-h-11 items-center rounded-sm bg-primary px-5 text-xs font-medium text-primary-foreground'}>Open academy workspace</Link>}</div><Icon aria-hidden="true" strokeWidth={1.25} className="size-12 text-[#826e45]" /></div>
+     <nav aria-label={`${roleName[role]} dashboard navigation`} className="my-8 flex flex-wrap gap-3">{panels[role].map((panel) => <a key={panel.id} href={`#${panel.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-primary/20 px-4 text-sm hover:bg-primary/5">{panel.id.includes("coaching") ? <CalendarDays className="size-4" /> : panel.id.includes("student") || panel.id.includes("member") ? <Users className="size-4" /> : <BookOpen className="size-4" />}{panel.title}</a>)}</nav>
     <div className="grid gap-5 md:grid-cols-2">{panels[role].map((panel) => <DataPanel key={panel.id} {...panel} />)}</div>
   </section>;
 }
