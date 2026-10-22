@@ -69,6 +69,18 @@ create table if not exists public.hka_announcements (
 );
 
 alter table public.hka_files add column if not exists horse_id uuid references public.hka_horses on delete cascade;
+alter table public.hka_files drop constraint if exists hka_files_purpose_check;
+alter table public.hka_files add constraint hka_files_purpose_check
+  check (purpose in ('avatar','material','submission','certificate','horse'));
+alter table public.hka_files drop constraint if exists hka_files_check2;
+alter table public.hka_files drop constraint if exists hka_files_purpose_shape_check;
+alter table public.hka_files add constraint hka_files_purpose_shape_check check (
+  (purpose='avatar' and lesson_id is null and student_id=owner_id and horse_id is null)
+  or (purpose='material' and lesson_id is not null and student_id is null and horse_id is null)
+  or (purpose='submission' and lesson_id is not null and student_id=owner_id and horse_id is null)
+  or (purpose='certificate' and lesson_id is null and student_id is not null and horse_id is null)
+  or (purpose='horse' and lesson_id is null and student_id=owner_id and horse_id is not null)
+);
 
 alter table public.hka_horse_records enable row level security;
 alter table public.hka_owner_availability enable row level security;

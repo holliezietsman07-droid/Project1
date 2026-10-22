@@ -1,5 +1,32 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 4B Version 16 continuation — 22 October 2026
+
+### Five-task audit
+1. Student Dashboard: locally complete. Course access, progress, coaching requests, horse records, achievements and profile controls are wired to existing Supabase data. Stage 4B-only queries stay inactive until schema activation.
+2. Owner Dashboard: locally complete. Live academy operations remain available, while coaching, availability and announcement queries now stay inactive before Stage 4B activation instead of producing missing-table console errors.
+3. Academy Workspace: locally complete. Existing course, module, lesson, assessment, review and private draft tools are preserved. Private material uploads now use the established storage path constraint.
+4. Stage 4B database layer: reviewed and repaired locally, but not applied. Horse-file constraints now explicitly allow private horse records while retaining owner, student and horse linkage checks.
+5. Founder activation: prepared but not applied. The reviewed existing account is bound by authenticated user ID to the existing admin role, which the interface presents as Founder, Owner and Head Coach.
+
+### Current verification
+- TypeScript and production compilation pass for Student Dashboard, Owner Dashboard and Academy Workspace. No active compilation error remains.
+- Four pre-activation runtime requests from owner-only Stage 4B panels are now gated until the profile exposes the approved Stage 4B schema.
+- Connected project remains sqaydpbqycvaictieafk. Read-only verification found Hollie Zietsman at user ID f7c3e52e-4f5e-47d0-8139-b28cb296d526, masked email h***@gmail.com, confirmed, active, signed in and currently role student.
+
+### Pending migration review
+- Adds membership and notification fields to profiles; adds horse detail fields; creates private horse records, owner availability, coaching requests and announcements; extends private-file metadata; adds indexes, RLS policies, grants, triggers and narrowly callable RPCs.
+- Existing accounts and learning records are not deleted or replaced. Existing profiles receive free membership and default notification values. Existing horses receive empty optional detail defaults. Stage 3 and Stage 4 records remain in place.
+- Students can update only approved personal/profile fields, own horse records and limited states on their own coaching requests. They cannot update role or suspension columns.
+- Public signup still accepts only student or guardian. Role elevation remains restricted to administrator-only hka_set_role; that function also blocks administrators from changing their own access.
+- Founder bootstrap is a one-time, UUID-bound database-owner action with identity, confirmation, suspension and current-role checks. It contains no email-based or browser-side administrator check and records an audit event.
+
+### Approval required and remaining work
+- Approval 1: apply supabase/migrations/202610220002_stage4b_operations.sql to activate Stage 4B data structures and permissions.
+- Approval 2: separately apply supabase/activation/202610220001_founder_role.sql to elevate the verified existing account from student to admin.
+- Neither approval has been assumed and no remote permission, role or schema write was made. After approval, remote RLS, storage, booking-conflict and role-specific browser flows still require live verification.
+
+
 ## Stage 4B implementation — 22 October 2026
 
 ### Completed locally
