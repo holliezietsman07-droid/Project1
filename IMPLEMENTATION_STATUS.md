@@ -1,5 +1,17 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 4B security repair — 22 October 2026
+
+- **Status:** local migration corrected and not deployed; no live schema, record, permission, role or migration-history change was made.
+- **Migration history:** independent catalog search found auth.schema_migrations, realtime.schema_migrations and storage.migrations only. No Supabase CLI or application migration ledger exists, so deployed state remains determined from live objects; every Stage 4B table, function and added column remains absent.
+- **Live grants:** authenticated currently has table-level SELECT, INSERT, UPDATE and DELETE on hka_horses, making every current horse column updateable at the privilege layer. hka_profiles has SELECT plus column-only UPDATE for full_name, timezone and avatar_path. hka_files has SELECT, INSERT and DELETE with no UPDATE privilege. anon has none of these grants.
+- **Permission repair:** 202610220002_stage4b_operations.sql now revokes hka_horses table-level UPDATE and all explicit horse-column UPDATE grants before granting only name, details, photo_path, birth_year, breed, sex, identification, height_hands, discipline and training_goals. student_id, id and created_at cannot be updated by authenticated clients. Profile revocation still excludes membership_tier, role, suspended, birth_date, id and created_at; file metadata remains non-updateable.
+- **RLS and ownership:** RLS is enabled on hka_horses, hka_profiles and hka_files. Existing horse writes remain limited to the active student who owns the row; profile updates remain self-only; file insert/delete policies retain owner and purpose checks. Existing UI horse updates use only the newly allow-listed columns, so functionality remains compatible. Existing administrator visibility and server-authorised functions are unchanged.
+- **Constraints and data:** live hka_horses has PRIMARY KEY (id), UNIQUE (id, student_id), and its student foreign key; hka_training_records already depends on the composite unique key. Current counts are 3 profiles and zero horses, files, appointments and AI drafts; duplicate horse pairs, invalid file shapes, invalid AI categories and scheduled appointment overlaps are all zero.
+- **Backup:** no local database dump or backup artifact is present, and no Free-plan automatic backup or PITR restore point is assumed. Supabase recommends Free projects create off-site logical exports with Supabase CLI db dump; database backups exclude stored file objects, which require separate export. No recoverable pre-deployment backup is currently verified.
+- **Validation:** transaction boundaries, function delimiters, permission ordering and live dependencies pass focused checks; application TypeScript passes. Corrected migration SHA-256 is AC159ACB0C6126FA408FB4FF518FABA4C5E8043A8400A26D36C27CC702B3D76E. Supabase CLI, psql and Docker are unavailable locally, so a full isolated PostgreSQL DDL execution remains unverified.
+- **Readiness:** security correction is prepared, but deployment remains blocked until a recoverable database export and separate Storage-object backup are created and recorded. Founder elevation and Stage 5 remain untouched.
+
 ## Stage 4B final migration safety review — 22 October 2026
 
 - **Status:** corrected migration is prepared but not deployed; owner-role elevation remains untouched. Connected project: sqaydpbqycvaictieafk.

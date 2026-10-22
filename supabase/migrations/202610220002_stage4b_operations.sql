@@ -114,6 +114,8 @@ grant select,insert,update,delete on public.hka_horse_records,public.hka_owner_a
 revoke update on public.hka_profiles from anon,authenticated;
 revoke update(id,full_name,birth_date,timezone,role,suspended,avatar_path,created_at,membership_tier,notification_preferences) on public.hka_profiles from anon,authenticated;
 grant update(full_name,timezone,avatar_path,notification_preferences) on public.hka_profiles to authenticated;
+revoke update on public.hka_horses from anon,authenticated;
+revoke update(id,student_id,name,details,created_at,photo_path,birth_year,breed,sex,identification,height_hands,discipline,training_goals) on public.hka_horses from anon,authenticated;
 grant update(name,details,photo_path,birth_year,breed,sex,identification,height_hands,discipline,training_goals) on public.hka_horses to authenticated;
 
 drop policy if exists horse_records_read on public.hka_horse_records;
