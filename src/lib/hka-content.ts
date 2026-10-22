@@ -24,10 +24,10 @@ const originalPhotos = {
 } as const;
 
 export const brandLogo = {
-  src: "/images/HKA_LOGO_MAIN.png",
+  src: "/images/hka-equestrian-academy-logo-2026.png",
   alt: "HKA Equestrian — Online Academy",
-  width: 1536,
-  height: 1024,
+  width: 1774,
+  height: 887,
 } as const;
 
 export const photoSlots = {
