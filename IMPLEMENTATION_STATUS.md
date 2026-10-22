@@ -1,5 +1,31 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 4 repair and verification — 22 October 2026
+
+### Application repair
+- Inspected src/pages/CoursePlayer.tsx around the reported line before broader checks. Current source contains complete JSX identifiers and balanced assessment markup; both TypeScript and Vite parse it successfully.
+- The reported Vite error could not be reproduced from the saved source. Production build passed, then the stale preview was restarted once. Fresh preview logs contain no compile or runtime errors.
+- Learning Pathways rendered in headless Chrome at desktop width. The protected CoursePlayer route rendered the branded sign-in redirect for an unauthenticated visitor, proving route loading and access control; authenticated lesson interaction remains untested without an enrolled student session and Stage 4 schema.
+- ESLint reports zero errors and eight existing warnings: six shadcn Fast Refresh warnings plus two existing SessionContext hook/Fast Refresh warnings. Vite reports only the existing large-bundle advisory.
+- No Stage 1–3 page, photograph, branding, account, authentication record or course record was removed.
+
+### Remote database audit
+- Connected project sqaydpbqycvaictieafk still has the Stage 3 schema only. Existing hka_courses, hka_lessons, hka_progress, hka_submissions, assessments, enrolments, files, profiles, guardians and coach assignments retain RLS and their prior least-privilege policies.
+- Stage 4 tables hka_modules, hka_questions, hka_attempts and hka_ai_drafts are absent; Stage 4 columns and RPCs are also absent. This confirms the failed transaction committed no partial Stage 4 objects or changes.
+- Exact failure: the first migration transport reduced PostgreSQL function delimiters from paired dollar delimiters to a single $, producing SQLSTATE 42601 at hka_duplicate_course. This was a SQL transport/syntax failure, not an RLS, account-data or authentication failure.
+- The connected database does not expose supabase_migrations.schema_migrations; direct migration-history lookup returned relation-not-found. Object and policy metadata therefore provide the authoritative observed status.
+- No database write was made during this repair turn.
+
+### Prepared migration repair
+- supabase/migrations/202610220001_stage4_lms.sql now uses named $stage$ function delimiters and explicitly drops every Stage 4 policy before recreating it, making policy replay idempotent.
+- Proposed migration remains transactional: add non-destructive Stage 4 columns, create new LMS/assessment/allowance/draft tables with RLS, add scoped grants and policies, then install duplicate-course and server-side assessment RPCs.
+- Migration was deliberately not applied. Owner approval is required before executing the corrected transaction against the connected project.
+
+### Stage 4 functional status
+- Implemented in code: pathway catalogue, protected course player, account-backed progress, private assignments, quiz attempts, automatic objective scoring contract, coach review workspace, Premium allowance schema and private AI Studio draft workspace.
+- Untested against live data: course authoring/publishing, enrolled lesson access, uploads, quiz submission/scoring, coach feedback, guardian views, review allowances and AI draft persistence because the Stage 4 schema is not deployed.
+
+
 ## Stage 4 implementation — 22 October 2026
 
 ### A. Course and lesson management

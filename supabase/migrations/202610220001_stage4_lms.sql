@@ -133,6 +133,21 @@ create policy pathways_public_read on public.hka_pathways for select to anon usi
 drop policy if exists courses_public_catalogue on public.hka_courses;
 create policy courses_public_catalogue on public.hka_courses for select to anon using(published and archived_at is null);
 
+drop policy if exists modules_read on public.hka_modules;
+drop policy if exists modules_write on public.hka_modules;
+drop policy if exists questions_read on public.hka_questions;
+drop policy if exists questions_write on public.hka_questions;
+drop policy if exists answer_keys_staff on public.hka_answer_keys;
+drop policy if exists attempts_read on public.hka_attempts;
+drop policy if exists attempts_insert on public.hka_attempts;
+drop policy if exists attempts_student_update on public.hka_attempts;
+drop policy if exists responses_read on public.hka_responses;
+drop policy if exists responses_insert on public.hka_responses;
+drop policy if exists responses_update on public.hka_responses;
+drop policy if exists allowance_read on public.hka_review_allowances;
+drop policy if exists ai_drafts_read on public.hka_ai_drafts;
+drop policy if exists ai_drafts_write on public.hka_ai_drafts;
+
 create policy modules_read on public.hka_modules for select to authenticated using(public.hka_manage_course(course_id) or exists(
   select 1 from public.hka_lessons l where l.module_id=hka_modules.id and public.hka_read_lesson(l.id)));
 create policy modules_write on public.hka_modules for all to authenticated using(public.hka_manage_course(course_id)) with check(public.hka_manage_course(course_id));
