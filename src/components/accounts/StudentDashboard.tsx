@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { Award, BookOpen, CalendarDays, CheckCircle2, PawPrint, UserRound } from 'lucide-react';
+import { Award, BookOpen, CalendarDays, CheckCircle2, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +14,7 @@ import { db, errorText, rpc, saveRow, type Row } from '@/lib/academy';
 
 function Message({ value }: { value: string }) { return value ? <p className='mt-4 text-sm' role='status'>{value}</p> : null; }
 function Empty({ children }: { children: string }) { return <p className='rounded-sm border border-dashed border-primary/20 p-5 text-sm text-muted-foreground'>{children}</p>; }
-function ActivationPending({ feature }: { feature: string }) { return <section className='paper-card p-6'><h2 className='font-serif text-3xl'>{feature}</h2><p className='mt-3 text-sm leading-6 text-muted-foreground'>Prepared and awaiting owner-approved Stage 4B database activation. Existing records remain available and no placeholder data is shown.</p></section>; }
+function ActivationPending({ feature }: { feature: string }) { return <section className='paper-card p-6'><h2 className='font-serif text-3xl'>{feature}</h2><p className='mt-3 text-sm leading-6 text-muted-foreground'>Prepared and awaiting owner-approved Stage 4B database activation. Existing records remain available and no placeholder data is shown.</p></section>; } function HorseshoeIcon({ className }: { className?: string }) { return <svg aria-hidden='true' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.7' strokeLinecap='round' strokeLinejoin='round' className={className}><path d='M6.4 3.8v7.5a5.6 5.6 0 0 0 11.2 0V3.8l-3.1 1.3v6.2a2.5 2.5 0 0 1-5 0V5.1L6.4 3.8Z'/><path d='m5.2 6.2 3.1 1.2m7.4 0 3.1-1.2'/><circle cx='7.9' cy='9.9' r='.55' fill='currentColor' stroke='none'/><circle cx='16.1' cy='9.9' r='.55' fill='currentColor' stroke='none'/></svg>; }
 
 function CourseSection() {
   const { profile } = useSession(); const refresh = useRefreshAcademy(); const stage4BReady=profile?.membership_tier!==undefined;
@@ -59,7 +59,7 @@ function ProfileSection() {
 
 export function StudentDashboard() {
   const {profile}=useSession();
-  return <section className='page-width py-12 lg:py-16'><div className='border-b border-primary/15 pb-8'><p className='eyebrow mb-4 text-[#76633e]'>Student dashboard</p><h1 className='section-heading'>Welcome, {profile?.full_name}.</h1><p className='mt-4 text-sm text-muted-foreground'>Learning, coaching, horses and feedback — securely saved to your account.</p></div><Tabs defaultValue='courses' className='mt-8'><TabsList className='mb-7 h-auto flex-wrap'><TabsTrigger value='courses'><BookOpen className='mr-2 size-4'/>Courses</TabsTrigger><TabsTrigger value='coaching'><CalendarDays className='mr-2 size-4'/>Coaching</TabsTrigger><TabsTrigger value='horses'><PawPrint className='mr-2 size-4'/>Horses</TabsTrigger><TabsTrigger value='records'><Award className='mr-2 size-4'/>Achievements</TabsTrigger><TabsTrigger value='profile'><UserRound className='mr-2 size-4'/>Profile</TabsTrigger></TabsList><TabsContent value='courses'><CourseSection/></TabsContent><TabsContent value='coaching'><CoachingSection/></TabsContent><TabsContent value='horses'><HorsesSection/></TabsContent><TabsContent value='records'><RecordsSection/></TabsContent><TabsContent value='profile'><ProfileSection/></TabsContent></Tabs></section>;
+  return <section className='page-width py-12 lg:py-16'><div className='border-b border-primary/15 pb-8'><p className='eyebrow mb-4 text-[#76633e]'>Student dashboard</p><h1 className='section-heading'>Welcome, {profile?.full_name}.</h1><p className='mt-4 text-sm text-muted-foreground'>Learning, coaching, horses and feedback — securely saved to your account.</p></div><Tabs defaultValue='courses' className='mt-8'><TabsList className='mb-7 h-auto flex-wrap'><TabsTrigger value='courses'><BookOpen className='mr-2 size-4'/>Courses</TabsTrigger><TabsTrigger value='coaching'><CalendarDays className='mr-2 size-4'/>Coaching</TabsTrigger><TabsTrigger value='horses'><HorseshoeIcon className='mr-2 size-4'/>Horses</TabsTrigger><TabsTrigger value='records'><Award className='mr-2 size-4'/>Achievements</TabsTrigger><TabsTrigger value='profile'><UserRound className='mr-2 size-4'/>Profile</TabsTrigger></TabsList><TabsContent value='courses'><CourseSection/></TabsContent><TabsContent value='coaching'><CoachingSection/></TabsContent><TabsContent value='horses'><HorsesSection/></TabsContent><TabsContent value='records'><RecordsSection/></TabsContent><TabsContent value='profile'><ProfileSection/></TabsContent></Tabs></section>;
 }
 /* <reference types="vite/client" />
 
