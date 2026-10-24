@@ -1,5 +1,14 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 4B Step 1 production deployment — 24 October 2026
+
+- **Deployment — SUCCEEDED:** the unchanged supabase/migrations/202610220002_stage4b_operations.sql transaction was applied to connected Supabase project sqaydpbqycvaictieafk. The deployed artifact matched approved SHA-256 AC159ACB0C6126FA408FB4FF518FABA4C5E8043A8400A26D36C27CC702B3D76E.
+- **Pre-deployment gates — PASS:** connected project ID matched approval. All four verified off-repository backups remained readable at their recorded sizes and SHA-256 hashes: schema.sql, roles.sql, data.sql, and auth-data.sql.
+- **Database verification — PASS:** four Stage 4B tables exist with RLS enabled; all 12 migration-scope policies, four indexes, two triggers, seven secured functions, and validated appointment-overlap constraint are present. New tables expose zero anonymous privileges. All seven security-definer functions have fixed empty search paths and zero anonymous execution; trigger functions are not directly executable by authenticated users, while five intended RPC/file helpers are.
+- **Permission verification — PASS:** authenticated users may update allow-listed profile and horse fields but cannot update profile role, membership tier, or horse ownership. There are zero unvalidated public foreign keys and zero profile/Auth orphans.
+- **Data preservation — PASS:** pre/post counts match: three Auth users, three profiles, and unchanged zero-row counts for Storage objects and existing courses, enrolments, progress, horses, training records, files, appointments, submissions, attempts, and transactions. All three profiles remain students; administrator count remains zero. Founder/Owner elevation was not executed.
+- **Scope:** no website source, design, logo, horseshoe icon, existing feature, or founder activation file was changed.
+
 ## Final backup restoration verification — 24 October 2026
 
 - **Evidence source:** successful command results are preserved in local Codex session log C:\Users\Hollie\.codex\sessions\2026\10\24\rollout-2026-10-24T10-39-31-01a16d10-ab9f-7130-b620-2823a8df83be.jsonl, principally ordinals 398, 405, 428, 458, 465, 472, 486, 493, 623, 658, 667, 674, 681 and 688 (08:52–09:01 UTC). Earlier failed compatibility attempts in the same log are superseded by the successful version-matched run described below.
