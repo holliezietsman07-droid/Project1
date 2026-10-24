@@ -1,5 +1,16 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 4B Step 2 founder activation approval packet — 24 October 2026
+
+- **Status — PREPARED, NOT EXECUTED:** no role, permission, account, profile, learning, or other database record was changed during this review.
+- **Connected project and identity — VERIFIED:** project sqaydpbqycvaictieafk contains existing Auth UUID f7c3e52e-4f5e-47d0-8139-b28cb296d526 joined one-to-one to active, email-confirmed, unsuspended adult profile Hollie Zietsman (masked email h***************@gmail.com). Current role is student; three Auth users and three profiles remain, with zero administrators.
+- **Exact proposed role change:** public.hka_profiles.role for UUID f7c3e52e-4f5e-47d0-8139-b28cb296d526 changes from student to admin, followed by one hka_audit entry: Owner-approved founder bootstrap: administrator role assigned. No account is created, no UUID changes, and no other profile is targeted.
+- **Approved artifact boundary:** [supabase/activation/202610220001_founder_role.sql](supabase/activation/202610220001_founder_role.sql), SHA-256 EA017676B64E9B1C00822F84C2C6129DD7823BF1627AECA282B1E1DF60B8443B. Its transaction locks and revalidates the exact profile, name, confirmed Auth identity, active status, and expected student/admin starting role before changing only role and writing the audit record. Any mismatch aborts and rolls back.
+- **Record preservation:** Auth user, profile ID, name, birth date, timezone, suspension state, membership, avatar, notification preferences, creation timestamp, identity, learning history, horses, files, and every other existing record remain untouched. Transaction contains no account creation, deletion, replacement, or update to another UUID.
+- **Privilege boundary — VERIFIED:** authenticated and anonymous roles have no UPDATE privilege on hka_profiles.role; anonymous cannot call hka_set_role. Authenticated users can reach hka_set_role, but its security-definer body requires the caller already be admin, rejects self-change, restricts roles, and audits successful changes. Signup accepts only student or guardian and coerces any other requested role to student, so ordinary students cannot self-elevate.
+- **Access effect:** existing admin role supplies administrator and coaching permissions through hka_admin, hka_teach, and related RLS helpers. Application maps admin to Founder · Owner · Head Coach, routes /dashboard to /dashboard/admin, passes the admin-only access gate, and renders OwnerDashboard after profile refresh or next authenticated session.
+- **Approval gate:** reply exactly **Approve Stage 4B Step 2 founder activation** to authorize this exact artifact against project sqaydpbqycvaictieafk. Until then, activation remains unexecuted.
+
 ## Stage 4B Step 1 production deployment — 24 October 2026
 
 - **Deployment — SUCCEEDED:** the unchanged supabase/migrations/202610220002_stage4b_operations.sql transaction was applied to connected Supabase project sqaydpbqycvaictieafk. The deployed artifact matched approved SHA-256 AC159ACB0C6126FA408FB4FF518FABA4C5E8043A8400A26D36C27CC702B3D76E.
