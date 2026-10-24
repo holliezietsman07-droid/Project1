@@ -1,5 +1,13 @@
 # HKA Equestrian — Web: implementation status
 
+## Stage 4B Step 2 founder activation execution — 24 October 2026
+
+- **Result — ABORTED, NOT ACTIVATED:** connected project sqaydpbqycvaictieafk and target Auth UUID f7c3e52e-4f5e-47d0-8139-b28cb296d526 matched the approval. Preflight verified Hollie Zietsman was confirmed, active, unsuspended and role student; project totals were three Auth users, three profiles, zero administrators and zero prior founder-activation audit entries.
+- **Approved artifact — EXACT MATCH:** supabase/activation/202610220001_founder_role.sql retained approved SHA-256 EA017676B64E9B1C00822F84C2C6129DD7823BF1627AECA282B1E1DF60B8443B and targeted only the approved student-to-admin change plus its audit entry.
+- **Execution failure:** the exact approved transaction raised Unexpected existing role: postgres because the PL/pgSQL variable name current_role collided with PostgreSQL CURRENT_ROLE. The exception occurred before UPDATE and INSERT; PostgreSQL aborted and rolled back the transaction.
+- **Preservation and access:** no account, permission, profile, learning-history or other record changed. Hollie remains student, no administrator exists, Owner Dashboard remains inaccessible, and ordinary students remain excluded from administrator features by the unchanged role functions, RLS and application gate.
+- **Required next action:** correct the prepared activation artifact and obtain fresh explicit approval before any retry; this turn stopped without attempting a different SQL operation.
+
 ## Stage 4B Step 2 founder activation approval packet — 24 October 2026
 
 - **Status — PREPARED, NOT EXECUTED:** no role, permission, account, profile, learning, or other database record was changed during this review.
