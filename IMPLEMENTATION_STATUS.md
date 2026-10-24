@@ -1,15 +1,12 @@
 # HKA Equestrian — Web: implementation status
 
-## Corrected Stage 4B Step 2 founder activation approval packet — 24 October 2026
+## Corrected Stage 4B Step 2 founder activation execution — 24 October 2026
 
-- **Status — CORRECTED, TESTED, NOT EXECUTED:** live activation remains uncommitted and Hollie Zietsman remains a student. Stage 4B Step 1 was not repeated.
-- **Prior error:** the first approved artifact used current_role as a PL/pgSQL variable, which PostgreSQL resolved as the session role postgres. Its exception aborted and rolled back before the role update or audit insert.
-- **Correction:** supabase/activation/202610220001_founder_role.sql now uses account_role populated from explicitly qualified p.role. It retains the exact UUID f7c3e52e-4f5e-47d0-8139-b28cb296d526, Hollie Zietsman identity check, confirmed-email check, active/unsuspended check and row lock.
-- **Strict guards:** the transaction requires exactly one profile/Auth join match, requires the starting role to equal student, restricts the UPDATE by both UUID and student role, requires exactly one updated profile row and requires exactly one inserted activation-audit row. Any failed condition raises an exception and rolls back the whole transaction.
-- **Rollback-only test — PASS:** the corrected transaction body ran against connected project sqaydpbqycvaictieafk with COMMIT replaced by ROLLBACK. All identity, role and exact-row-count guards passed. Post-rollback verification returned one target match, target role student, three Auth users, three profiles, zero administrators and zero founder-activation audit rows.
-- **Impact:** approved execution can change only public.hka_profiles.role from student to admin for the existing UUID and insert its single named hka_audit record. It contains no update to profile details, learning history, other accounts, permissions, RLS, schema or website files.
-- **Corrected artifact for review:** [supabase/activation/202610220001_founder_role.sql](supabase/activation/202610220001_founder_role.sql), SHA-256 5AE2BC2688E49198C4E6C2136C7FCFB031925CA649708518973EAB0A82445817. This file is the exact SQL proposed for live execution.
-- **Fresh approval required:** reply exactly **Approve corrected Stage 4B Step 2 founder activation** to authorize this corrected artifact; no live role change may run before that separate approval.
+- **Result — SUCCEEDED:** the approved transaction committed once against connected project sqaydpbqycvaictieafk; Stage 4B Step 1 was not repeated.
+- **Approval and artifact — EXACT MATCH:** fresh approval covered target UUID f7c3e52e-4f5e-47d0-8139-b28cb296d526 and [supabase/activation/202610220001_founder_role.sql](supabase/activation/202610220001_founder_role.sql), whose verified SHA-256 was 5AE2BC2688E49198C4E6C2136C7FCFB031925CA649708518973EAB0A82445817.
+- **Preflight — PASS:** Hollie Zietsman matched the approved UUID, was email-confirmed, active, unsuspended and role student; the project contained three Auth users, three profiles, zero administrators and zero matching founder-activation audit records.
+- **Post-execution — PASS:** the target role is admin, exactly one administrator exists, and exactly one audit record contains Owner-approved founder bootstrap: administrator role assigned.
+- **Preservation — PASS:** Auth-user and profile totals remain three, and the two other profiles retained the identical pre/post role-and-suspension fingerprint 25f36283c73e67377945b563ca02fa49.
 
 ## Stage 4B Step 2 founder activation execution — 24 October 2026
 
