@@ -29,15 +29,12 @@ create policy hka_avatar_storage_insert on storage.objects for insert to authent
 drop policy if exists hka_avatar_storage_delete on storage.objects;
 create policy hka_avatar_storage_delete on storage.objects for delete to authenticated using (
   bucket_id='hka-avatars'
-  and (
-    public.hka_admin()
-    or exists (
-      select 1 from public.hka_files f
-      where f.path=name
-        and f.owner_id=auth.uid()
-        and f.student_id=auth.uid()
-        and f.purpose='avatar'
-    )
+  and exists (
+    select 1 from public.hka_files f
+    where f.path=name
+      and f.owner_id=auth.uid()
+      and f.student_id=auth.uid()
+      and f.purpose='avatar'
   )
 );
 
