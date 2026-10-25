@@ -1,5 +1,16 @@
 # HKA Equestrian — Web: implementation status
 
+## Final photo migration production deployment — 25 October 2026
+
+- Deployment — PASS: only supabase/migrations/202610250002_founder_horse_photos.sql was executed against connected project sqaydpbqycvaictieafk; the rejected migration was not executed and no website publication occurred.
+- Approved artifact — EXACT MATCH: SHA-256 F55395558C9DB1C5F07C45316941E0A546796CF7BCA0F61A2DA964E4CD7AF74E matched immediately before execution.
+- Recovery readiness — PASS: four off-repository backups remained readable and matched recorded SHA-256 hashes: schema.sql BC0BB6BC9AADD70CCAA193910998599417BF790C4028F8D649657DF3B3A98A09, roles.sql 168A95A9C745AF5ED4679751F90419AC9DC434240A213B03E32A06D5664C2308, data.sql 9D6BB5857DB65A6FA2EC6D6060BFDC3E15125C54653A58D8799F0B99213F3765, and auth-data.sql D4478FBD160F25FDD928A89AD788B0BA6C1A2B486D946496F08CD46EC5DB7468.
+- Student profile photographs — PASS: authenticated users retain hka_files insert and avatar_path update privileges; RLS still requires self-owned avatar metadata, while server constraints enforce image MIME and 5 MiB maximum.
+- Founder horse photographs — PASS: horse_photo is separate from horse documents; authenticated direct photo_path updates and anonymous RPC execution are blocked; prepare and attach RPCs require hka_admin(), validated ownership, JPEG MIME, storage metadata match, and 5 MiB maximum.
+- Horse documents — PASS: existing purpose=horse constraint, student-owned insert policy, and hka_file_write branch remain present and unchanged.
+- Data preservation — PASS: pre/post fingerprints match for four profiles; horses, horse records, files, and private stored objects remain at zero rows, so no existing account, horse record, document, or photograph changed.
+- Scope — authentication, payments, AI Studio, courses, rejected migrations, unrelated features, and website publication were untouched.
+
 ## Corrected Stage 4B Step 2 founder activation execution — 24 October 2026
 
 - **Result — SUCCEEDED:** the approved transaction committed once against connected project sqaydpbqycvaictieafk; Stage 4B Step 1 was not repeated.
