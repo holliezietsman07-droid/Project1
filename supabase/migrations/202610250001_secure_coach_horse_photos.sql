@@ -12,7 +12,7 @@ declare owner uuid;
 begin
  select student_id into owner from public.hka_horses where id=target_horse;
  if owner is null or not public.hka_active() or not (owner=auth.uid() or public.hka_admin() or public.hka_teach(owner)) then raise exception 'Horse photo access denied.'; end if;
- if mime_type<>'image/jpeg' or size_bytes>5242880 or file_path not like auth.uid()::text||'/%' then raise exception 'Invalid horse photo.'; end if;
+ if mime_type<>'image/jpeg' or size_bytes<=0 or size_bytes>5242880 or file_path<>auth.uid()::text||'/'||new_file::text||'.jpg' then raise exception 'Invalid horse photo.'; end if;
  insert into public.hka_files(id,owner_id,path,original_name,purpose,mime_type,size_bytes,student_id,horse_id) values(new_file,auth.uid(),file_path,original_name,'horse',mime_type,size_bytes,owner,target_horse);
 end $hka_prepare$;
 create or replace function public.hka_attach_horse_photo(target_horse uuid,file_path text) returns void language plpgsql security definer set search_path='' as $hka_attach$
@@ -20,14 +20,14 @@ declare owner uuid;
 begin
  select student_id into owner from public.hka_horses where id=target_horse;
  if owner is null or not public.hka_active() or not (owner=auth.uid() or public.hka_admin() or public.hka_teach(owner)) then raise exception 'Horse photo access denied.'; end if;
- if not exists(select 1 from public.hka_files where path=file_path and owner_id=auth.uid() and horse_id=target_horse and purpose='horse') then raise exception 'Horse photo was not prepared.'; end if;
+ if not exists(select 1 from public.hka_files f where f.path=file_path and f.owner_id=auth.uid() and f.horse_id=target_horse and f.purpose='horse' and exists(select 1 from storage.objects o where o.bucket_id='hka-private' and o.name=f.path)) then raise exception 'Horse photo was not uploaded.'; end if;
  update public.hka_horses set photo_path=file_path where id=target_horse;
 end $hka_attach$;
 create or replace function public.hka_file_write(file_path text) returns boolean language sql stable security definer set search_path='' as $hka_write$
  select public.hka_active() and exists(select 1 from public.hka_files f where f.path=file_path and f.owner_id=auth.uid() and ((f.purpose='avatar' and f.student_id=auth.uid()) or (f.purpose='material' and public.hka_manage_lesson(f.lesson_id)) or (f.purpose='submission' and f.student_id=auth.uid() and public.hka_learn(f.lesson_id)) or (f.purpose='certificate' and public.hka_teach(f.student_id)) or (f.purpose='horse' and exists(select 1 from public.hka_horses h where h.id=f.horse_id and h.student_id=f.student_id and (h.student_id=auth.uid() or public.hka_admin() or public.hka_teach(h.student_id))))))
 $hka_write$;
-revoke all on function public.hka_prepare_horse_photo(uuid,uuid,text,text,text,bigint),public.hka_attach_horse_photo(uuid,text) from public,anon;
-grant execute on function public.hka_prepare_horse_photo(uuid,uuid,text,text,text,bigint),public.hka_attach_horse_photo(uuid,text) to authenticated;
+revoke all on function public.hka_prepare_horse_photo(uuid,uuid,text,text,text,bigint),public.hka_attach_horse_photo(uuid,text),public.hka_file_write(text) from public,anon;
+grant execute on function public.hka_prepare_horse_photo(uuid,uuid,text,text,text,bigint),public.hka_attach_horse_photo(uuid,text),public.hka_file_write(text) to authenticated;
 /* Copied template body intentionally disabled below.
 create table if not exists public.hka_ai_usage (
   id uuid primary key default gen_random_uuid(),
