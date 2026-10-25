@@ -27,7 +27,7 @@ const titles: Record<string, string> = {
   "/dashboard/student": "Student dashboard",
   "/dashboard/parent": "Parent dashboard",
   "/dashboard/coach": "Coach dashboard",
-  "/dashboard/admin": "Administrator dashboard",
+  "/dashboard/admin": "Administrator dashboard",  "/dashboard/student-preview": "Student preview",  "/dashboard/academy": "Academy workspace",
 };
 
 export default function SiteLayout() {
@@ -36,7 +36,7 @@ export default function SiteLayout() {
   const lastPath = useRef(location.pathname);
 
   useEffect(() => {
-    document.title = (titles[location.pathname] ?? "Page not found") + " | HKA Equestrian";
+    document.title = (titles[location.pathname] ?? (/^\/learning-pathways\/[^/]+$/.test(location.pathname) ? "Learning pathway" : /^\/academy\/courses\/[^/]+$/.test(location.pathname) ? "Course" : "Page not found")) + " | HKA Equestrian";
     setMenuOpen(false);
     const frame = requestAnimationFrame(() => {
       if (location.hash) {
