@@ -136,7 +136,19 @@ serve(async (request) => {
       return new Response(JSON.stringify({ error: "Founder access is required for AI generation." }), { status: 403, headers: jsonHeaders });
     }
 
-    const input = parseInput(await request.json());
+    const body = await request.json();
+    const live = Deno.env.get("HKA_AI_LIVE")?.trim().toLowerCase() === "true";
+    if (body && typeof body === "object" && !Array.isArray(body) && (body as Record<string, unknown>).action === "status") {
+      return new Response(JSON.stringify({
+        mode: live ? "live" : "mock",
+        model: MODEL,
+        configured: live && Boolean(Deno.env.get("OPENAI_API_KEY")),
+        dailyLimit: DAILY_LIMIT,
+        hourlyLimit: HOURLY_LIMIT,
+      }), { headers: jsonHeaders });
+    }
+
+    const input = parseInput(body);
     const dayStart = new Date(Date.now() - 86_400_000).toISOString();
     const hourStart = new Date(Date.now() - 3_600_000).toISOString();
     const [{ count: daily }, { count: hourly }] = await Promise.all([
@@ -147,7 +159,6 @@ serve(async (request) => {
       return new Response(JSON.stringify({ error: "AI Studio request limit reached. Try again after the limit window resets." }), { status: 429, headers: jsonHeaders });
     }
 
-    const live = Deno.env.get("HKA_AI_LIVE") === "true";
     const mode = live ? "live" : "mock";
     const prompt = promptFor(input);
     const { data: usage, error: usageError } = await admin.from("hka_ai_usage").insert({ founder_id: authData.user.id, mode, model: MODEL, material_type: input.materialType, status: "started", input_chars: prompt.length }).select("id").single();
