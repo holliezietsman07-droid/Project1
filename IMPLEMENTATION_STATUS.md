@@ -7,9 +7,10 @@
 - Corrected policies installed — YES. horse_documents_insert is authenticated-only and requires caller ownership, active status, same-owner horse binding, same-student/same-horse current file binding, horse purpose, allowed MIME, 1–10 MiB size, and valid replaced-file binding. horse_documents_update retains owner-active or Founder/Admin row access and applies the same horse/current-file/replaced-file checks.
 - Ownership protection — PASS by exact live policy analysis: a student can insert or update only own correctly bound horse documents; another owner cannot satisfy student_id = auth.uid(); Founder/Admin read, update and delete remain present, while Founder/Admin insertion remains intentionally unavailable.
 - File-storage preservation — PASS by live metadata: hka_files RLS and files_read/files_insert/files_delete policies remain installed; correction changed no storage policy, function, bucket, grant or file row.
-- Existing records preserved — UNVERIFIED. Approved SQL contains policy DDL only, and no synthetic transaction was run, but connector blocked fresh post-deployment counts/fingerprints. Baseline remains profiles 4, horses 0, horse records 0, horse documents 0, files 2, Storage objects 2.
-- Scope — PASS: Horse Organiser migration was not repeated; reminder scheduling, automated emails, memberships, billing and website publication were untouched.
-- Next action required — run the single read-only SQL query below in Supabase SQL Editor and compare returned counts/fingerprints with the recorded baseline; do not execute either migration.
+- Production data preservation — PASS. Manual production verification returned profiles 4, horses 0, horse records 0, horse documents 0, files 2 and Storage objects 2. Every documented record fingerprint matched its pre-deployment baseline, the Storage object count matched, and horse-owner, current-file and replaced-file violations were all 0.
+- Corrected document policies installed — CONFIRMED previously. Live document upload and owner-versus-cross-owner access tests remain outstanding because no horse documents or horses exist yet.
+- Scope — PASS: Horse Organiser migration was not repeated; the database was not modified; reminder scheduling, automated emails, memberships, billing and website publication were untouched.
+- Next practical Horse Management test — create one controlled horse for an authorised owner, upload its first valid document through the application, then confirm the owner can access it and a different owner cannot.
 
 ### Manual read-only verification query
 
