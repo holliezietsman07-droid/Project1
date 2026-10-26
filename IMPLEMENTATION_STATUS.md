@@ -493,6 +493,18 @@ The active source had reverted to the blank starter. Recovered the completed Sta
 - Stage 5: private-workflow/privacy testing, deployment, backup and operating-cost handover.
 - Native clients, store publishing, paid accounts and public deployment are not authorised in this run.
 
+## Horse-document saving correction prepared — 26 October 2026
+
+- Connected project — PASS: live project is `sqaydpbqycvaictieafk`.
+- Exact failure stage — CONFIRMED: `hka_files` metadata accepts the required `purpose='horse'`, owner, horse and owner/horse/file path, but the only document Storage INSERT route is `hka_storage_insert`. That policy compares `storage.objects.metadata` MIME and size during INSERT; unlike horse photographs, documents have no metadata-free owner policy for the initial Storage write. Saving therefore stops at the `hka-private` Storage upload before `hka_horse_documents` can be created.
+- Live security audit — PASS: RLS is enabled on `hka_files`, `hka_horse_documents` and `hka_horses`; document read/insert/update/delete policies bind student, horse and file ownership; private Storage read/delete rules remain owner/admin controlled. The private bucket supports PDF, JPEG and PNG and has a 50 MB boundary; document rules retain the stricter 10 MB limit.
+- Preservation audit — PASS: all four existing horse-file metadata rows remain bound to documents, every saved document has a Storage object, and no existing horse metadata/object orphan was found. No data, previous migration, reminder email or website publication was changed.
+- Correction — PREPARED, NOT DEPLOYED: `202610260007_horse_document_storage.sql` adds one purpose-specific, owner-bound document Storage INSERT policy and verifies actual stored MIME/size before transactional document creation or replacement. `HorseOrganizer.tsx` now uses the verified RPC and removes uploaded object/metadata after later-stage failures.
+- Migration SHA-256: `A43C289B323B085955FF1C8983DD4E79E6A9FD4746D3C6FB356CC919B4DD5D27`.
+- Client build — PASS: production Vite build completed.
+- Live fictional workflow — BLOCKED: first rollback-only probe reached the prepared DDL but its test assertion had an ambiguous local identifier and rolled back. Remote inspection confirmed the new policy/function were not persisted. Elmony then marked SQL execution uncertain and refused the corrected rollback-only probe, so PDF/JPEG/PNG save, refreshed-session persistence, cleanup and cross-owner denial remain unproven against the prepared migration.
+- Deployment requires separate approval for only `202610260007_horse_document_storage.sql` at the hash above.
+
 ## Next concrete stage
 Connect the single shared Supabase backend in Stage 2; implement and verify authentication, private profiles, protected founder access and guardian privacy before exposing member tools. Reuse src/integrations/supabase/client.ts. Never grant privileges from a browser-provided email.
 
