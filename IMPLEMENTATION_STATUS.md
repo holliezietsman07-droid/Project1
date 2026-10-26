@@ -1,5 +1,17 @@
 # HKA Equestrian — Web: implementation status
 
+## Horse document security correction deployment — 26 October 2026
+
+- Overall deployment result — FAIL pending post-deployment acceptance evidence. The approved SQL was accepted by connected project sqaydpbqycvaictieafk, but the connector blocked required follow-up inspection after a rollback-only synthetic test setup failed its fixture constraint.
+- Approved artifact — PASS: only supabase/migrations/202610260004_horse_document_policy_binding.sql was submitted; SHA-256 matched 8C39DC1ECFE8EB001B6E67A3F24DD4D203F94ED6C7FE86001525AD7CF4A2B304. Horse Organiser migration was not repeated.
+- Preflight — PASS: project ID, required tables, RLS, helper functions and policy dependencies were present. Recovery set C:\Users\Hollie\HKA-Private-Backup\pre-horse-organiser-20261026-064025 remained readable and matched all four recorded SHA-256 hashes.
+- Preservation baseline — CAPTURED: profiles 4 (12311b2f21139f4c77215a009135bc33), horses 0, horse records 0, horse documents 0, files 2 (dd5967b6641ba596f89a91db52013e06), Storage objects 2 (01981b107de0169f854dda580dea1256). Empty-table fingerprint: d41d8cd98f00b204e9800998ecf8427e.
+- Installed policy verification — OUTSTANDING: post-deployment metadata could not be re-read after connector exploration limits were reached, so INSERT and UPDATE definitions are not yet accepted as verified despite successful SQL submission.
+- Access verification — OUTSTANDING: rollback-only synthetic records were never committed; first fixture failed existing file-path constraint and connector prevented corrected rerun. No live student data was used or modified.
+- Preservation verification — OUTSTANDING: fresh post-deployment fingerprints are required before acceptance. Migration SQL changes policies only and contains no record, Storage, function, trigger, grant or billing changes.
+- Scope — PASS: Founder helpers and file-storage functions were untouched; reminder scheduling, automated emails, memberships, billing and website publication were not changed.
+- Required follow-up: re-read both horse-document policies, repeat corrected rollback-only owner/cross-owner/Admin probes, and compare fresh fingerprints to captured baseline. Do not replay correction or Horse Organiser migration without first resolving connector uncertain-action guard.
+
 ## Horse organiser blocker resolution — 26 October 2026
 
 - Resolution — PASS for diagnosis, preservation and isolated correction testing; production acceptance remains blocked until the separately prepared correction is explicitly approved and deployed.
