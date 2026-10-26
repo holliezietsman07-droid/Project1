@@ -17,6 +17,7 @@ create table public.hka_care_email_deliveries (
   student_id uuid not null,
   schedule_version bigint not null,
   reminder_days integer not null check(reminder_days in (30,14,7,3,1,0)),
+  intended_reminder_date date not null,
   scheduled_for timestamptz not null,
   expires_at timestamptz not null,
   state text not null default 'pending' check(state in ('pending','claimed','dispatching','retry','sent','permanent_failure','manual_review','cancelled')),
@@ -118,7 +119,7 @@ end';
 revoke all on function public.hka_reset_care_reminders() from public,anon,authenticated;
 drop trigger if exists hka_reset_care_reminders_after_change on public.hka_care_appointments;
 create trigger hka_reset_care_reminders_after_change
-after update of next_due_date,appointment_time,reminder_days,email_enabled,status,horse_id,care_type,title
+after update of next_due_date,appointment_time,reminder_days,status,horse_id,care_type,title
 on public.hka_care_appointments
 for each row execute function public.hka_reset_care_reminders();
 
@@ -132,9 +133,9 @@ begin
   end if;
   send_time:=coalesce((select value::time from public.hka_settings where id=''horse_care_email_send_local_time''),time ''07:00'');
   insert into public.hka_care_email_deliveries(
-    appointment_id,student_id,schedule_version,reminder_days,scheduled_for,expires_at
+    appointment_id,student_id,schedule_version,reminder_days,intended_reminder_date,scheduled_for,expires_at
   )
-  select a.id,a.student_id,a.schedule_version,days.value,
+  select a.id,a.student_id,a.schedule_version,days.value,a.next_due_date-days.value,
          (((a.next_due_date-days.value)::date+send_time) at time zone coalesce(nullif(p.timezone,''''),''Africa/Lusaka'')),
          ((((a.next_due_date-days.value)::date+send_time) at time zone coalesce(nullif(p.timezone,''''),''Africa/Lusaka''))+interval ''12 hours'')
   from public.hka_care_appointments a
@@ -148,6 +149,12 @@ begin
     and (at_time at time zone coalesce(nullif(p.timezone,''''),''Africa/Lusaka''))::date=a.next_due_date-days.value
     and a.next_due_date >= (at_time at time zone coalesce(nullif(p.timezone,''''),''Africa/Lusaka''))::date
     and (((a.next_due_date-days.value)::date+send_time) at time zone coalesce(nullif(p.timezone,''''),''Africa/Lusaka''))<=at_time
+    and not exists (
+      select 1 from public.hka_care_email_deliveries prior
+      where prior.appointment_id=a.id and prior.reminder_days=days.value
+        and prior.intended_reminder_date=a.next_due_date-days.value
+        and (prior.provider_accepted_at is not null or prior.state in (''dispatching'',''manual_review''))
+    )
   on conflict(appointment_id,schedule_version,reminder_days) do nothing;
   get diagnostics inserted_count=row_count;
   return inserted_count;
@@ -234,6 +241,13 @@ begin
       and (u.banned_until is null or u.banned_until<=now())
       and lower(u.email)=lower(btrim(allowed_email))
       and a.next_due_date >= (now() at time zone coalesce(nullif(p.timezone,''''),''Africa/Lusaka''))::date
+      and not exists (
+        select 1 from public.hka_care_email_deliveries prior
+        where prior.appointment_id=d.appointment_id and prior.id<>d.id
+          and prior.reminder_days=d.reminder_days
+          and prior.intended_reminder_date=d.intended_reminder_date
+          and (prior.provider_accepted_at is not null or prior.state in (''dispatching'',''manual_review''))
+      )
     order by d.scheduled_for,d.id
     for update of d skip locked
     limit claim_limit
@@ -275,6 +289,13 @@ returns boolean language sql stable security definer set search_path='' as '
       and not p.suspended and u.email_confirmed_at is not null and u.deleted_at is null
       and (u.banned_until is null or u.banned_until<=now())
       and a.next_due_date >= (now() at time zone coalesce(nullif(p.timezone,''''),''Africa/Lusaka''))::date
+      and not exists (
+        select 1 from public.hka_care_email_deliveries prior
+        where prior.appointment_id=d.appointment_id and prior.id<>d.id
+          and prior.reminder_days=d.reminder_days
+          and prior.intended_reminder_date=d.intended_reminder_date
+          and (prior.provider_accepted_at is not null or prior.state in (''dispatching'',''manual_review''))
+      )
       and coalesce((select value::boolean from public.hka_settings where id=''horse_care_email_delivery_enabled''),false)
       and not coalesce((select value::boolean from public.hka_settings where id=''horse_care_email_kill_switch''),true)
   )';
@@ -306,6 +327,13 @@ begin
          and lower(u.email)=lower(expected_recipient)
          and lower(u.email)=lower(btrim(allowed_email))
          and a.next_due_date >= (now() at time zone coalesce(nullif(p.timezone,''''),''Africa/Lusaka''))::date
+         and not exists (
+           select 1 from public.hka_care_email_deliveries prior
+           where prior.appointment_id=d.appointment_id and prior.id<>d.id
+             and prior.reminder_days=d.reminder_days
+             and prior.intended_reminder_date=d.intended_reminder_date
+             and (prior.provider_accepted_at is not null or prior.state in (''dispatching'',''manual_review''))
+         )
          and coalesce((select value::boolean from public.hka_settings where id=''horse_care_email_delivery_enabled''),false)
          and not coalesce((select value::boolean from public.hka_settings where id=''horse_care_email_kill_switch''),true)
      );
