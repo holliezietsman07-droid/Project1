@@ -39,6 +39,20 @@ begin
  return new;
 end';
 
+create or replace function public.hka_complete_care_appointment(target_appointment uuid,completed_date date)
+returns void language plpgsql security definer set search_path='' as '
+declare item public.hka_care_appointments;
+begin
+ select * into item from public.hka_care_appointments where id=target_appointment for update;
+ if item.student_id<>auth.uid() or not public.hka_active() then raise exception ''Appointment owner access required.''; end if;
+ update public.hka_care_appointments set status=''completed'',completed_at=completed_date,updated_at=now() where id=target_appointment;
+ update public.hka_care_reminders set status=''dismissed'',read_at=now() where appointment_id=target_appointment and status=''unread'';
+ if item.repeat_interval_days is not null then
+   insert into public.hka_care_appointments(student_id,horse_id,care_type,title,last_appointment_date,next_due_date,appointment_time,provider_name,notes,repeat_interval_days,reminder_days,email_enabled)
+   values(item.student_id,item.horse_id,item.care_type,item.title,completed_date,completed_date+item.repeat_interval_days,item.appointment_time,item.provider_name,item.notes,item.repeat_interval_days,item.reminder_days,item.email_enabled);
+ end if;
+end';
+
 create or replace function public.hka_reset_care_reminders()
 returns trigger language plpgsql security definer set search_path='' as '
 begin
