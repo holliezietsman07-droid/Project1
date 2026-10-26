@@ -92,7 +92,7 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
       {mode === "sign-up" && !details ? <form onSubmit={prepare} className="space-y-5">
         <div className="space-y-2"><Label htmlFor="full_name">Full name</Label><Input id="full_name" name="full_name" autoComplete="name" required maxLength={100} /></div>
         <div className="space-y-2"><Label htmlFor="birth_date">Date of birth</Label><Input id="birth_date" name="birth_date" type="date" autoComplete="bday" required min="1900-01-02" max={new Date().toISOString().slice(0, 10)} /></div>
-        <div className="space-y-2"><Label htmlFor="timezone">Timezone</Label><Input id="timezone" name="timezone" defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone} required maxLength={100} /></div>
+        <div className="space-y-2"><Label htmlFor="timezone">Timezone</Label><Input id="timezone" name="timezone" defaultValue='Africa/Lusaka' required maxLength={100} /></div>
         <div className="space-y-2"><Label htmlFor="account_type">Account type</Label><select id="account_type" name="account_type" className="h-11 w-full rounded-sm border bg-background px-3"><option value="student">Student / horse owner</option><option value="guardian">Parent / guardian (18+)</option></select></div>
         <p className="text-xs leading-6 text-muted-foreground">Your profile stays private. Students under 18 need a guardian relationship verified by the academy and accepted by their guardian before accessing lessons or uploading files. Coach and administrator roles are assigned by authorised administrators.</p>
         <Button className="h-12 w-full rounded-sm">Continue to account details</Button>
