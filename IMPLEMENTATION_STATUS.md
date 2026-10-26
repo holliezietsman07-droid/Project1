@@ -502,7 +502,7 @@ The active source had reverted to the blank starter. Recovered the completed Sta
 - Correction — PREPARED, NOT DEPLOYED: `202610260007_horse_document_storage.sql` adds one purpose-specific, owner-bound document Storage INSERT policy and verifies actual stored MIME/size before transactional document creation or replacement. `HorseOrganizer.tsx` now uses the verified RPC and removes uploaded object/metadata after later-stage failures.
 - Migration SHA-256: `A43C289B323B085955FF1C8983DD4E79E6A9FD4746D3C6FB356CC919B4DD5D27`.
 - Client build — PASS: production Vite build completed.
-- Live fictional workflow — BLOCKED: first rollback-only probe reached the prepared DDL but its test assertion had an ambiguous local identifier and rolled back. Remote inspection confirmed the new policy/function were not persisted. Elmony then marked SQL execution uncertain and refused the corrected rollback-only probe, so PDF/JPEG/PNG save, refreshed-session persistence, cleanup and cross-owner denial remain unproven against the prepared migration.
+- Rollback-only fictional workflow — PARTIAL: owner upload, PDF/JPEG/PNG including the 10 MB boundary, owner retrieval, and cross-owner read/document-delete denial passed. Supabase then rejected direct SQL Storage deletion through `storage.protect_delete`, so refresh persistence and authenticated Storage API cleanup remain FAIL/unproven. All test DDL/data rolled back; remote inspection confirmed `hka_create_horse_document` remains absent. Full review: `HORSE_DOCUMENT_FIX_REVIEW.md`.
 - Deployment requires separate approval for only `202610260007_horse_document_storage.sql` at the hash above.
 
 ## Next concrete stage
