@@ -232,7 +232,7 @@ Existing horse photographs, avatars, documents, profiles, memberships, Founder p
 
 Client changes are saved in `src/components/accounts/HorseOrganizer.tsx`. Production execution still requires explicit approval of exact migration and hash above.
 
-## Final pre-deployment check (2026-10-26)
+## Pre-repair findings (superseded 2026-10-26)
 
 Migration 007 remains undeployed. No migration, Edge Function, reminder-email, or website deployment action was performed.
 
@@ -257,4 +257,31 @@ Migration 007 remains undeployed. No migration, Edge Function, reminder-email, o
 4. Student A deletes a document and confirms document row, object, and metadata disappear together; force Storage deletion failure and verify no success message or stale/inconsistent UI.
 5. Recheck existing horse photographs, avatars, lesson materials, submissions, and 50 MB shared-bucket workflows.
 
-Production approval should remain withheld until the two client FAIL items are repaired and the authenticated two-account plan passes.
+Production approval remains subject to the corrections and results below plus the authenticated two-account plan.
+
+## Client failure corrections (2026-10-26)
+
+### Failure 1: preliminary metadata cleanup
+
+- **Cause:** When authenticated Storage upload failed, uploadPrivateFile attempted to delete the preliminary hka_files row but ignored the deletion result, allowing cleanup failure to be silent.
+- **Correction:** HorseOrganizer.tsx:40 now captures cleanupError. It throws a combined upload and metadata-cleanup error when deletion fails, and throws the original upload error only after confirmed metadata cleanup. Document creation and replacement continue to use discardPrivateFile, which checks both authenticated Storage removal and metadata deletion.
+
+### Failure 2: deletion ordering
+
+- **Cause:** deleteConfirmed deleted the document database row before authenticated Storage removal. A failed Storage request therefore left the cached document UI representing a row already removed from the database.
+- **Correction:** HorseOrganizer.tsx:66 now removes the private object through db().storage.from('hka-private').remove(...) before deleting either the document row or hka_files metadata. Any Storage error exits through the catch path with the document row and UI unchanged. The success message, dialog close, and refresh occur only after Storage, document-row, and metadata deletion all succeed.
+
+### Updated scoped results
+
+| Scenario | Result | Evidence |
+| --- | --- | --- |
+| Failed Storage-upload metadata cleanup | PASS | Cleanup result is checked; failure is explicit and cannot be silently discarded. |
+| Failed Storage deletion preserves document row and UI | PASS | Authenticated Storage removal now precedes database deletion; failure reaches the error message path before UI or row mutation. |
+| Successful document deletion | PASS | Success is reported only after private object, document row, and metadata row deletion complete. |
+| Document upload and replacement cleanup | PASS | Both use authenticated hka-private upload/removal helpers; later RPC failures invoke checked discardPrivateFile cleanup. |
+| Accidental overwrite prevention | PASS | Shared upload helper still uses UUID paths and upsert:false. |
+| PDF/JPEG/PNG and 10 MB validation | PASS | FILE_TYPES and FILE_LIMIT are unchanged and apply to both upload and replacement. |
+| Client compilation | PASS | Vite production build completed with 1,785 modules transformed. |
+| Authenticated Storage API integration | NOT TESTED | Migration 007 remains undeployed and no two authenticated student sessions are available in this pre-deployment environment; no production record, object, or policy was changed. |
+
+No SQL was deployed, no database push ran, no production records or Storage policies changed, reminder emails remain inactive, and the website was not published.
