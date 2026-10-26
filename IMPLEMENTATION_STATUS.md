@@ -504,3 +504,14 @@ Connect the single shared Supabase backend in Stage 2; implement and verify auth
 - Live owner upload verification — FAIL before Storage INSERT: rollback-only hka_prepare_horse_photo was rejected by legacy constraint hka_files_check, which still excludes horse_photo. The transaction committed nothing, so cross-owner and Founder live upload probes could not proceed.
 - Remaining blocker: student horse-photo saving is not resolved. A separately reviewed migration must replace only the stale auto-named hka_files_check while preserving the newer purpose/shape/photo constraints; no further database change is authorised in this deployment.
 
+## Horse-photo file-path constraint correction prepared — 26 October 2026
+
+- Live cause — CONFIRMED: hka_files_check is a PostgreSQL CHECK constraint, not an RLS policy. Its owner/file.extension pattern rejects the owner/horse/file.jpg path required by hka_prepare_horse_photo before Storage upload begins.
+- Complete blocker audit — PASS: hka_files purpose, purpose-shape, photo MIME/size, horse ownership, file read/write, horse read/write, Storage insert/read and prepare/attach RPC rules were inspected. No additional known blocker remains after this constraint correction.
+- Correction — PREPARED, NOT DEPLOYED: 202610260006_horse_file_path_constraint.sql replaces only hka_files_check. Horse photos require an exact owner/horse/file.jpg path; horse documents retain valid legacy owner/file paths and intended owner/horse/file paths; every other purpose retains its existing owner/file path.
+- SHA-256: 73596BBFEDCE506DBA7D2BAE0FF35D4538E649A25A7882CB725241C850A77CC9.
+- Isolated end-to-end workflow — PASS: owner metadata creation, metadata-free Storage INSERT, attachment, replacement, display query, refreshed-session persistence and original-photo retention passed.
+- Negative security cases — PASS: non-JPEG, oversized, unknown horse, unsafe path, cross-owner metadata creation, cross-owner Storage upload, attachment, horse read and photo read were rejected.
+- Preservation — PASS: Founder preparation/attachment and existing avatar, certificate, horse-document, profile, horse, file and Storage records remained available and unchanged.
+- Deployment requires separate approval for only 202610260006_horse_file_path_constraint.sql with the SHA-256 above; no production change or website publication occurred.
+
