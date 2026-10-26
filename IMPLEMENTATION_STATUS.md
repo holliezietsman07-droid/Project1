@@ -1,5 +1,18 @@
 # HKA Equestrian — Web: implementation status
 
+## Founder avatar migration production deployment — 26 October 2026
+
+- Deployment — PASS: only supabase/migrations/202610250003_founder_avatar_upload.sql was executed against connected project sqaydpbqycvaictieafk; the deployment returned successfully and no website publication occurred.
+- Approved artifact — EXACT MATCH: SHA-256 70795340AE208C0F9545DBA23092D1104EC6D7472AB802AD6FC9657AE0758C22 matched immediately before execution.
+- Recovery readiness — PASS: four off-repository backups remained readable and matched their verified hashes: schema.sql BC0BB6BC9AADD70CCAA193910998599417BF790C4028F8D649657DF3B3A98A09, roles.sql 168A95A9C745AF5ED4679751F90419AC9DC434240A213B03E32A06D5664C2308, data.sql 9D6BB5857DB65A6FA2EC6D6060BFDC3E15125C54653A58D8799F0B99213F3765, and auth-data.sql D4478FBD160F25FDD928A89AD788B0BA6C1A2B486D946496F08CD46EC5DB7468. Prior isolated restore evidence remains recorded below.
+- Pre-execution security tests — PASS: read-only live matrix covered three active students and one active Founder; all four own-avatar cases passed and all 12 cross-user cases were denied. Storage RLS was enabled, authenticated hka_files INSERT and avatar_path UPDATE privileges were present, and non-avatar policy fingerprint was 422233c54eb172281c933810004e7bd0.
+- Exact SQL changes: created private hka-avatars bucket when absent with a 5 MiB limit and JPEG, PNG, and WebP allow-list; created authenticated SELECT policy requiring hka_file_read(name); created authenticated INSERT policy requiring hka_file_write(name), matching self-owned avatar metadata, image MIME allow-list, and 1–5 MiB size; created authenticated DELETE policy restricted to self-owned avatar metadata.
+- Access boundary — PASS by policy analysis: student and Founder use the same self-owned path; another user's owner_id or student_id cannot satisfy INSERT or DELETE predicates. No UPDATE policy was granted because uploadProfilePhoto creates UUID paths and calls Storage with upsert:false.
+- Preservation baseline: four profiles and zero horses, hka_files, horse records, hka-private objects, and Storage objects existed immediately before deployment; profile fingerprint was 8ec6f1f5906959ddac984dfc7ec848fc and all empty-table fingerprints were d41d8cd98f00b204e9800998ecf8427e. Migration contains no changes to horse photos, horse documents, public records, or existing non-avatar policies.
+- Remaining verification issue: a rollback-only authenticated DML probe did not establish the simulated JWT context correctly and stopped at hka_files RLS; its transaction aborted without committed test data. The connector then marked that probe uncertain and blocked further SQL, so fresh post-deployment row fingerprints and direct upload/delete probes remain unverified. Do not replay the migration; inspect remote state before any further database action.
+
+
+
 ## Final photo migration production deployment — 25 October 2026
 
 - Deployment — PASS: only supabase/migrations/202610250002_founder_horse_photos.sql was executed against connected project sqaydpbqycvaictieafk; the rejected migration was not executed and no website publication occurred.
