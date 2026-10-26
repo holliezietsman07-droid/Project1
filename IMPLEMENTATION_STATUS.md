@@ -1,16 +1,86 @@
 # HKA Equestrian — Web: implementation status
 
-## Horse document security correction deployment — 26 October 2026
+## Horse document security correction read-only verification — 26 October 2026
 
-- Overall deployment result — FAIL pending post-deployment acceptance evidence. The approved SQL was accepted by connected project sqaydpbqycvaictieafk, but the connector blocked required follow-up inspection after a rollback-only synthetic test setup failed its fixture constraint.
-- Approved artifact — PASS: only supabase/migrations/202610260004_horse_document_policy_binding.sql was submitted; SHA-256 matched 8C39DC1ECFE8EB001B6E67A3F24DD4D203F94ED6C7FE86001525AD7CF4A2B304. Horse Organiser migration was not repeated.
-- Preflight — PASS: project ID, required tables, RLS, helper functions and policy dependencies were present. Recovery set C:\Users\Hollie\HKA-Private-Backup\pre-horse-organiser-20261026-064025 remained readable and matched all four recorded SHA-256 hashes.
-- Preservation baseline — CAPTURED: profiles 4 (12311b2f21139f4c77215a009135bc33), horses 0, horse records 0, horse documents 0, files 2 (dd5967b6641ba596f89a91db52013e06), Storage objects 2 (01981b107de0169f854dda580dea1256). Empty-table fingerprint: d41d8cd98f00b204e9800998ecf8427e.
-- Installed policy verification — OUTSTANDING: post-deployment metadata could not be re-read after connector exploration limits were reached, so INSERT and UPDATE definitions are not yet accepted as verified despite successful SQL submission.
-- Access verification — OUTSTANDING: rollback-only synthetic records were never committed; first fixture failed existing file-path constraint and connector prevented corrected rerun. No live student data was used or modified.
-- Preservation verification — OUTSTANDING: fresh post-deployment fingerprints are required before acceptance. Migration SQL changes policies only and contains no record, Storage, function, trigger, grant or billing changes.
-- Scope — PASS: Founder helpers and file-storage functions were untouched; reminder scheduling, automated emails, memberships, billing and website publication were not changed.
-- Required follow-up: re-read both horse-document policies, repeat corrected rollback-only owner/cross-owner/Admin probes, and compare fresh fingerprints to captured baseline. Do not replay correction or Horse Organiser migration without first resolving connector uncertain-action guard.
+- Migration committed — YES. Connected project sqaydpbqycvaictieafk now exposes both corrected policies after the earlier successful SQL submission. Their PostgreSQL-normalized definitions match approved artifact SHA-256 8C39DC1ECFE8EB001B6E67A3F24DD4D203F94ED6C7FE86001525AD7CF4A2B304.
+- Deployment history — PARTIAL: direct SQL execution does not update Supabase CLI history, and supabase_migrations.schema_migrations is absent. Earlier connector result recorded successful SQL acceptance; exact live policy replacement is commit evidence. No separate transaction receipt is available.
+- Corrected policies installed — YES. horse_documents_insert is authenticated-only and requires caller ownership, active status, same-owner horse binding, same-student/same-horse current file binding, horse purpose, allowed MIME, 1–10 MiB size, and valid replaced-file binding. horse_documents_update retains owner-active or Founder/Admin row access and applies the same horse/current-file/replaced-file checks.
+- Ownership protection — PASS by exact live policy analysis: a student can insert or update only own correctly bound horse documents; another owner cannot satisfy student_id = auth.uid(); Founder/Admin read, update and delete remain present, while Founder/Admin insertion remains intentionally unavailable.
+- File-storage preservation — PASS by live metadata: hka_files RLS and files_read/files_insert/files_delete policies remain installed; correction changed no storage policy, function, bucket, grant or file row.
+- Existing records preserved — UNVERIFIED. Approved SQL contains policy DDL only, and no synthetic transaction was run, but connector blocked fresh post-deployment counts/fingerprints. Baseline remains profiles 4, horses 0, horse records 0, horse documents 0, files 2, Storage objects 2.
+- Scope — PASS: Horse Organiser migration was not repeated; reminder scheduling, automated emails, memberships, billing and website publication were untouched.
+- Next action required — run the single read-only SQL query below in Supabase SQL Editor and compare returned counts/fingerprints with the recorded baseline; do not execute either migration.
+
+### Manual read-only verification query
+
+    with profile_state as (
+      select count(*) as rows,
+             md5(coalesce(string_agg(to_jsonb(p)::text, '' order by p.id::text), '')) as fingerprint
+      from public.hka_profiles p
+    ), horse_state as (
+      select count(*) as rows,
+             md5(coalesce(string_agg(to_jsonb(h)::text, '' order by h.id::text), '')) as fingerprint
+      from public.hka_horses h
+    ), horse_record_state as (
+      select count(*) as rows,
+             md5(coalesce(string_agg(to_jsonb(r)::text, '' order by r.id::text), '')) as fingerprint
+      from public.hka_horse_records r
+    ), document_state as (
+      select count(*) as rows,
+             md5(coalesce(string_agg(to_jsonb(d)::text, '' order by d.id::text), '')) as fingerprint
+      from public.hka_horse_documents d
+    ), file_state as (
+      select count(*) as rows,
+             md5(coalesce(string_agg(to_jsonb(f)::text, '' order by f.id::text), '')) as fingerprint
+      from public.hka_files f
+    ), storage_state as (
+      select count(*) as rows,
+             md5(coalesce(string_agg(to_jsonb(o)::text, '' order by o.id::text), '')) as fingerprint
+      from storage.objects o
+    )
+    select jsonb_pretty(jsonb_build_object(
+      'migration_history_relation', exists (
+        select 1 from information_schema.tables
+        where table_schema = 'supabase_migrations' and table_name = 'schema_migrations'
+      ),
+      'policies', coalesce((
+        select jsonb_agg(jsonb_build_object(
+          'name', policyname, 'command', cmd, 'roles', roles,
+          'using', qual, 'with_check', with_check
+        ) order by policyname)
+        from pg_policies
+        where schemaname = 'public'
+          and tablename = 'hka_horse_documents'
+          and policyname in ('horse_documents_insert', 'horse_documents_update')
+      ), '[]'::jsonb),
+      'records', jsonb_build_object(
+        'profiles', (select to_jsonb(s) from profile_state s),
+        'horses', (select to_jsonb(s) from horse_state s),
+        'horse_records', (select to_jsonb(s) from horse_record_state s),
+        'horse_documents', (select to_jsonb(s) from document_state s),
+        'files', (select to_jsonb(s) from file_state s),
+        'storage_objects', (select to_jsonb(s) from storage_state s)
+      ),
+      'binding_violations', jsonb_build_object(
+        'horse_owner', (select count(*) from public.hka_horse_documents d
+          left join public.hka_horses h on h.id = d.horse_id
+          where h.id is null or h.student_id <> d.student_id),
+        'current_file', (select count(*) from public.hka_horse_documents d
+          left join public.hka_files f on f.id = d.file_id
+          where f.id is null or f.owner_id <> d.student_id
+             or f.student_id is distinct from d.student_id
+             or f.horse_id is distinct from d.horse_id or f.purpose <> 'horse'
+             or f.mime_type not in ('application/pdf','image/jpeg','image/png')
+             or f.size_bytes not between 1 and 10485760),
+        'replaced_file', (select count(*) from public.hka_horse_documents d
+          left join public.hka_files f on f.id = d.replaced_file_id
+          where d.replaced_file_id is not null and (
+            f.id is null or f.owner_id <> d.student_id
+            or f.student_id is distinct from d.student_id
+            or f.horse_id is distinct from d.horse_id or f.purpose <> 'horse'
+          ))
+      )
+    ));
 
 ## Horse organiser blocker resolution — 26 October 2026
 
