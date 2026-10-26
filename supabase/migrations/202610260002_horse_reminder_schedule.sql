@@ -1,12 +1,9 @@
--- Prepared separately: daily in-app horse-care reminder generation only.
--- Email delivery remains held and this job must not run without owner approval.
+-- Prepared only: inactive horse-care reminder controls.
+-- No extension, job, scheduler, network request, or email delivery is created here.
 begin;
-create extension if not exists pg_cron with schema extensions;
-do 'declare existing_job bigint; begin
- select jobid into existing_job from cron.job where jobname=''hka-horse-care-reminders'';
- if existing_job is not null then perform cron.unschedule(existing_job); end if;
- perform cron.schedule(''hka-horse-care-reminders'',''15 * * * *'',''select public.hka_generate_care_reminders(null);'');
-end';
+insert into public.hka_settings(id,value) values ('horse_care_reminder_generation_enabled','false'),('horse_care_email_delivery_enabled','false'),('horse_care_email_kill_switch','true'),('horse_care_email_send_local_time','07:00') on conflict(id) do update set value=excluded.value;
+-- Scheduling intentionally omitted. pg_cron is not installed or modified.
+-- Email and reminder generation remain disabled until separately approved.
 commit;
 /* source template remainder
 -- hka-avatars enforces image MIME types and a 5 MiB object limit at the bucket boundary.
