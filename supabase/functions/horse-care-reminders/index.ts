@@ -1,10 +1,8 @@
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 
-const corsHeaders={
-  'Access-Control-Allow-Origin':'*',
-  'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type, x-hka-worker-secret',
-};
+const responseHeaders={'Content-Type':'application/json','Cache-Control':'no-store'};
+const resendMessageIdPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 type Delivery={
   delivery_id:string;lease_token:string;recipient_email:string;student_name:string;
@@ -76,16 +74,17 @@ function renderEmail(item:Delivery,calendarUrl:string){
 }
 
 serve(async(req)=>{
-  if(req.method==='OPTIONS')return new Response(null,{headers:corsHeaders});
-  if(req.method!=='POST')return new Response('Method not allowed',{status:405,headers:corsHeaders});
+  if(req.method==='OPTIONS')return new Response(null,{status:403,headers:responseHeaders});
+  if(req.method!=='POST')return new Response('Method not allowed',{status:405,headers:responseHeaders});
 
   try{
     const workerSecret=required('HKA_REMINDER_WORKER_SECRET');
-    if(!await equalSecret(req.headers.get('x-hka-worker-secret')??'',workerSecret)){
-      return new Response('Unauthorized',{status:401,headers:corsHeaders});
+    const serviceRoleKey=required('SUPABASE_SERVICE_ROLE_KEY');
+    if(!await equalSecret(req.headers.get('apikey')??'',serviceRoleKey)||!await equalSecret(req.headers.get('x-hka-worker-secret')??'',workerSecret)){
+      return new Response('Unauthorized',{status:401,headers:responseHeaders});
     }
 
-    const supabase=createClient(required('SUPABASE_URL'),required('SUPABASE_SERVICE_ROLE_KEY'),{
+    const supabase=createClient(required('SUPABASE_URL'),serviceRoleKey,{
       auth:{persistSession:false,autoRefreshToken:false},
     });
     const {data:settings,error:settingsError}=await supabase.from('hka_settings').select('id,value').in('id',[
@@ -94,13 +93,14 @@ serve(async(req)=>{
     if(settingsError)throw new Error('settings_unavailable');
     const flags=Object.fromEntries((settings??[]).map((row:{id:string;value:string})=>[row.id,row.value]));
     if(flags.horse_care_email_delivery_enabled!=='true'||flags.horse_care_email_kill_switch!=='false'){
-      return Response.json({status:'disabled'},{headers:corsHeaders});
+      return Response.json({status:'disabled'},{headers:responseHeaders});
     }
 
     const resendKey=required('RESEND_API_KEY');
     const sender=required('HKA_REMINDER_FROM');
     const appUrl=required('HKA_APP_URL').replace(/\/$/,'');
-    const allowedEmail=Deno.env.get('HKA_REMINDER_TEST_EMAIL')||null;
+    const allowedEmail=required('HKA_REMINDER_TEST_EMAIL').trim().toLowerCase();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(allowedEmail))throw new Error('invalid_test_email');
     const workerId=crypto.randomUUID();
 
     const {error:prepareError}=await supabase.rpc('hka_prepare_care_email_deliveries',{at_time:new Date().toISOString()});
@@ -110,23 +110,50 @@ serve(async(req)=>{
     });
     if(claimError)throw new Error('claim_failed');
 
+    const finishDelivery=async(item:Delivery,outcome:'retry'|'permanent_failure'|'manual_review'|'sent',code:string|null,messageId:string|null)=>{
+      const result=await supabase.rpc('hka_finish_care_email_delivery',{
+        target_delivery:item.delivery_id,target_lease:item.lease_token,outcome,
+        resend_message_id:messageId,safe_error_code:code,
+      });
+      return !result.error&&result.data===true;
+    };
+    const holdDelivery=async(item:Delivery,code:string,messageId:string|null=null)=>{
+      const result=await supabase.rpc('hka_hold_care_email_delivery',{
+        target_delivery:item.delivery_id,target_lease:item.lease_token,
+        safe_error_code:code,resend_message_id:messageId,
+      });
+      if(result.error||result.data!==true)throw new Error('manual_review_hold_failed');
+    };
+
     let sent=0;
     for(const item of (data??[]) as Delivery[]){
       const {data:eligible,error:eligibleError}=await supabase.rpc('hka_recheck_care_email_delivery',{
         target_delivery:item.delivery_id,target_lease:item.lease_token,
+        expected_recipient:item.recipient_email,allowed_email:allowedEmail,
       });
       if(eligibleError||eligible!==true){
-        await supabase.rpc('hka_finish_care_email_delivery',{
-          target_delivery:item.delivery_id,target_lease:item.lease_token,outcome:'permanent_failure',
-          resend_message_id:null,safe_error_code:'eligibility_recheck_failed',
-        });
+        if(!await finishDelivery(item,'permanent_failure','eligibility_recheck_failed',null)){
+          await holdDelivery(item,'eligibility_record_failed');
+        }
+        continue;
+      }
+
+      const {data:dispatchStarted,error:dispatchError}=await supabase.rpc('hka_begin_care_email_dispatch',{
+        target_delivery:item.delivery_id,target_lease:item.lease_token,
+        expected_recipient:item.recipient_email,allowed_email:allowedEmail,
+      });
+      if(dispatchError||dispatchStarted!==true){
+        if(!await finishDelivery(item,'permanent_failure','dispatch_recheck_failed',null)){
+          await holdDelivery(item,'dispatch_record_failed');
+        }
         continue;
       }
 
       const calendarUrl=appUrl+'/dashboard/student?section=horses';
       const content=renderEmail(item,calendarUrl);
+      let response:Response;
       try{
-        const response=await fetch('https://api.resend.com/emails',{
+        response=await fetch('https://api.resend.com/emails',{
           method:'POST',
           headers:{
             Authorization:'Bearer '+resendKey,'Content-Type':'application/json',
@@ -138,36 +165,37 @@ serve(async(req)=>{
             html:content.html,text:content.text,
           }),
         });
-        if(response.ok){
-          const payload=await response.json().catch(()=>({})) as {id?:string};
-          const outcome=payload.id?'sent':'manual_review';
-          await supabase.rpc('hka_finish_care_email_delivery',{
-            target_delivery:item.delivery_id,target_lease:item.lease_token,outcome,
-            resend_message_id:payload.id??null,safe_error_code:payload.id?null:'resend_missing_id',
-          });
-          if(payload.id)sent+=1;
-        }else{
-          const retry=response.status===408||response.status===429;
-          const uncertain=response.status>=500;
-          await supabase.rpc('hka_finish_care_email_delivery',{
-            target_delivery:item.delivery_id,target_lease:item.lease_token,
-            outcome:retry?'retry':uncertain?'manual_review':'permanent_failure',
-            resend_message_id:null,safe_error_code:'resend_http_'+response.status,
-          });
-        }
       }catch{
-        await supabase.rpc('hka_finish_care_email_delivery',{
-          target_delivery:item.delivery_id,target_lease:item.lease_token,outcome:'manual_review',
-          resend_message_id:null,safe_error_code:'resend_transport_uncertain',
-        });
+        await holdDelivery(item,'resend_transport_uncertain');
+        continue;
+      }
+
+      if(response.ok){
+        const payload=await response.json().catch(()=>({})) as {id?:unknown};
+        const messageId=typeof payload.id==='string'&&resendMessageIdPattern.test(payload.id)?payload.id:null;
+        if(!messageId){
+          await holdDelivery(item,'resend_invalid_message_id');
+          continue;
+        }
+        if(!await finishDelivery(item,'sent',null,messageId)){
+          await holdDelivery(item,'acceptance_record_failed',messageId);
+          continue;
+        }
+        sent+=1;
+      }else if(response.status===429){
+        if(!await finishDelivery(item,'retry','resend_http_429',null))await holdDelivery(item,'retry_record_failed');
+      }else if(response.status===408||response.status===409||response.status>=500){
+        await holdDelivery(item,'resend_http_'+response.status);
+      }else if(!await finishDelivery(item,'permanent_failure','resend_http_'+response.status,null)){
+        await holdDelivery(item,'failure_record_failed');
       }
     }
 
     console.log(JSON.stringify({event:'horse_care_email_run',claimed:(data??[]).length,sent}));
-    return Response.json({status:'ok',claimed:(data??[]).length,sent},{headers:corsHeaders});
+    return Response.json({status:'ok',claimed:(data??[]).length,sent},{headers:responseHeaders});
   }catch(error){
     const code=error instanceof Error&&/^[a-z0-9_:.-]+$/.test(error.message)?error.message:'worker_failed';
     console.error(JSON.stringify({event:'horse_care_email_error',code}));
-    return Response.json({status:'error',code},{status:500,headers:corsHeaders});
+    return Response.json({status:'error',code},{status:500,headers:responseHeaders});
   }
 });
