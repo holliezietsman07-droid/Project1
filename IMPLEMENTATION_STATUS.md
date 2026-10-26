@@ -1,6 +1,19 @@
 # HKA Equestrian — Web: implementation status
 
-## Horse organiser production deployment — 26 October 2026
+## Horse organiser blocker resolution — 26 October 2026
+
+- Resolution — PASS for diagnosis, preservation and isolated correction testing; production acceptance remains blocked until the separately prepared correction is explicitly approved and deployed.
+- Deployment confirmation — PASS: connected project sqaydpbqycvaictieafk exposes hka_horse_documents, hka_care_appointments, hka_care_attachments and hka_care_reminders plus organiser functions. The approved 202610260001 migration was not executed again.
+- Preservation — PASS: post-deployment counts and fingerprints exactly match the captured pre-deployment evidence: four Auth users with fingerprint 045c026108f396e282dde3a227d62c67, four profiles with 12311b2f21139f4c77215a009135bc33, zero horses with d41d8cd98f00b204e9800998ecf8427e, two file rows with dd5967b6641ba596f89a91db52013e06, and zero hka-private objects with d41d8cd98f00b204e9800998ecf8427e. All four new organiser tables contain zero rows, so no private student data or document content was exposed.
+- Live access boundary — PARTIAL PASS: RLS is enabled. horse_documents_read permits only matching student_id or hka_admin(); hka_file_read permits horse-document paths only to the active file owner or Admin. Anonymous roles have zero grants on organiser tables. With zero live documents and horses, authenticated owner-versus-other-student row tests cannot be performed read-only against production data.
+- Confirmed flaw — FAIL: live horse_documents_insert resolves its intended file-to-document horse check as f.horse_id = f.horse_id. Live horse_documents_update validates horse ownership but does not validate file_id or replaced_file_id ownership and horse binding. A caller who knows another file UUID could create an invalid reference; storage and metadata reads remain blocked by hka_file_read, but relational binding is not secure enough.
+- Prepared correction — NOT DEPLOYED: supabase/migrations/202610260004_horse_document_policy_binding.sql replaces only INSERT and UPDATE policies, fully qualifies document columns, binds current and replaced files to the same student and horse, preserves MIME and size checks, retains student-active checks, and keeps Admin read/update/delete management without granting Admin document insertion. SHA-256: 8C39DC1ECFE8EB001B6E67A3F24DD4D203F94ED6C7FE86001525AD7CF4A2B304.
+- Isolated test — PASS: the correction applied to a disposable restored-schema harness. Owner saw its known document ID and file path; another student saw neither; Admin saw both. Same-owner wrong-horse inserts and updates, Admin cross-owner binding updates, and Admin insertion for a student were denied. Another student updated zero rows while Admin updated one correctly bound row. Disposable container was removed.
+- Correct authenticated-role method for future read-only production evidence: start BEGIN READ ONLY, set request.jwt.claims with only the selected test user's sub and authenticated role through set_config(..., true), SET LOCAL ROLE authenticated, run aggregate count predicates for known IDs or paths, then ROLLBACK. Never select document contents, names, paths or student fields into results.
+- Outstanding blocker and next safe action: owner approval is required to deploy only 202610260004_horse_document_policy_binding.sql; afterward re-read both policies and repeat aggregate authenticated-role tests. Do not replay 202610260001.
+- Scope — reminder scheduling, memberships, payments, other migrations and website publication were untouched.
+
+## Horse organiser initial production deployment report — 26 October 2026 (superseded above)
 
 - Required outcome — FAIL: approved organiser SQL committed, but full post-deployment acceptance did not pass; do not publish or deploy additional horse migrations until blockers below are reviewed.
 - Deployment — PASS: only supabase/migrations/202610260001_horse_organiser.sql was applied to connected project sqaydpbqycvaictieafk. Its immediately verified SHA-256 matched approval: 48279E938ACCAA8EFB88987C6B7645B3988B8DB496CCE1C6F0F357405A37B54F.
