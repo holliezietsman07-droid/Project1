@@ -12,7 +12,7 @@ type Delivery={
 
 function required(name:string){
   const value=Deno.env.get(name);
-  if(!value)throw new Error('missing_config:'+name.toLowerCase());
+  if(!value||value.trim()==='')throw new Error('missing_config:'+name.toLowerCase());
   return value;
 }
 

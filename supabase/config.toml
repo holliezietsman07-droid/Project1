@@ -1,0 +1,2 @@
+[functions.horse-care-reminders]
+verify_jwt = false
