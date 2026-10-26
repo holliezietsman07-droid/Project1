@@ -8,6 +8,7 @@ Prepared 26 October 2026. Nothing in this change deploys a migration, installs a
 - Modified: supabase/migrations/202610260010_horse_care_email_delivery.sql
 - Modified: supabase/functions/horse-care-reminders/index.ts
 - Modified: supabase/tests/horse_care_email_safety.rollback.sql
+- Modified: src/components/accounts/HorseOrganizer.tsx
 - Modified: docs/horse-care-email-preparation.md
 
 The complete proposed SQL is the verbatim content of the two migration files above. Migrations 006, 007, and 008 were not changed or replayed.
@@ -17,7 +18,7 @@ The complete proposed SQL is the verbatim content of the two migration files abo
 - 202610260002_horse_reminder_schedule.sql
 - SHA-256: 3D7B597433876EAC5CEA0A847340617C7EA955137BAC259E4D7980C7F5FBCC16
 - 202610260010_horse_care_email_delivery.sql
-- SHA-256: 43F3E3742915EF852C89BD19B206A5013C2528D260C8FA1A6C1E30FDC99B9714
+- SHA-256: 515DE00AA7D75FFFF5117C3C927DE648D90E174D67C46579EC145DCDC9C93692
 
 Recalculate both hashes after any review edit; approval must name the exact hashes being deployed.
 
@@ -31,7 +32,9 @@ Supabase's supported service-to-service mode uses `verify_jwt = false` and a sec
 
 Claimed work records the exact confirmed recipient. A separate atomic transition records `dispatch_started_at` immediately before the provider request. Expired pre-dispatch claims may be reclaimed only below the retry limit and before delivery expiry; claims at either terminal boundary become permanent failures; expired work after dispatch begins moves permanently to `manual_review`. This remains protective after Resend's 24-hour idempotency window.
 
-Appointment changes, completion, opt-out, and deletion cancel pending, retry, and claimed pre-dispatch work. Rows whose provider request has begun remain dispatching with their lease intact, so a known acceptance and provider ID can still be committed; interruption later moves them to manual review. Schedule-version and eligibility checks prevent invalidated appointments from beginning another send.
+Appointment changes, completion, opt-out, and deletion cancel pending, retry, and claimed pre-dispatch work. Rows whose provider request has begun remain dispatching with their lease intact, so a known acceptance and provider ID can still be committed; interruption later moves them to manual review. Schedule-version and eligibility checks prevent invalidated appointments from beginning another send. In-app care reminders are independent of email-only preference changes in both the database trigger and Horse Care Calendar UI.
+
+Delivery identity additionally includes appointment, reminder offset, and intended reminder date across schedule versions. Same-day title edits, email opt-out/on cycles, and retries cannot start a second dispatch after acceptance or an ambiguous provider request, while a genuine reschedule to a different reminder date remains eligible.
 
 Known Resend acceptance is stored only when the response contains a UUID-format provider message ID and the database state update succeeds. The worker checks every RPC error and result. If acceptance is known but the sent-state update fails, it records the provider ID in `manual_review`; if even that hold fails, the row remains `dispatching` and lease-expiry reconciliation moves it to manual review. Transport failures, HTTP 408/409, HTTP 5xx, malformed success responses, and other ambiguous outcomes are never blindly retried. Only explicit HTTP 429 rejection is eligible for bounded retry.
 
@@ -49,15 +52,18 @@ The HTML and plain-text template use HKA forest green, ivory, and antique gold; 
 | Mandatory one-address control | PASS | Missing/malformed test email stops worker and database claim; claim and pre-dispatch checks require exact current confirmed email. |
 | Interruption-state design | PASS | Eligible pre-dispatch expirations retry; delivery expiry and retry-limit cases become terminal; dispatch-started expirations become manual review; sent/provider IDs persist beyond 24 hours. |
 | Student and appointment opt-in behavior | PASS | Disposable rollback SQL exercised profile and appointment opt-out enforcement. |
+| In-app reminder independence | PASS | Actual rollback SQL retained the same in-app reminder through appointment email opt-out and opt-in; Horse Care Calendar no longer dismisses reminders after an email-only edit. |
+| Sent-email identity and rescheduling | PASS | Actual rollback SQL exercised retry, provider acceptance, same-day title edit, email opt-out/on, database duplicate-dispatch rejection, and one legitimate reminder after a different-date reschedule. |
 | Ownership and confirmed-email behavior | PASS | Disposable rollback SQL rejected cross-student ownership and changed or unconfirmed recipients. |
 | Authenticated student privacy | PASS | Tests ran as authenticated with two actual JWT subjects; each student saw only owned appointments, and neither could read server-only delivery rows. |
-| Reschedule, completion, deletion, and opt-out behavior | PASS | Pending work cancelled; in-flight reschedule and opt-out preserved dispatch evidence, recorded provider outcomes, and produced no duplicate claim. |
+| Reschedule, completion, deletion, and opt-out behavior | PASS | Pending work cancelled; in-flight reschedule and opt-out preserved dispatch evidence; same-day edits produced no duplicate email; a genuinely different reminder date produced exactly one new delivery. |
 | Date and timezone behavior | PASS | Disposable SQL verified Africa/Lusaka conversion and exact local-day scheduling. |
 | Atomic claim and expired-lease behavior | PASS | Disposable SQL verified unique claims, safe pre-dispatch reclaim, terminal expiry/retry limits, and manual review after dispatch. |
 | Missing test-recipient behavior | PASS | Disposable SQL rejected missing and non-allow-listed recipients. |
 | Provider acceptance/database-recording failure | PASS | Disposable SQL rejected wrong leases and preserved accepted provider IDs in manual review. |
 | Kill-switch behavior | PASS | Disposable SQL verified disabled preparation and immediate pre-dispatch rejection. |
 | Worker TypeScript syntax | PASS | TypeScript parser reported no syntax diagnostics. |
+| Horse Care Calendar | PASS | Current calendar source built successfully; disposable database behavior preserved in-app reminders during email-only preference changes. |
 | Existing web application build | PASS | Vite production build completed. |
 | Rollback SQL execution | PASS | Full rollback-only suite completed in a disposable local Supabase PostgreSQL container and ended with ROLLBACK. |
 | Migration execution | PASS | Migration 010 applied only to the disposable local Supabase database; connected production remained untouched. |

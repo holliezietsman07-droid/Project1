@@ -46,6 +46,9 @@ create table public.hka_care_email_deliveries (
 create unique index hka_care_email_provider_message_unique
   on public.hka_care_email_deliveries(provider_message_id)
   where provider_message_id is not null;
+create unique index hka_care_email_dispatch_identity_unique
+  on public.hka_care_email_deliveries(appointment_id,reminder_days,intended_reminder_date)
+  where state in ('dispatching','sent','manual_review');
 create index hka_care_email_claimable
   on public.hka_care_email_deliveries(state,next_attempt_at,scheduled_for)
   where state in ('pending','claimed','dispatching','retry');
@@ -106,7 +109,6 @@ begin
  if old.next_due_date is distinct from new.next_due_date
     or old.appointment_time is distinct from new.appointment_time
     or old.reminder_days is distinct from new.reminder_days
-    or old.email_enabled is distinct from new.email_enabled
     or old.status is distinct from new.status
     or old.horse_id is distinct from new.horse_id
     or old.care_type is distinct from new.care_type
@@ -339,6 +341,8 @@ begin
      );
   get diagnostics changed=row_count;
   return changed=1;
+exception
+  when unique_violation then return false;
 end';
 
 create or replace function public.hka_finish_care_email_delivery(
