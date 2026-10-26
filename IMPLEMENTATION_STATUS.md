@@ -1,5 +1,17 @@
 # HKA Equestrian — Web: implementation status
 
+## Horse organiser implementation — 26 October 2026
+
+- Status — PREPARED, NOT DEPLOYED: responsive Horse Profile, Documents, Care Schedule and Reminders tabs are implemented in src/components/accounts/HorseOrganizer.tsx and connected to Student Dashboard. Website was not published; live database, records, Storage objects, automated jobs and emails were not changed.
+- Horse photographs — existing circular crop/reposition UI is reused. Prepared RPC policy permits an active student only for their own horse and retains Founder/Admin management; it validates JPEG, 5 MiB maximum, caller-scoped path, matching private Storage metadata and horse ownership before updating photo_path. Cards and profiles use expiring signed private images.
+- Documents — prepared private metadata supports passport, vaccination, veterinary, dental, farrier, physiotherapy, insurance and other PDF/JPEG/PNG files up to 10 MiB. UI supports upload, signed view/download, rename, auditable replacement, confirmed removal, dates and optional care attachment. No public URLs are created.
+- Care and reminders — appointments support last/next dates, provider, notes, attached record, owner-confirmed repeat interval, configurable 30/14/7-day defaults, completion history and rescheduling. Bell and horse Reminders tab show unread, upcoming and overdue items with read/dismiss controls. Unique partial indexes prevent duplicate appointment and expiry reminders; generation uses each profile timezone.
+- Security review — all four proposed tables enable RLS. Student policies bind student_id to auth.uid(), verify composite horse ownership and validate file purpose/type/size. Founder/Admin receives read/management visibility without giving coaches or guardians access to horse documents. Updated hka_file_read removes broad hka_view_student access for purpose=horse while preserving horse-photo visibility. Existing horse limit trigger and membership entitlements are unchanged.
+- Prepared migrations — supabase/migrations/202610260001_horse_organiser.sql SHA-256 48279E938ACCAA8EFB88987C6B7645B3988B8DB496CCE1C6F0F357405A37B54F; supabase/migrations/202610260002_horse_reminder_schedule.sql SHA-256 545DADBB9A9FB596BED406A67343F0A03241D526BFE2CBF4613A48B26F95E3AD. They require separate backup, security-test and owner approval gates; neither was executed.
+- Verification — application TypeScript, focused ESLint and production build pass; only three pre-existing StudentDashboard warnings and the existing bundle-size advisory remain. Live authenticated upload/retrieval, cross-owner denial, fictional appointment generation, cron execution and mobile/desktop browser interaction remain unproven until migrations are approved in an isolated or live test environment.
+- Email assessment — connected project exposes no Resend secret or verified reminder-mail function. Email preference is collected but every generated reminder remains email_status=held. No email function was created, deployed or activated; verified Resend connection, approved templates/sender and explicit test-send approval remain required.
+
+
 ## Founder avatar migration production deployment — 26 October 2026
 
 - Deployment — PASS: only supabase/migrations/202610250003_founder_avatar_upload.sql was executed against connected project sqaydpbqycvaictieafk; the deployment returned successfully and no website publication occurred.
