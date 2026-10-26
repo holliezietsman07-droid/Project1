@@ -74,6 +74,8 @@ declare
   test_horse constant uuid:='22222222-2222-4222-8222-222222222222';
   test_appointment constant uuid:='33333333-3333-4333-8333-333333333333';
   target uuid;
+  limit_target uuid;
+  expired_target uuid;
   lease uuid;
   rows_found integer;
   result boolean;
@@ -96,7 +98,7 @@ begin
     id,student_id,horse_id,care_type,title,next_due_date,appointment_time,reminder_days,email_enabled,status
   ) values(
     test_appointment,test_user,test_horse,'farrier','Safety Test Care',
-    (now() at time zone 'Africa/Lusaka')::date+7,time '09:30',array[7],true,'scheduled'
+    (now() at time zone 'Africa/Lusaka')::date+7,time '09:30',array[30,14,7,3,1,0],true,'scheduled'
   );
 
   begin
@@ -168,6 +170,26 @@ begin
   select delivery_id,lease_token into target,lease
   from public.hka_claim_care_email_deliveries(gen_random_uuid(),1,'reminder-test@example.com');
   if target is null then raise exception 'pre-dispatch interruption was not safely reclaimed'; end if;
+
+  insert into public.hka_care_email_deliveries(
+    appointment_id,student_id,schedule_version,reminder_days,scheduled_for,expires_at,
+    state,attempt_count,lease_token,lease_expires_at,claimed_recipient_email
+  ) select test_appointment,test_user,schedule_version,14,now()-interval '2 minutes',now()+interval '1 hour',
+           'claimed',5,gen_random_uuid(),now()-interval '1 second','reminder-test@example.com'
+    from public.hka_care_appointments where id=test_appointment returning id into limit_target;
+  insert into public.hka_care_email_deliveries(
+    appointment_id,student_id,schedule_version,reminder_days,scheduled_for,expires_at,
+    state,attempt_count,lease_token,lease_expires_at,claimed_recipient_email
+  ) select test_appointment,test_user,schedule_version,30,now()-interval '2 hours',now()-interval '1 hour',
+           'claimed',1,gen_random_uuid(),now()-interval '1 second','reminder-test@example.com'
+    from public.hka_care_appointments where id=test_appointment returning id into expired_target;
+  perform public.hka_claim_care_email_deliveries(gen_random_uuid(),1,'reminder-test@example.com');
+  if (select state from public.hka_care_email_deliveries where id=limit_target)<>'permanent_failure' then
+    raise exception 'expired claim at retry limit was not terminal';
+  end if;
+  if (select state from public.hka_care_email_deliveries where id=expired_target)<>'permanent_failure' then
+    raise exception 'expired delivery claim was not terminal';
+  end if;
 
   result:=public.hka_begin_care_email_dispatch(target,lease,'reminder-test@example.com','reminder-test@example.com');
   if not result then raise exception 'eligible dispatch did not start'; end if;
@@ -241,34 +263,143 @@ begin
 end
 $test$;
 
+-- Exercise privacy under an actual authenticated student role and JWT subject.
+do '
+begin
+  insert into public.hka_horses(id,student_id,name,details)
+  values(''bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'',''aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'',''Other Student Horse'','''')
+  on conflict(id) do nothing;
+  insert into public.hka_care_appointments(
+    id,student_id,horse_id,care_type,title,next_due_date,reminder_days,email_enabled,status
+  ) values(
+    ''cccccccc-cccc-4ccc-8ccc-cccccccccccc'',''aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'',
+    ''bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'',''farrier'',''Private Other Care'',current_date+7,array[7],true,''scheduled''
+  );
+end';
+
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+set local role authenticated;
+do '
+declare rows_found integer;
+begin
+  select count(*) into rows_found from public.hka_care_appointments where student_id<>auth.uid();
+  if rows_found<>0 then raise exception ''student authorization exposed another student appointment''; end if;
+  select count(*) into rows_found from public.hka_care_appointments where student_id=auth.uid();
+  if rows_found=0 then raise exception ''student authorization hid own appointments''; end if;
+  begin
+    perform 1 from public.hka_care_email_deliveries limit 1;
+    raise exception ''student authorization could read server-only deliveries'';
+  exception when insufficient_privilege then null;
+  end;
+end';
+reset role;
+
+select set_config('request.jwt.claim.sub','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',true);
+set local role authenticated;
+do '
+declare rows_found integer;
+begin
+  select count(*) into rows_found from public.hka_care_appointments;
+  if rows_found<>1 then raise exception ''second student authorization was not isolated''; end if;
+  if not exists(select 1 from public.hka_care_appointments where id=''cccccccc-cccc-4ccc-8ccc-cccccccccccc'') then
+    raise exception ''second student could not read own appointment'';
+  end if;
+end';
+reset role;
+
 -- Trigger actual reschedule, completion and deletion transitions.
 do $test$
+<<lifecycle>>
 declare
   test_user constant uuid:='11111111-1111-4111-8111-111111111111';
   test_horse constant uuid:='22222222-2222-4222-8222-222222222222';
   appointment_id uuid;
   delivery_id uuid;
+  lease uuid;
+  result boolean;
 begin
+  update public.hka_settings set value='false' where id='horse_care_email_kill_switch';
+
   insert into public.hka_care_appointments(student_id,horse_id,care_type,title,next_due_date,reminder_days,email_enabled,status)
   values(test_user,test_horse,'farrier','Lifecycle Test',(now() at time zone 'Africa/Lusaka')::date+14,array[7],true,'scheduled')
   returning id into appointment_id;
   insert into public.hka_care_email_deliveries(appointment_id,student_id,schedule_version,reminder_days,scheduled_for,expires_at)
   values(appointment_id,test_user,1,7,now()-interval '1 minute',now()+interval '1 hour') returning id into delivery_id;
   update public.hka_care_appointments set next_due_date=next_due_date+1 where id=appointment_id;
-  if (select state from public.hka_care_email_deliveries where id=delivery_id)<>'cancelled' then raise exception 'reschedule did not cancel delivery'; end if;
+  if (select state from public.hka_care_email_deliveries where id=delivery_id)<>'cancelled' then raise exception 'reschedule did not cancel pre-dispatch delivery'; end if;
 
   insert into public.hka_care_email_deliveries(appointment_id,student_id,schedule_version,reminder_days,scheduled_for,expires_at)
   select id,student_id,schedule_version,7,now()-interval '1 minute',now()+interval '1 hour' from public.hka_care_appointments where id=appointment_id
   returning id into delivery_id;
   update public.hka_care_appointments set status='completed',completed_at=current_date where id=appointment_id;
-  if (select state from public.hka_care_email_deliveries where id=delivery_id)<>'cancelled' then raise exception 'completion did not cancel delivery'; end if;
+  if (select state from public.hka_care_email_deliveries where id=delivery_id)<>'cancelled' then raise exception 'completion did not cancel pre-dispatch delivery'; end if;
 
   insert into public.hka_care_appointments(student_id,horse_id,care_type,title,next_due_date,reminder_days,email_enabled,status)
   values(test_user,test_horse,'farrier','Delete Test',(now() at time zone 'Africa/Lusaka')::date+14,array[7],true,'scheduled') returning id into appointment_id;
   insert into public.hka_care_email_deliveries(appointment_id,student_id,schedule_version,reminder_days,scheduled_for,expires_at)
   values(appointment_id,test_user,1,7,now()-interval '1 minute',now()+interval '1 hour') returning id into delivery_id;
   delete from public.hka_care_appointments where id=appointment_id;
-  if (select state from public.hka_care_email_deliveries where id=delivery_id)<>'cancelled' then raise exception 'deletion did not cancel delivery'; end if;
+  if (select state from public.hka_care_email_deliveries where id=delivery_id)<>'cancelled' then raise exception 'deletion did not cancel pre-dispatch delivery'; end if;
+
+  insert into public.hka_care_appointments(student_id,horse_id,care_type,title,next_due_date,reminder_days,email_enabled,status)
+  values(test_user,test_horse,'farrier','Dispatch Reschedule Test',(now() at time zone 'Africa/Lusaka')::date+14,array[7],true,'scheduled')
+  returning id into appointment_id;
+  lease:=gen_random_uuid();
+  insert into public.hka_care_email_deliveries(
+    appointment_id,student_id,schedule_version,reminder_days,scheduled_for,expires_at,
+    state,attempt_count,lease_token,lease_expires_at,claimed_recipient_email
+  ) values(
+    appointment_id,test_user,1,7,now()-interval '1 minute',now()+interval '1 hour',
+    'claimed',1,lease,now()+interval '5 minutes','reminder-test@example.com'
+  ) returning id into delivery_id;
+  result:=public.hka_begin_care_email_dispatch(delivery_id,lease,'reminder-test@example.com','reminder-test@example.com');
+  if not result then raise exception 'reschedule dispatch did not start'; end if;
+  update public.hka_care_appointments set next_due_date=next_due_date+1 where id=appointment_id;
+  if (select state from public.hka_care_email_deliveries where id=delivery_id)<>'dispatching' then
+    raise exception 'reschedule cancelled in-flight delivery';
+  end if;
+  if not public.hka_finish_care_email_delivery(delivery_id,lease,'sent','49a3999c-0ce1-4ea6-ab68-afcd6dc2e796',null) then
+    raise exception 'rescheduled in-flight provider acceptance was not recorded';
+  end if;
+  if (select provider_message_id from public.hka_care_email_deliveries where id=delivery_id)<>'49a3999c-0ce1-4ea6-ab68-afcd6dc2e796' then
+    raise exception 'rescheduled in-flight provider id was lost';
+  end if;
+  perform public.hka_prepare_care_email_deliveries(now());
+  if exists(
+    select 1 from public.hka_care_email_deliveries d
+    join public.hka_care_appointments a on a.id=d.appointment_id
+    where a.id=lifecycle.appointment_id and d.schedule_version=a.schedule_version
+  ) then
+    raise exception 'reschedule generated a duplicate immediate delivery';
+  end if;
+
+  insert into public.hka_care_appointments(student_id,horse_id,care_type,title,next_due_date,reminder_days,email_enabled,status)
+  values(test_user,test_horse,'farrier','Dispatch Opt-out Test',(now() at time zone 'Africa/Lusaka')::date+14,array[7],true,'scheduled')
+  returning id into appointment_id;
+  lease:=gen_random_uuid();
+  insert into public.hka_care_email_deliveries(
+    appointment_id,student_id,schedule_version,reminder_days,scheduled_for,expires_at,
+    state,attempt_count,lease_token,lease_expires_at,claimed_recipient_email
+  ) values(
+    appointment_id,test_user,1,7,now()-interval '1 minute',now()+interval '1 hour',
+    'claimed',1,lease,now()+interval '5 minutes','reminder-test@example.com'
+  ) returning id into delivery_id;
+  if not public.hka_begin_care_email_dispatch(delivery_id,lease,'reminder-test@example.com','reminder-test@example.com') then
+    raise exception 'opt-out dispatch did not start';
+  end if;
+  update public.hka_care_appointments set email_enabled=false where id=appointment_id;
+  if (select state from public.hka_care_email_deliveries where id=delivery_id)<>'dispatching' then
+    raise exception 'opt-out cancelled in-flight delivery';
+  end if;
+  if public.hka_recheck_care_email_delivery(delivery_id,lease,'reminder-test@example.com','reminder-test@example.com') then
+    raise exception 'opted-out appointment remained eligible';
+  end if;
+  if not public.hka_hold_care_email_delivery(delivery_id,lease,'appointment_changed_during_dispatch','49a3999c-0ce1-4ea6-ab68-afcd6dc2e797') then
+    raise exception 'opt-out in-flight provider outcome was not held';
+  end if;
+  if (select state from public.hka_care_email_deliveries where id=delivery_id)<>'manual_review' then
+    raise exception 'opt-out in-flight delivery was not preserved for review';
+  end if;
 end
 $test$;
 

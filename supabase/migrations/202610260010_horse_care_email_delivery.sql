@@ -59,8 +59,14 @@ begin
   if tg_op=''DELETE'' then
     update public.hka_care_email_deliveries
        set state=''cancelled'', lease_token=null, lease_expires_at=null,
-           last_error_code=''appointment_deleted'', last_error_at=now(), updated_at=now()
-     where appointment_id=old.id and state not in (''sent'',''cancelled'',''manual_review'');
+           next_attempt_at=null,last_error_code=''appointment_deleted'',
+           last_error_at=now(),updated_at=now()
+     where appointment_id=old.id
+       and (state in (''pending'',''retry'') or (state=''claimed'' and dispatch_started_at is null));
+    update public.hka_care_email_deliveries
+       set last_error_code=''appointment_deleted_during_dispatch'',last_error_at=now(),updated_at=now()
+     where appointment_id=old.id
+       and state in (''claimed'',''dispatching'') and dispatch_started_at is not null;
     return old;
   end if;
   if old.next_due_date is distinct from new.next_due_date
@@ -73,9 +79,14 @@ begin
      or old.title is distinct from new.title then
     update public.hka_care_email_deliveries
        set state=''cancelled'', lease_token=null, lease_expires_at=null,
-           last_error_code=''appointment_changed'', last_error_at=now(), updated_at=now()
+           next_attempt_at=null,last_error_code=''appointment_changed'',
+           last_error_at=now(),updated_at=now()
      where appointment_id=old.id and schedule_version=old.schedule_version
-       and state not in (''sent'',''cancelled'',''manual_review'');
+       and (state in (''pending'',''retry'') or (state=''claimed'' and dispatch_started_at is null));
+    update public.hka_care_email_deliveries
+       set last_error_code=''appointment_changed_during_dispatch'',last_error_at=now(),updated_at=now()
+     where appointment_id=old.id and schedule_version=old.schedule_version
+       and state in (''claimed'',''dispatching'') and dispatch_started_at is not null;
     new.schedule_version:=old.schedule_version+1;
   end if;
   return new;
@@ -163,10 +174,22 @@ begin
   end if;
 
   update public.hka_care_email_deliveries
-     set state=''retry'',lease_token=null,lease_expires_at=null,next_attempt_at=now(),
-         claimed_recipient_email=null,last_error_code=''claim_expired_before_dispatch'',
+     set state=case when attempt_count>=5 or expires_at<=now() then ''permanent_failure'' else ''retry'' end,
+         lease_token=null,lease_expires_at=null,
+         next_attempt_at=case when attempt_count>=5 or expires_at<=now() then null else now() end,
+         claimed_recipient_email=null,
+         last_error_code=case when expires_at<=now() then ''delivery_expired_before_dispatch''
+                              when attempt_count>=5 then ''claim_retry_limit_reached''
+                              else ''claim_expired_before_dispatch'' end,
          last_error_at=now(),updated_at=now()
    where state=''claimed'' and dispatch_started_at is null and lease_expires_at<=now();
+
+  update public.hka_care_email_deliveries
+     set state=''permanent_failure'',next_attempt_at=null,
+         last_error_code=case when expires_at<=now() then ''delivery_expired_before_dispatch''
+                              else ''claim_retry_limit_reached'' end,
+         last_error_at=now(),updated_at=now()
+   where state in (''pending'',''retry'') and (expires_at<=now() or attempt_count>=5);
 
   update public.hka_care_email_deliveries
      set state=''manual_review'',lease_token=null,lease_expires_at=null,next_attempt_at=null,
