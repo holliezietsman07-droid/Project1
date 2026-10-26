@@ -231,3 +231,30 @@ Migration DDL and fictional documents ran inside rollback-only transactions. Sup
 Existing horse photographs, avatars, documents, profiles, memberships, Founder permissions, AI Studio, and unrelated HKA features remain unchanged. Migration 007 only adds document-specific Storage/RPC behavior; every database probe rolled back.
 
 Client changes are saved in `src/components/accounts/HorseOrganizer.tsx`. Production execution still requires explicit approval of exact migration and hash above.
+
+## Final pre-deployment check (2026-10-26)
+
+Migration 007 remains undeployed. No migration, Edge Function, reminder-email, or website deployment action was performed.
+
+| Check | Result | Specific evidence |
+| --- | --- | --- |
+| Authenticated Storage deletion | PASS | `HorseOrganizer.tsx:44` and `:66` call `db().storage.from(hka-private).remove(...)`; no direct SQL deletion of `storage.objects` exists in this client path. |
+| Failed-upload metadata cleanup | FAIL | `uploadPrivateFile` inserts `hka_files` first, but its Storage-upload failure branch awaits metadata deletion without checking the returned `error`; metadata cleanup can therefore fail silently. Later RPC failure cleanup is stronger because `discardPrivateFile` checks both Storage and metadata errors. |
+| Storage-deletion failure handling and consistent UI | FAIL | `deleteConfirmed` deletes `hka_horse_documents` before calling authenticated Storage removal. A Storage failure is shown through `setMessage(errorText(error))`, so success is not reported, but the database row is already gone while cached UI and dialog remain until refresh. This is an inconsistent partial deletion. |
+| Non-overwriting uploads | PASS | Horse document creation and replacement share `uploadPrivateFile`; `HorseOrganizer.tsx:39` explicitly passes `upsert:false`, and UUID-based paths prevent normal collisions. |
+| Actual document-size enforcement without shared-bucket disruption | PASS | Client accepts only 1 to 10,485,760 bytes. Migration 007 checks declared metadata within the same range and both RPCs require stored `storage.objects.metadata.size` to be numeric and exactly equal to `hka_files.size_bytes`. Live `hka-private` bucket remains 52,428,800 bytes for existing lesson media and permits its existing MIME types; migration 007 does not alter bucket configuration or generic policies. |
+| Owner SELECT and DELETE; other-student denial | PASS | Live `hka_storage_read` requires `bucket_id = hka-private` plus `hka_file_read(name)`; live `hka_file_read` grants horse documents to owner or administrator, not unrelated students. Live `hka_storage_delete` requires administrator or `hka_file_write(name)`; live `hka_file_write` requires matching owner, student, horse ownership, active status, and metadata path. Live `hka_files` SELECT/DELETE policies use the same owner checks. |
+
+### Authenticated API test status
+
+**NOT TESTED.** This pre-deployment session has no two student login sessions or credentials, and migration 007 is intentionally undeployed. Static client review and live read-only policy inspection were completed, but they do not substitute for authenticated Storage API calls.
+
+### Short post-deployment two-account plan
+
+1. Student A uploads PDF, JPEG, and PNG documents; test 1 byte, exactly 10 MB, and over 10 MB; confirm `upsert:false`, unique paths, refresh persistence, and signed retrieval.
+2. Student B attempts document-row and `hka_files` reads, signed-URL creation, upload to Student A path, and Storage removal of Student A object; every attempt must be denied.
+3. Student A triggers a post-upload RPC rejection and confirms both object and preliminary `hka_files` row are removed; force Storage and metadata cleanup failures separately and require explicit UI errors.
+4. Student A deletes a document and confirms document row, object, and metadata disappear together; force Storage deletion failure and verify no success message or stale/inconsistent UI.
+5. Recheck existing horse photographs, avatars, lesson materials, submissions, and 50 MB shared-bucket workflows.
+
+Production approval should remain withheld until the two client FAIL items are repaired and the authenticated two-account plan passes.
