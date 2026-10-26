@@ -5,15 +5,12 @@ begin;
 alter table public.hka_care_appointments
   add column if not exists appointment_time time without time zone;
 
--- Replace only the two relevant generated CHECK constraints, regardless of their generated names.
-do 'declare item record; begin
-  for item in select conname from pg_constraint where conrelid=''public.hka_care_appointments''::regclass and contype=''c'' and pg_get_constraintdef(oid) like ''%care_type%'' loop
-    execute format(''alter table public.hka_care_appointments drop constraint %I'',item.conname);
-  end loop;
-  for item in select conname from pg_constraint where conrelid=''public.hka_care_appointments''::regclass and contype=''c'' and pg_get_constraintdef(oid) like ''%cardinality(reminder_days)%'' loop
-    execute format(''alter table public.hka_care_appointments drop constraint %I'',item.conname);
-  end loop;
-end';
+-- Replace only the named care-type and reminder-count CHECK constraints.
+-- The reminder value-range, status/completion, interval and title constraints remain untouched.
+alter table public.hka_care_appointments
+  drop constraint if exists hka_care_appointments_care_type_check,
+  drop constraint if exists hka_care_appointments_reminder_days_check,
+  drop constraint if exists hka_care_appointments_reminder_count_check;
 
 alter table public.hka_care_appointments
   add constraint hka_care_appointments_care_type_check check (care_type in (
@@ -31,7 +28,8 @@ begin
  dob := nullif(new.raw_user_meta_data->>''birth_date'','''')::date;
  display_name := trim(coalesce(new.raw_user_meta_data->>''full_name'',''''));
  requested := coalesce(new.raw_user_meta_data->>''account_type'',''student'');
- if dob is null or dob > current_date or dob <= date ''1900-01-01'' or char_length(display_name) not between 1 and 100 then raise exception ''A valid name and date of birth are required.''; end if;
+ if dob is null or dob > current_date or dob <= date ''1900-01-01'' or char_length(display_name) not between 1 and 100 then
+ raise exception ''A valid name and date of birth are required.''; end if;
  if requested not in (''student'',''guardian'') then requested:=''student''; end if;
  if requested=''guardian'' and dob > (current_date-interval ''18 years'')::date then raise exception ''Guardians must be adults.''; end if;
  insert into public.hka_profiles(id,full_name,birth_date,timezone,role)
@@ -41,10 +39,21 @@ end';
 
 create or replace function public.hka_complete_care_appointment(target_appointment uuid,completed_date date)
 returns void language plpgsql security definer set search_path='' as '
-declare item public.hka_care_appointments;
+declare item public.hka_care_appointments; student_timezone text;
 begin
+ if target_appointment is null then raise exception ''Appointment is required.''; end if;
  select * into item from public.hka_care_appointments where id=target_appointment for update;
- if item.student_id<>auth.uid() or not public.hka_active() then raise exception ''Appointment owner access required.''; end if;
+ if not found then raise exception ''Appointment not found.''; end if;
+ if auth.uid() is null or item.student_id is distinct from auth.uid() or not public.hka_active() then
+   raise exception ''Appointment owner access required.'';
+ end if;
+ if item.status<>''scheduled'' then raise exception ''Only scheduled appointments can be completed.''; end if;
+ select timezone into student_timezone from public.hka_profiles where id=item.student_id;
+ if completed_date is null
+    or completed_date<=date ''1900-01-01''
+    or completed_date>(now() at time zone coalesce(nullif(student_timezone,''''),''Africa/Lusaka''))::date then
+   raise exception ''A valid completion date is required.'';
+ end if;
  update public.hka_care_appointments set status=''completed'',completed_at=completed_date,updated_at=now() where id=target_appointment;
  update public.hka_care_reminders set status=''dismissed'',read_at=now() where appointment_id=target_appointment and status=''unread'';
  if item.repeat_interval_days is not null then
