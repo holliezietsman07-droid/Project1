@@ -61,21 +61,21 @@ export const memberships = [
     "Published self-paced learning",
     "Lesson materials and quizzes",
     "Practice assignments",
-    "Progress tracking",
+    "Progress tracking and up to five private horse profiles",
   ], note: "Personal marking and unlimited coaching are not included." },
   { name: "HKA Premium", amount: 100, intro: "A more personal way forward.", features: [
     "Everything in HKA Basic",
     "One personalised monthly plan",
     "Two coach reviews per paid month: video up to five minutes each, or a written/practical submission",
     "Two private coaching question threads per paid month, one topic each",
-    "One 30-minute online consultation per paid month",
+    "One 30-minute online consultation per paid month and up to 30 private horse profiles",
   ], note: "Use support for riding, learning, horse care or event preparation. Course enrolment is not required for owner advice." },
 ];
 
 export const membershipQuestions = [
   { question: "Can I join the academy now?", answer: "Not yet. You can explore the pathways and planned packages here. Account registration, published learning and membership enrolment will open after the academy’s next stages are ready. No payment is being collected." },
   { question: "Are in-person riding lessons included?", answer: "No. These are online academy memberships. In-person coaching is separately arranged where Hollie operates and is not automatically included in any package." },
-  { question: "How do Premium allowances work?", answer: "The published allowances apply to each paid calendar-month billing period, with no automatic rollover. They cover riding, learning, ownership and care, or event preparation. Additional horse profiles and uploads will be subject to configured limits." },
+  { question: "How do Premium allowances work?", answer: "The published allowances apply to each paid calendar-month billing period, with no automatic rollover. They cover riding, learning, ownership and care, or event preparation. Free includes one horse profile, Basic supports up to five and Premium supports up to 30. A future Stable or Yard membership for more than 30 horses remains inactive." },
   { question: "Is online learning limited to a country?", answer: "No. HKA welcomes riders, horse owners and learners internationally. Online learning is intended to be available worldwide." },
   { question: "Are courses and introductory lessons available?", answer: "Lessons have not been published yet. Each pathway will offer one free introductory lesson when Hollie supplies and publishes it. No sample lessons or completed course content are being presented in this preview." },
 ];

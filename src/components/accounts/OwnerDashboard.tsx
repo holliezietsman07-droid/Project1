@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertCircle, BookOpen, CalendarDays, GraduationCap, Settings, Sparkles, Users } from 'lucide-react';
+import { AlertCircle, BookOpen, CalendarDays, GraduationCap, Search, Settings, Sparkles, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,21 +42,24 @@ function CoachingManagement(){
 }
 
 function MembershipsAndHorses(){
- const {profile}=useSession();const refresh=useRefreshAcademy();const profiles=useRows('hka_profiles');const horses=useRows('hka_horses');const plans=useRows('hka_membership_plans');const [message,setMessage]=useState('');
+ const {profile}=useSession();const refresh=useRefreshAcademy();const profiles=useRows('hka_profiles');const horses=useRows('hka_horses');const plans=useRows('hka_membership_plans');const limits=useRows('hka_horse_profile_limits');const [horseSearch,setHorseSearch]=useState('');const [message,setMessage]=useState('');
  async function uploadHorsePhoto(horse:Row,file:File){if(!profile)return;if(file.type!=='image/jpeg'||file.size<=0||file.size>5242880)throw new Error('Choose a JPEG horse photograph up to 5 MB.');const id=crypto.randomUUID();const path=profile.id+'/'+id+'.jpg';let uploaded=false;try{await rpc('hka_prepare_horse_photo',{target_horse:horse.id,new_file:id,file_path:path,original_name:file.name,mime_type:file.type,size_bytes:file.size});const {error}=await db().storage.from('hka-private').upload(path,file,{contentType:file.type,upsert:false});if(error)throw error;uploaded=true;await rpc('hka_attach_horse_photo',{target_horse:horse.id,file_path:path});refresh();setMessage('Horse photograph saved.');}catch(error){if(uploaded)await db().storage.from('hka-private').remove([path]);await db().from('hka_files').delete().eq('id',id);setMessage(errorText(error));throw error;}}
- const students=(profiles.data??[]).filter(row=>row.role==='student');
+ async function saveHorseLimit(event:FormEvent<HTMLFormElement>){event.preventDefault();const form=new FormData(event.currentTarget);try{await saveRow('hka_horse_profile_limits',{horse_profile_limit:Number(form.get('limit')),updated_at:new Date().toISOString()},String(form.get('id')));refresh();setMessage('Horse profile limit saved. Existing horse records were preserved.');}catch(error){setMessage(errorText(error));}}
+ const students=(profiles.data??[]).filter(row=>row.role==='student');const studentName=(id:unknown)=>String(students.find(row=>row.id===id)?.full_name??'Student');const visibleHorses=(horses.data??[]).filter(row=>[row.name,row.breed,row.discipline,studentName(row.student_id)].some(value=>String(value??'').toLowerCase().includes(horseSearch.trim().toLowerCase())));
  return (
   <div className='grid gap-6 lg:grid-cols-2'>
    <section className='paper-card p-6'>
     <h2 className='font-serif text-3xl'>Membership administration</h2>
     <div className='mt-4 space-y-3'>{(plans.data??[]).map(row=><p key={row.id} className='rounded-sm border border-primary/15 p-4'><strong>{String(row.name)}</strong><span className='block text-xs text-muted-foreground'>USD {String(row.monthly_usd)} monthly · billing inactive</span></p>)}</div>
+    <div className='mt-6 border-t border-primary/15 pt-5'><h3 className='font-serif text-2xl'>Horse profile limits</h3><p className='mt-2 text-sm text-muted-foreground'>Limits apply to new profiles only; existing horses and all linked records remain untouched. Billing stays inactive.</p><div className='mt-4 space-y-3'>{[...(limits.data??[])].sort((a,b)=>Number(a.sort_order)-Number(b.sort_order)).map(row=><form key={row.id} onSubmit={saveHorseLimit} className='grid gap-3 rounded-sm border border-primary/15 p-4 sm:grid-cols-[1fr_7rem_auto] sm:items-end'><input type='hidden' name='id' value={String(row.id)}/><div><strong>{String(row.display_name)}</strong><span className='block text-xs text-muted-foreground'>{row.offering_active?'Membership access only · billing inactive':'Future offering · inactive'}</span></div><div><Label htmlFor={'limit-'+row.id}>Profiles</Label><Input id={'limit-'+row.id} name='limit' type='number' min={Number(row.minimum_horses??1)} max='1000' defaultValue={Number(row.horse_profile_limit)} required/></div><Button size='sm'>Save limit</Button></form>)}</div></div>
     <div className='mt-5 space-y-2'>{students.map(row=><p key={row.id} className='flex justify-between border-b border-primary/10 py-2 text-sm'><span>{String(row.full_name)}</span><span className='capitalize'>{String(row.membership_tier??'free')}</span></p>)}</div>
    </section>
    <section className='paper-card p-6'>
     <h2 className='font-serif text-3xl'>Shared horse records</h2>
-    <p className='mt-2 text-sm text-muted-foreground'>Only the Founder can replace horse photographs.</p>
-    <div className='mt-5 space-y-3'>
-     {(horses.data??[]).map(row=><article key={row.id} className='flex items-start gap-4 rounded-sm border border-primary/15 p-4'><div><strong>{String(row.name)}</strong><p className='mt-1 text-xs text-muted-foreground'>{String(row.breed||'Breed not recorded')} · {String(row.discipline||'Discipline not recorded')}</p><p className='mt-3 text-sm'>{String(row.training_goals||row.details||'No current plan.')}</p><div className='mt-3'><CircularPhotoEditor path={typeof row.photo_path==='string'?row.photo_path:null} label={String(row.name)} horse onSave={file=>uploadHorsePhoto(row,file)}/></div></div></article>)}
+    <p className='mt-2 text-sm text-muted-foreground'>Founder oversight across owner-scoped horse profiles; students retain self-service access to their own horses only.</p>
+    <div className='relative mt-5'><Search className='pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground'/><Input value={horseSearch} onChange={event=>setHorseSearch(event.target.value)} aria-label='Search all horse profiles' placeholder='Search horse, student, breed or discipline' className='pl-9'/></div>
+    <div className='mt-4 max-h-[46rem] space-y-3 overflow-y-auto pr-1'>
+     {visibleHorses.map(row=><article key={row.id} className='flex items-start gap-4 rounded-sm border border-primary/15 p-4'><div><strong>{String(row.name)}</strong><p className='mt-1 text-xs text-muted-foreground'>{studentName(row.student_id)} · {String(row.breed||'Breed not recorded')} · {String(row.discipline||'Discipline not recorded')}</p><p className='mt-3 text-sm'>{String(row.training_goals||row.details||'No current plan.')}</p><div className='mt-3'><CircularPhotoEditor path={typeof row.photo_path==='string'?row.photo_path:null} label={String(row.name)} horse onSave={file=>uploadHorsePhoto(row,file)}/></div></div></article>)}{!horses.isLoading&&!visibleHorses.length&&<p className='text-sm text-muted-foreground'>No horse profiles match this search.</p>}
     </div>
  
     <Notice value={message}/>
