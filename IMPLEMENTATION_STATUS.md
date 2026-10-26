@@ -495,3 +495,12 @@ The active source had reverted to the blank starter. Recovered the completed Sta
 
 ## Next concrete stage
 Connect the single shared Supabase backend in Stage 2; implement and verify authentication, private profiles, protected founder access and guardian privacy before exposing member tools. Reuse src/integrations/supabase/client.ts. Never grant privileges from a browser-provided email.
+
+## Student horse-photo Storage policy deployment — 26 October 2026
+
+- Preflight — PASS: approved migration 202610260005_student_horse_photo_storage.sql matched SHA-256 344FA2275E15041545429DA48D34908ED539017ACF5E6749FAF8603E9987A970; connected project was sqaydpbqycvaictieafk; isolated owner/Admin, cross-owner, path, MIME, size and preservation tests had passed; readable recovery exports remained available at C:\Users\Hollie\HKA-Private-Backup.
+- Deployment — PASS: only hka_horse_photo_storage_insert was created. Existing private Storage read/delete/general-insert and avatar policies remained byte-for-byte equivalent in the post-deployment policy inspection. No previous migration, reminder email, membership change or website publication was performed.
+- Preservation — PASS: the migration contains policy DDL only. Post-deployment baseline remained one horse, two file rows and zero hka-private objects; horses fingerprint 20cea5c678f67ddf16fd004ff8d2bd54, files fingerprint 29e8d3320348568a90f62f6c0635b8c5.
+- Live owner upload verification — FAIL before Storage INSERT: rollback-only hka_prepare_horse_photo was rejected by legacy constraint hka_files_check, which still excludes horse_photo. The transaction committed nothing, so cross-owner and Founder live upload probes could not proceed.
+- Remaining blocker: student horse-photo saving is not resolved. A separately reviewed migration must replace only the stale auto-named hka_files_check while preserving the newer purpose/shape/photo constraints; no further database change is authorised in this deployment.
+
