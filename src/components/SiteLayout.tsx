@@ -29,7 +29,7 @@ const titles: Record<string, string> = {
   "/sign-up": "Sign up",
   "/password-reset": "Password reset",
   "/update-password": "Update password",
-  "/dashboard": "Dashboard",
+  "/dashboard": "Dashboard",  "/dashboard/account": "Account settings",
   "/dashboard/student": "Student dashboard",
   "/dashboard/parent": "Parent dashboard",
   "/dashboard/coach": "Coach dashboard",
