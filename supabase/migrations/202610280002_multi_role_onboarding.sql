@@ -52,11 +52,11 @@ create table if not exists public.hka_link_requests (
 );
 
 create or replace function public.hka_has_purpose(person uuid,purpose_name text)
-returns boolean language sql stable security definer set search_path='' as 
+returns boolean language sql stable security definer set search_path='' as $$
  select exists(select 1 from public.hka_account_roles ar where ar.user_id=person and ar.purpose=purpose_name and ar.status='authorized')
-;
+$$;
 
-create or replace function public.hka_active(person uuid default auth.uid()) returns boolean language sql stable security definer set search_path='' as 
+create or replace function public.hka_active(person uuid default auth.uid()) returns boolean language sql stable security definer set search_path='' as $$
  select exists(select 1 from public.hka_profiles p join auth.users u on u.id=p.id
  where p.id=person and not p.suspended and u.email_confirmed_at is not null
  and exists(select 1 from public.hka_account_roles ar where ar.user_id=p.id and ar.status='authorized' and ar.is_active
@@ -65,14 +65,14 @@ create or replace function public.hka_active(person uuid default auth.uid()) ret
   or exists(select 1 from public.hka_guardians g join public.hka_profiles gp on gp.id=g.guardian_id
    join auth.users gu on gu.id=gp.id where g.student_id=p.id and g.status='approved' and g.consent_at is not null
    and public.hka_has_purpose(gp.id,'guardian') and not gp.suspended and gu.email_confirmed_at is not null)))
-;
+$$;
 
-create or replace function public.hka_coaches(person uuid) returns boolean language sql stable security definer set search_path='' as 
+create or replace function public.hka_coaches(person uuid) returns boolean language sql stable security definer set search_path='' as $$
  select public.hka_role()='coach' and public.hka_has_purpose(auth.uid(),'coach')
  and exists(select 1 from public.hka_coach_students where coach_id=auth.uid() and student_id=person)
-;
+$$;
 
-create or replace function public.hka_signup_profile() returns trigger language plpgsql security definer set search_path='' as 
+create or replace function public.hka_signup_profile() returns trigger language plpgsql security definer set search_path='' as $$
 declare
  dob date; display_name text; selected jsonb; safe_onboarding jsonb; item text; initial_role text:='student'; active_purpose text;
 begin
@@ -112,10 +112,11 @@ begin
  end if;
  update auth.users set raw_user_meta_data=jsonb_set(coalesce(raw_user_meta_data,'{}'::jsonb),'{onboarding}',safe_onboarding,true) where id=new.id;
  return new;
-end ;
+end
+$$;
 
 create or replace function public.hka_request_account_purpose(requested_purpose text,onboarding_data jsonb default '{}'::jsonb)
-returns void language plpgsql security definer set search_path='' as 
+returns void language plpgsql security definer set search_path='' as $$
 declare next_status text;
 begin
  if auth.uid() is null then raise exception 'Authentication required.'; end if;
@@ -125,10 +126,11 @@ begin
  insert into public.hka_account_roles(user_id,purpose,status,onboarding,approved_at)
  values(auth.uid(),requested_purpose,next_status,coalesce(onboarding_data,'{}'::jsonb),case when next_status='authorized' then now() end)
  on conflict(user_id,purpose) do update set status=case when public.hka_account_roles.status='authorized' then 'authorized' else excluded.status end,onboarding=excluded.onboarding,requested_at=now();
-end ;
+end
+$$;
 
 create or replace function public.hka_review_account_purpose(member_id uuid,requested_purpose text,approve boolean)
-returns void language plpgsql security definer set search_path='' as 
+returns void language plpgsql security definer set search_path='' as $$
 begin
  if not public.hka_admin() then raise exception 'Founder access required.'; end if;
  if requested_purpose<>'coach' then raise exception 'Only privileged coach requests require founder review.'; end if;
@@ -140,10 +142,11 @@ begin
   update public.hka_profiles set role='coach' where id=member_id;
  end if;
  insert into public.hka_audit(actor_id,target_id,action) values(auth.uid(),member_id,'Coach purpose reviewed: '||approve::text);
-end ;
+end
+$$;
 
 create or replace function public.hka_switch_dashboard(requested_purpose text)
-returns text language plpgsql security definer set search_path='' as 
+returns text language plpgsql security definer set search_path='' as $$
 declare mapped_role text; target_path text;
 begin
  if not public.hka_has_purpose(auth.uid(),requested_purpose) then raise exception 'That dashboard is not authorised.'; end if;
@@ -153,10 +156,11 @@ begin
  update public.hka_account_roles set is_active=true where user_id=auth.uid() and purpose=requested_purpose and status='authorized';
  update public.hka_profiles set role=mapped_role where id=auth.uid();
  return target_path;
-end ;
+end
+$$;
 
 create or replace function public.hka_create_student_link_code(link_kind text)
-returns text language plpgsql security definer set search_path='' as 
+returns text language plpgsql security definer set search_path='' as $$
 declare plain_code text;
 begin
  if link_kind not in ('guardian','coach') then raise exception 'Invalid link type.'; end if;
@@ -165,10 +169,11 @@ begin
  insert into public.hka_student_link_codes(student_id,kind,code_hash,expires_at)
  values(auth.uid(),link_kind,digest(plain_code,'sha256'),now()+interval '72 hours');
  return plain_code;
-end ;
+end
+$$;
 
 create or replace function public.hka_redeem_student_link_code(invitation_code text)
-returns uuid language plpgsql security definer set search_path='' as 
+returns uuid language plpgsql security definer set search_path='' as $$
 declare found public.hka_student_link_codes; request_id uuid;
 begin
  select * into found from public.hka_student_link_codes where code_hash=digest(upper(trim(invitation_code)),'sha256') and revoked_at is null and expires_at>now() and uses<max_uses for update;
@@ -181,10 +186,11 @@ begin
  values(found.id,found.student_id,auth.uid(),found.kind) returning id into request_id;
  update public.hka_student_link_codes set uses=uses+1 where id=found.id;
  return request_id;
-end ;
+end
+$$;
 
 create or replace function public.hka_review_student_link(request_id uuid,approve boolean)
-returns void language plpgsql security definer set search_path='' as 
+returns void language plpgsql security definer set search_path='' as $$
 declare request_row public.hka_link_requests; student_minor boolean;
 begin
  if not public.hka_admin() then raise exception 'Founder access required.'; end if;
@@ -211,10 +217,11 @@ begin
   end if;
  end if;
  insert into public.hka_audit(actor_id,target_id,action) values(auth.uid(),request_row.student_id,'Student link reviewed: '||request_row.kind||' approved');
-end ;
+end
+$$;
 
 create or replace function public.hka_guardian_link_decision(request_id uuid,approve boolean)
-returns void language plpgsql security definer set search_path='' as 
+returns void language plpgsql security definer set search_path='' as $$
 declare request_row public.hka_link_requests;
 begin
  select * into request_row from public.hka_link_requests where id=request_id and claimant_id=auth.uid() and kind='guardian' and status='awaiting_consent' for update;
@@ -222,10 +229,11 @@ begin
  update public.hka_guardians set status=case when approve then 'approved' else 'revoked' end,consent_at=case when approve then now() else null end
  where student_id=request_row.student_id and guardian_id=auth.uid();
  update public.hka_link_requests set status=case when approve then 'approved' else 'rejected' end,guardian_consented_at=case when approve then now() else null end,updated_at=now() where id=request_id;
-end ;
+end
+$$;
 
 create or replace function public.hka_guardian_coach_consent(request_id uuid,approve boolean)
-returns void language plpgsql security definer set search_path='' as 
+returns void language plpgsql security definer set search_path='' as $$
 declare request_row public.hka_link_requests;
 begin
  select * into request_row from public.hka_link_requests where id=request_id and kind='coach' and status='awaiting_guardian' and exists(
@@ -233,10 +241,11 @@ begin
  if request_row.id is null then raise exception 'Guardian consent request not found.'; end if;
  if approve then insert into public.hka_coach_students(coach_id,student_id) values(request_row.claimant_id,request_row.student_id) on conflict do nothing; end if;
  update public.hka_link_requests set status=case when approve then 'approved' else 'rejected' end,guardian_consented_at=case when approve then now() else null end,updated_at=now() where id=request_id;
-end ;
+end
+$$;
 
 create or replace function public.hka_revoke_student_link(request_id uuid)
-returns void language plpgsql security definer set search_path='' as 
+returns void language plpgsql security definer set search_path='' as $$
 declare request_row public.hka_link_requests; allowed boolean;
 begin
  select * into request_row from public.hka_link_requests where id=request_id for update;
@@ -247,9 +256,10 @@ begin
  else delete from public.hka_coach_students where student_id=request_row.student_id and coach_id=request_row.claimant_id; end if;
  update public.hka_link_requests set status='revoked',revoked_at=now(),updated_at=now() where id=request_id;
  insert into public.hka_audit(actor_id,target_id,action) values(auth.uid(),request_row.student_id,'Student link revoked: '||request_row.kind);
-end ;
+end
+$$;
 
-create or replace function public.hka_set_role(person uuid,new_role text,is_suspended boolean default false) returns void language plpgsql security definer set search_path='' as 
+create or replace function public.hka_set_role(person uuid,new_role text,is_suspended boolean default false) returns void language plpgsql security definer set search_path='' as $$
 declare purpose_name text;
 begin
  if not public.hka_admin() then raise exception 'Administrator access required.'; end if;
@@ -263,7 +273,8 @@ begin
  on conflict(user_id,purpose) do update set status='authorized',is_active=true,approved_at=now(),approved_by=auth.uid();
  update public.hka_account_roles set is_active=false where user_id=person and purpose<>purpose_name;
  insert into public.hka_audit(actor_id,target_id,action) values(auth.uid(),person,'Role: '||new_role||'; suspended: '||is_suspended::text);
-end ;
+end
+$$;
 
 alter table public.hka_account_roles enable row level security;
 alter table public.hka_student_link_codes enable row level security;
