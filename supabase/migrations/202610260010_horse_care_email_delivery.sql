@@ -427,6 +427,7 @@ create table if not exists public.hka_messages (
   check (sender_id <> recipient_id)
 );
 alter table public.hka_messages enable row level security;
+revoke all on public.hka_messages from anon,authenticated;
 grant select,insert,update(read_at) on public.hka_messages to authenticated;
 create policy hka_messages_read on public.hka_messages for select to authenticated using (
   auth.uid() in (sender_id,recipient_id) or public.hka_admin()
@@ -434,9 +435,20 @@ create policy hka_messages_read on public.hka_messages for select to authenticat
 );
 create policy hka_messages_insert on public.hka_messages for insert to authenticated with check (
   sender_id=auth.uid() and (
-    public.hka_admin() or public.hka_teach(student_id)
+    public.hka_admin()
+    or (public.hka_teach(student_id) and (
+      recipient_id=student_id
+      or recipient_id in (select g.guardian_id from public.hka_guardians g where g.student_id=public.hka_messages.student_id and g.status='approved' and g.consent_at is not null)
+    ))
     or (student_id=auth.uid() and recipient_id in (select cs.coach_id from public.hka_coach_students cs where cs.student_id=auth.uid()))
-    or (public.hka_view_student(student_id) and exists(select 1 from public.hka_profiles p where p.id=auth.uid() and p.role='guardian'))
+    or (
+      public.hka_view_student(student_id)
+      and exists(select 1 from public.hka_profiles p where p.id=auth.uid() and p.role='guardian')
+      and (
+        recipient_id=student_id
+        or recipient_id in (select cs.coach_id from public.hka_coach_students cs where cs.student_id=public.hka_messages.student_id)
+      )
+    )
   )
 );
 create policy hka_messages_update_read on public.hka_messages for update to authenticated using (recipient_id=auth.uid()) with check (recipient_id=auth.uid());
