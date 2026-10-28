@@ -1,8 +1,9 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import SiteLayout from "@/components/SiteLayout";
 import Index from "@/pages/Index";
 import LearningPathways from "@/pages/LearningPathways";
@@ -15,9 +16,96 @@ import AccountPage from "@/pages/AccountPage";
 import { DashboardIndex, DashboardPage } from "@/pages/Dashboard";
 import NotFound from "@/pages/NotFound";
 import { AccessGate } from "@/components/accounts/AccessGate";
-import { SessionContextProvider } from "@/contexts/SessionContext";
+import { Button } from '@/components/ui/button';
+import { brandLogo } from '@/lib/hka-content';
+import type { Profile, Role } from '@/lib/academy';
+import { SessionContextProvider, useSession } from "@/contexts/SessionContext";
 
 import { StudentPreview } from '@/components/accounts/OwnerDashboard';
+
+const dashboardPath: Record<Role, string> = {
+  student: '/dashboard/student',
+  guardian: '/dashboard/parent',
+  coach: '/dashboard/coach',
+  admin: '/dashboard/admin',
+};
+
+const roleMessage: Record<Role, string> = {
+  admin: 'Your Founder dashboard and academy overview are ready.',
+  coach: 'Your coaching workspace and student updates are ready.',
+  student: 'Your learning and horse-care space is ready for you.',
+  guardian: 'Your family learning overview and academy updates are ready.',
+};
+
+function greetingFor(timezone: string) {
+  try {
+    const hour = Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hourCycle: 'h23', timeZone: timezone }).formatToParts(new Date()).find((part) => part.type === 'hour')?.value);
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  } catch {
+    const hour = new Date().getHours();
+    return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  }
+}
+
+function preferredFirstName(profile: Profile) {
+  const namedProfile = profile as Profile & { preferred_first_name?: string; first_name?: string };
+  return namedProfile.preferred_first_name?.trim() || namedProfile.first_name?.trim() || profile.full_name.trim().split(/\s+/)[0] || 'friend';
+}
+
+function WelcomeExperience() {
+  const { session, profile, loading, error } = useSession();
+  const navigate = useNavigate();
+  const welcomedUser = useRef<string | null>(null);
+  const [activeUser, setActiveUser] = useState<string | null>(null);
+  const [leaving, setLeaving] = useState(false);
+
+  const finish = useCallback(() => {
+    if (!profile) return;
+    setActiveUser(null);
+    setLeaving(false);
+    navigate(dashboardPath[profile.role], { replace: true });
+  }, [navigate, profile]);
+
+  useEffect(() => {
+    if (!session) {
+      welcomedUser.current = null;
+      setActiveUser(null);
+      setLeaving(false);
+      return;
+    }
+    if (loading || error || !profile || welcomedUser.current === session.user.id) return;
+    welcomedUser.current = session.user.id;
+    setLeaving(false);
+    setActiveUser(session.user.id);
+  }, [error, loading, profile, session]);
+
+  useEffect(() => {
+    if (!activeUser) return;
+    const welcomeTimer = window.setTimeout(() => setLeaving(true), 1450);
+    return () => window.clearTimeout(welcomeTimer);
+  }, [activeUser]);
+
+  useEffect(() => {
+    if (!activeUser || !leaving) return;
+    const transitionTimer = window.setTimeout(finish, 250);
+    return () => window.clearTimeout(transitionTimer);
+  }, [activeUser, finish, leaving]);
+
+  if (!activeUser || !profile || activeUser !== session?.user.id) return null;
+
+  return <div className={'fixed inset-0 z-[100] flex min-h-dvh items-center justify-center overflow-hidden bg-[#F6F1E7] px-6 py-10 text-center transition-opacity duration-300 ' + (leaving ? 'opacity-0' : 'opacity-100')} role='dialog' aria-modal='true' aria-labelledby='hka-welcome-title'>
+    <div className='absolute inset-x-0 top-0 h-1 bg-[#B79B62]' />
+    <div className='mx-auto flex max-w-xl flex-col items-center'>
+      <img src={brandLogo.src} alt={brandLogo.alt} width={brandLogo.width} height={brandLogo.height} className='mb-10 h-auto w-56 max-w-full sm:w-72' />
+      <p className='mb-5 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#8A7448]'>Rooted in Horsemanship. Inspired by Learning.</p>
+      <h1 id='hka-welcome-title' className='font-serif text-[clamp(2.5rem,7vw,4.75rem)] leading-[1.06] tracking-[-0.04em] text-[#2F4A3C]'>{greetingFor(profile.timezone)},<br /><span className='italic text-[#806D49]'>{preferredFirstName(profile)}.</span></h1>
+      <p className='mt-6 max-w-md text-sm leading-7 text-[#59645C]'>{roleMessage[profile.role]}</p>
+      <Button type='button' variant='ghost' className='mt-8 min-h-11 px-5 text-xs text-[#2F4A3C] underline decoration-[#B79B62] underline-offset-4 hover:bg-[#2F4A3C]/5' onClick={finish}>Skip welcome</Button>
+    </div>
+  </div>;
+}
 
 const queryClient = new QueryClient();
 
@@ -28,6 +116,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <SessionContextProvider>
+          <WelcomeExperience />
           <Routes>
             <Route element={<SiteLayout />}>
               <Route path="/" element={<Index />} />
