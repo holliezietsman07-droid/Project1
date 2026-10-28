@@ -74,11 +74,12 @@ create or replace function public.hka_coaches(person uuid) returns boolean langu
 
 create or replace function public.hka_signup_profile() returns trigger language plpgsql security definer set search_path='' as 
 declare
- dob date; display_name text; selected jsonb; item text; initial_role text:='student'; active_purpose text;
+ dob date; display_name text; selected jsonb; safe_onboarding jsonb; item text; initial_role text:='student'; active_purpose text;
 begin
  dob:=nullif(new.raw_user_meta_data->>'birth_date','')::date;
  display_name:=trim(coalesce(new.raw_user_meta_data->>'full_name',''));
  selected:=new.raw_user_meta_data->'account_purposes';
+ safe_onboarding:=coalesce(new.raw_user_meta_data->'onboarding','{}'::jsonb)-'guardian_code'-'coach_code';
  if selected is null or jsonb_typeof(selected)<>'array' then selected:=jsonb_build_array(coalesce(new.raw_user_meta_data->>'account_type','student')); end if;
  if jsonb_array_length(selected)=0 or exists(select 1 from jsonb_array_elements_text(selected) value where value not in ('student','guardian','coach','horse_owner')) then raise exception 'Choose a valid account purpose.'; end if;
  if dob is null or dob>current_date or dob<=date '1900-01-01' or char_length(display_name) not between 1 and 100 then raise exception 'A valid name and date of birth are required.'; end if;
@@ -93,7 +94,7 @@ begin
   if item in ('student','guardian','coach','horse_owner') then
    insert into public.hka_account_roles(user_id,purpose,status,is_active,onboarding,approved_at)
    values(new.id,item,case when item='coach' then 'requested' else 'authorized' end,item=active_purpose,
-    coalesce(new.raw_user_meta_data->'onboarding','{}'::jsonb),case when item='coach' then null else now() end)
+    safe_onboarding,case when item='coach' then null else now() end)
    on conflict(user_id,purpose) do nothing;
   end if;
  end loop;
@@ -109,6 +110,7 @@ begin
   on conflict(code_id,claimant_id) do nothing;
   update public.hka_student_link_codes c set uses=uses+1 where exists(select 1 from public.hka_link_requests r where r.code_id=c.id and r.claimant_id=new.id);
  end if;
+ update auth.users set raw_user_meta_data=jsonb_set(coalesce(raw_user_meta_data,'{}'::jsonb),'{onboarding}',safe_onboarding,true) where id=new.id;
  return new;
 end ;
 
