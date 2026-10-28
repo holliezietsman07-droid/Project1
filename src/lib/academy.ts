@@ -4,7 +4,7 @@ import { AuthApiError } from "@supabase/supabase-js";
 export type Role = "student" | "guardian" | "coach" | "admin";
 export type Profile = {
   id: string; full_name: string; birth_date: string; timezone: string; role: Role;
-  suspended: boolean; avatar_path: string | null; membership_tier?: 'free' | 'basic' | 'premium';
+  suspended: boolean; avatar_path: string | null; banner_path?: string | null; banner_subtitle?: string | null; membership_tier?: 'free' | 'basic' | 'premium';
   notification_preferences?: Record<string, boolean>;
 };
 export type Row = { id: string; [key: string]: string | number | boolean | null };
