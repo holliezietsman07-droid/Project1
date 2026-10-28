@@ -14,6 +14,8 @@ import { useRefreshAcademy, useRows } from '@/hooks/use-academy';
 import { HorseOrganizer, HorseReminderBell } from '@/components/accounts/HorseOrganizer';
 import { db, errorText, rpc, saveRow, type Row } from '@/lib/academy';
 
+import { AccountRoleSettings } from '@/components/accounts/AccountRoles';
+
 const IMAGE_TYPES = ['image/jpeg','image/png','image/webp'];
 
 export function usePrivateImage(path?: string | null,bucket='hka-private') {
@@ -117,7 +119,7 @@ function StudentOverview(){
 export function StudentDashboard() {
   const nav=useDashboardNavigation('student',['home','courses','coaching','horses','records','messages','profile'],'home');
   const titles:Record<string,string>={courses:'My Learning',coaching:'Coaching',horses:'Horses',records:'Achievements',messages:'Messages',profile:'Account Settings'};
-  const content=nav.current==='courses'?<CourseSection/>:nav.current==='coaching'?<CoachingSection/>:nav.current==='horses'?<HorseOrganizer Photo={PrivatePhoto} PhotoEditor={CircularPhotoEditor}/>:nav.current==='records'?<RecordsSection/>:nav.current==='messages'?<MessagesSection/>:nav.current==='profile'?<ProfileSection/>:null;
+  const content=nav.current==='courses'?<CourseSection/>:nav.current==='coaching'?<CoachingSection/>:nav.current==='horses'?<HorseOrganizer Photo={PrivatePhoto} PhotoEditor={CircularPhotoEditor}/>:nav.current==='records'?<RecordsSection/>:nav.current==='messages'?<MessagesSection/>:nav.current==='profile'?<div className='space-y-6'><ProfileSection/><AccountRoleSettings/></div>:null;
   return <section className='dashboard-shell page-width py-8 lg:py-10'>{nav.current==='home'?<><DashboardHero label='Student dashboard' defaultSubtitle='Learning, coaching, horses and feedback — securely saved to your account.' actions={<HorseReminderBell/>}/><StudentOverview/></>:<><nav aria-label='Breadcrumb' className='mb-3 text-xs text-muted-foreground'><Link to='/dashboard/student' className='hover:underline'>Dashboard Home</Link><span aria-hidden='true'> / </span><span>{titles[nav.current]}</span></nav><div className='mb-7 flex flex-wrap items-center justify-between gap-3'><h1 className='font-serif text-3xl text-primary sm:text-4xl'>{titles[nav.current]}</h1><DashboardHistoryControls {...nav}/></div>{content}</>}<button type='button' className='floating-message' aria-label='Open messages' onClick={()=>nav.select('messages')}><MessageCircle className='size-6'/></button></section>;
 }
 /* <reference types="vite/client" />

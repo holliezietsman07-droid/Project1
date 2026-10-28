@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { useSession } from "@/contexts/SessionContext";
 import { db, errorText, isEmailRateLimitError, isMinor, registrationErrorText } from "@/lib/academy";
 
+import { PurposeSelector, RelevantOnboardingFields, type AccountPurpose } from '@/components/accounts/AccountRoles';
+
 type AccountMode = "sign-in" | "sign-up" | "password-reset" | "update-password";
 const screens = {
   "sign-in": { eyebrow: "Your place in the academy", title: "Welcome back.", description: "A thoughtful space for your learning journey." },
@@ -19,7 +21,8 @@ const screens = {
 export default function AccountPage({ mode }: { mode: AccountMode }) {
   const { session, loading, recovery } = useSession();
   const location = useLocation();
-  const [details, setDetails] = useState<{ full_name: string; birth_date: string; timezone: string; account_type: string } | null>(null);
+  const [details, setDetails] = useState<{ full_name: string; birth_date: string; timezone: string; account_type: string; account_purposes: AccountPurpose[]; onboarding: Record<string, unknown> } | null>(null);
+  const [purposes, setPurposes] = useState<AccountPurpose[]>(['student']);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
@@ -35,10 +38,13 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const birth = String(data.get("birth_date"));
+    if (!purposes.length) { setMessage('Choose at least one account purpose.'); return; }
+    if (purposes.includes('guardian') && isMinor(birth)) { setMessage('A parent or guardian account requires an adult aged 18 or over.'); return; }
+    const onboarding={primary_discipline:data.get('primary_discipline'),additional_disciplines:data.get('additional_disciplines'),experience_level:data.get('experience_level'),riding_goals:data.get('riding_goals'),horse_information:data.get('student_horse')||data.get('owner_horse'),intro_horse_care:data.get('intro_horse_care')==='on',guardian_code:data.get('guardian_code'),coaching_disciplines:data.get('coaching_disciplines'),qualifications:data.get('qualifications'),coach_code:data.get('coach_code'),owner_type:data.get('owner_type')};
     const role = String(data.get("account_type"));
     if (role === "guardian" && isMinor(birth)) { setMessage("A parent or guardian account requires an adult aged 18 or over."); return; }
     setMessage("");
-    setDetails({ full_name: String(data.get("full_name")).trim(), birth_date: birth, timezone: String(data.get("timezone")).trim(), account_type: role });
+    setDetails({ full_name: String(data.get("full_name")).trim(), birth_date: birth, timezone: String(data.get("timezone")).trim(), account_type: role, account_purposes: purposes, onboarding });
   }
   async function register(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -93,11 +99,11 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
         <div className="space-y-2"><Label htmlFor="full_name">Full name</Label><Input id="full_name" name="full_name" autoComplete="name" required maxLength={100} /></div>
         <div className="space-y-2"><Label htmlFor="birth_date">Date of birth</Label><Input id="birth_date" name="birth_date" type="date" autoComplete="bday" required min="1900-01-02" max={new Date().toISOString().slice(0, 10)} /></div>
         <div className="space-y-2"><Label htmlFor="timezone">Timezone</Label><Input id="timezone" name="timezone" defaultValue='Africa/Lusaka' required maxLength={100} /></div>
-        <div className="space-y-2"><Label htmlFor="account_type">Account type</Label><select id="account_type" name="account_type" className="h-11 w-full rounded-sm border bg-background px-3"><option value="student">Student / horse owner</option><option value="guardian">Parent / guardian (18+)</option></select></div>
-        <p className="text-xs leading-6 text-muted-foreground">Your profile stays private. Students under 18 need a guardian relationship verified by the academy and accepted by their guardian before accessing lessons or uploading files. Coach and administrator roles are assigned by authorised administrators.</p>
+        <div className="space-y-2"><Label htmlFor="account_type">Account purposes</Label><PurposeSelector selected={purposes} onChange={setPurposes}/><RelevantOnboardingFields selected={purposes}/><div className='hidden'><Label>Legacy account type</Label><select id="account_type" name="account_type" className="h-11 w-full rounded-sm border bg-background px-3"><option value="student">Student / horse owner</option><option value="guardian">Parent / guardian (18+)</option></select></div></div>
+        <p className="text-xs leading-6 text-muted-foreground">Your profile stays private. Invitation codes create approval requests only. Coach access requires Founder approval, and minors require verified guardian consent.</p>
         <Button className="h-12 w-full rounded-sm">Continue to account details</Button>
       </form> : mode === 'sign-up' && details ? <form onSubmit={register} className='space-y-5'>
-        {!registrationComplete && <div className='text-sm'><p>Registering {details.full_name} as a {details.account_type}.</p><Button type='button' variant='link' className='px-0' onClick={() => setDetails(null)}>Change details</Button></div>}
+        {!registrationComplete && <div className='text-sm'><p>Registering {details.full_name} for {details.account_purposes.map(value=>value.replaceAll('_',' ')).join(', ')}.</p><Button type='button' variant='link' className='px-0' onClick={() => setDetails(null)}>Change details</Button></div>}
         <div className='space-y-2'><Label htmlFor='registration_email'>Email address</Label><Input id='registration_email' name='email' type='email' autoComplete='email' required disabled={busy || registrationComplete} /></div>
         <div className='space-y-2'><Label htmlFor='registration_password'>Password</Label><Input id='registration_password' name='password' type='password' autoComplete='new-password' required minLength={12} disabled={busy || registrationComplete} /></div>
         <div className='space-y-2'><Label htmlFor='registration_password_confirmation'>Confirm password</Label><Input id='registration_password_confirmation' name='password_confirmation' type='password' autoComplete='new-password' required minLength={12} disabled={busy || registrationComplete} /></div>

@@ -14,6 +14,7 @@ import Memberships from "@/pages/Memberships";
 import About from "@/pages/About";
 import AccountPage from "@/pages/AccountPage";
 import { DashboardIndex, DashboardPage } from "@/pages/Dashboard";
+import MemberAccountSettings from '@/pages/MemberAccountSettings';
 import NotFound from "@/pages/NotFound";
 import { AccessGate } from "@/components/accounts/AccessGate";
 import { Button } from '@/components/ui/button';
@@ -129,7 +130,7 @@ const App = () => (
               <Route path="/update-password" element={<AccountPage key="update-password" mode="update-password" />} />
               <Route path={'/learning-pathways/:pathwayId'} element={<PathwayDetail />} />
               <Route element={<AccessGate />}>
-                <Route path="/dashboard" element={<DashboardIndex />} />
+                <Route path="/dashboard" element={<DashboardIndex />} /><Route path='/dashboard/account' element={<MemberAccountSettings/>}/>
                 <Route element={<AccessGate roles={["student"]} />}><Route path="/dashboard/student" element={<DashboardPage role="student" />} /></Route>
                 <Route element={<AccessGate roles={["guardian"]} />}><Route path="/dashboard/parent" element={<DashboardPage role="guardian" />} /></Route>
                 <Route element={<AccessGate roles={["coach"]} />}><Route path="/dashboard/coach" element={<DashboardPage role="coach" />} /></Route>
