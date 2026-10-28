@@ -1,5 +1,5 @@
 import { Link, Navigate } from "react-router-dom";
-import { BookOpen, CalendarDays, GraduationCap, HeartHandshake, ShieldCheck, Users } from "lucide-react";
+import { BookOpen, CalendarDays, GraduationCap, HeartHandshake, MessageCircle, ShieldCheck, Users } from "lucide-react";
 import { useSession } from "@/contexts/SessionContext";
 import { Progress } from '@/components/ui/progress';
 import { useRows } from "@/hooks/use-academy";
@@ -44,6 +44,7 @@ const panels: Record<Role, Panel[]> = {
     { id: "coaching", title: "Student appointments", table: "hka_appointments", empty: "No coaching appointments scheduled." },
     { id: "progress", title: "Student achievements", table: "hka_achievements", empty: "Achievements will appear here." },
     { id: "notices", title: "Updates", table: "hka_notifications", empty: "No new updates." },
+    { id: 'messages', title: 'Messages', table: 'hka_messages', empty: 'No academy messages yet.' },
   ],
   coach: [
     { id: "courses", title: "My courses", table: "hka_courses", empty: "No courses have been assigned." },
@@ -71,9 +72,9 @@ export function DashboardPage({ role }: { role: Role }) {
   if (role === 'student') return <StudentDashboard />;
   if (role === 'admin') return <OwnerDashboard />;
   const Icon = roleIcon[role];
-  return <section className="page-width py-12 lg:py-16">
-    <div className="flex flex-col justify-between gap-6 border-b border-primary/15 pb-8 md:flex-row md:items-end"><div><p className="eyebrow mb-4 text-[#76633e]">{roleName[role]} dashboard</p><h1 className="section-heading">Welcome, {profile.full_name}.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">Your private academy space brings current learning, coaching and account updates together.</p>{role === 'coach' && <Link to={'/dashboard/academy'} className={'mt-5 inline-flex min-h-11 items-center rounded-sm bg-primary px-5 text-xs font-medium text-primary-foreground'}>Open academy workspace</Link>}</div><Icon aria-hidden="true" strokeWidth={1.25} className="size-12 text-[#826e45]" /></div>
+  return <section className="dashboard-shell page-width py-8 lg:py-10">
+    <div className="dashboard-hero flex flex-col justify-between gap-6 md:flex-row md:items-end"><div><p className="eyebrow mb-4 text-[#76633e]">{roleName[role]} dashboard</p><h1 className="section-heading">Welcome, {profile.full_name}.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">Your private academy space brings current learning, coaching and account updates together.</p>{role === 'coach' && <Link to={'/dashboard/academy'} className={'mt-5 inline-flex min-h-11 items-center rounded-sm bg-primary px-5 text-xs font-medium text-primary-foreground'}>Open academy workspace</Link>}</div><Icon aria-hidden="true" strokeWidth={1.25} className="size-12 text-[#826e45]" /></div>
      <nav aria-label={`${roleName[role]} dashboard navigation`} className="my-8 flex flex-wrap gap-3">{panels[role].map((panel) => <a key={panel.id} href={`#${panel.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-primary/20 px-4 text-sm hover:bg-primary/5">{panel.id.includes("coaching") ? <CalendarDays className="size-4" /> : panel.id.includes("student") || panel.id.includes("member") ? <Users className="size-4" /> : <BookOpen className="size-4" />}{panel.title}</a>)}</nav>
-    <div className="grid gap-5 md:grid-cols-2">{panels[role].map((panel) => <DataPanel key={panel.id} {...panel} />)}</div>
+    <div className="grid gap-5 md:grid-cols-2">{panels[role].map((panel) => <DataPanel key={panel.id} {...panel} />)}</div>{role === 'guardian' && <a href='#messages' className='floating-message' aria-label='Open messages'><MessageCircle className='size-6' /></a>}
   </section>;
 }

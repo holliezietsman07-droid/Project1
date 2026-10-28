@@ -59,5 +59,19 @@
   .section-heading { @apply font-serif text-4xl leading-[1.15] tracking-[-0.035em] sm:text-5xl; }
   .text-link { @apply inline-flex min-h-11 items-center gap-2 text-sm font-medium underline decoration-primary/30 underline-offset-[6px] transition-colors hover:decoration-primary; }
   .skip-link { @apply fixed left-4 top-4 z-[100] -translate-y-24 rounded-sm bg-primary px-6 py-4 text-primary-foreground focus:translate-y-0; }
-  .paper-card { @apply rounded-sm border border-primary/15 bg-card; } .hka-sidebar a:hover, .hka-sidebar button:hover { background-color: rgb(183 155 98 / 0.16); } .hka-sidebar a.font-semibold { background-color: rgb(183 155 98 / 0.22); color: #fff9ee; }
+  .paper-card { @apply rounded-xl border border-[#d8d0c0] bg-[#fffdf8] shadow-[0_10px_30px_rgba(39,61,50,0.05)]; }
+  .hka-sidebar { background: linear-gradient(165deg, #183d31 0%, #0f3027 100%); box-shadow: 10px 0 35px rgb(22 54 44 / 0.08); }
+  .hka-sidebar a, .hka-sidebar button { border-radius: 0.5rem; transition: background-color 160ms ease, color 160ms ease, transform 160ms ease; }
+  .hka-sidebar a:hover, .hka-sidebar button:hover { background-color: rgb(183 155 98 / 0.16); transform: translateX(2px); }
+  .hka-sidebar a.font-semibold { background: linear-gradient(90deg, rgb(183 155 98 / 0.36), rgb(183 155 98 / 0.15)); box-shadow: inset 3px 0 #c5a85f; color: #fff9ee; }
+  .dashboard-shell { position: relative; isolation: isolate; }
+  .dashboard-hero { position: relative; overflow: hidden; border: 1px solid rgb(183 155 98 / 0.25); border-radius: 0.9rem; background: linear-gradient(90deg, rgb(255 253 248 / 0.98) 0%, rgb(255 253 248 / 0.94) 48%, rgb(255 253 248 / 0.3) 100%), url('/images/PATHWAY_01_Riding_Rider_Development.webp') center 42% / cover; box-shadow: 0 18px 48px rgb(36 60 49 / 0.08); padding: clamp(1.5rem, 4vw, 3.25rem); }
+  .dashboard-shell [role='tablist'] { gap: 0.35rem; border: 1px solid rgb(47 74 60 / 0.12); border-radius: 0.75rem; background: rgb(255 253 248 / 0.86); padding: 0.35rem; }
+  .dashboard-shell [role='tab'] { min-height: 2.65rem; border-radius: 0.5rem; padding-inline: 1rem; }
+  .dashboard-shell [role='tab'][data-state='active'] { background: #24483b; color: #fffaf0; box-shadow: 0 6px 16px rgb(36 72 59 / 0.18); }
+  .dashboard-shell input, .dashboard-shell textarea, .dashboard-shell button[role='combobox'] { border-radius: 0.45rem; background-color: #fffdfa; }
+  .dashboard-topbar { background: rgb(255 253 248 / 0.92); box-shadow: 0 1px 0 rgb(47 74 60 / 0.1); backdrop-filter: blur(18px); }
+  .floating-message { @apply fixed bottom-5 right-5 z-40 inline-flex size-14 items-center justify-center rounded-full bg-[#174c3d] text-white shadow-[0_12px_30px_rgba(18,62,49,0.32)] transition hover:-translate-y-1 hover:bg-[#103b2f] focus-visible:outline-offset-4; }
+  @media (min-width: 1280px) { .page-width { max-width: 1440px; } }
+  @media (max-width: 640px) { .dashboard-hero { background: linear-gradient(90deg, rgb(255 253 248 / 0.98), rgb(255 253 248 / 0.84)), url('/images/PATHWAY_01_Riding_Rider_Development.webp') center / cover; padding: 1.25rem; } .paper-card { border-radius: 0.75rem; } }
 }
