@@ -1,11 +1,11 @@
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AlertCircle, BookOpen, CalendarDays, GraduationCap, Search, Settings, Sparkles, Users } from 'lucide-react';
+import { BookOpen, GraduationCap, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '@/contexts/SessionContext';
@@ -109,7 +109,7 @@ export function StudentPreview(){
 
 export function OwnerDashboard(){
  const nav=useDashboardNavigation('founder',['overview','students','coaching','memberships','settings'],'overview');
- return <section className='dashboard-shell page-width py-8 lg:py-10'><DashboardHero label='Founder · Owner · Head Coach' defaultSubtitle={nav.current==='settings'?'Configure academy preferences, access safeguards, learning controls and notifications.':'Private academy operations, live records and items requiring your approval.'} actions={<><DashboardHistoryControls {...nav}/><Button asChild><Link to='/dashboard/academy'><BookOpen/>Academy workspace</Link></Button><Button asChild variant='outline'><Link to='/dashboard/student-preview'><GraduationCap/>Student preview</Link></Button></>}/><Tabs value={nav.current} onValueChange={nav.select} className='mt-8'><TabsList className='mb-7 h-auto flex-wrap'><TabsTrigger value='overview'><AlertCircle className='mr-2 size-4'/>Overview</TabsTrigger><TabsTrigger value='students'><Users className='mr-2 size-4'/>Students</TabsTrigger><TabsTrigger value='coaching'><CalendarDays className='mr-2 size-4'/>Coaching</TabsTrigger><TabsTrigger value='memberships'><HorseshoeIcon className='mr-2 size-4'/>Memberships & horses</TabsTrigger><TabsTrigger value='settings'><Settings className='mr-2 size-4'/>Settings</TabsTrigger></TabsList><TabsContent value='overview'><Overview/></TabsContent><TabsContent value='students'><StudentManagement/></TabsContent><TabsContent value='coaching'><CoachingManagement/></TabsContent><TabsContent value='memberships'><MembershipsAndHorses/></TabsContent><TabsContent value='settings'><SettingsPanelV2/></TabsContent></Tabs><div className='mt-7 grid gap-4 md:grid-cols-3'><Button asChild variant='outline' className='h-auto justify-start p-5'><Link to='/dashboard/academy'><BookOpen className='mr-3'/>Course administration</Link></Button><Button asChild variant='outline' className='h-auto justify-start p-5'><Link to='/dashboard/academy'><GraduationCap className='mr-3'/>Assessments & submissions</Link></Button><Button asChild variant='outline' className='hidden'><Link to='/dashboard/academy'><Sparkles className='mr-3'/>Programme management</Link></Button></div></section>;
+ return <section className='dashboard-shell page-width py-8 lg:py-10'><DashboardHero label='Founder · Owner · Head Coach' defaultSubtitle={nav.current==='settings'?'Configure academy preferences, access safeguards, learning controls and notifications.':'Private academy operations, live records and items requiring your approval.'} actions={<><DashboardHistoryControls {...nav}/><Button asChild><Link to='/dashboard/academy'><BookOpen/>Academy workspace</Link></Button><Button asChild variant='outline'><Link to='/dashboard/student-preview'><GraduationCap/>Student preview</Link></Button></>}/><Tabs value={nav.current} onValueChange={nav.select} className='mt-8'><span className='sr-only'>Founder dashboard section</span><TabsContent value='overview'><Overview/></TabsContent><TabsContent value='students'><StudentManagement/></TabsContent><TabsContent value='coaching'><CoachingManagement/></TabsContent><TabsContent value='memberships'><MembershipsAndHorses/></TabsContent><TabsContent value='settings'><SettingsPanelV2/></TabsContent></Tabs><></></section>;
 }
 /* <reference types="vite/client" />
 
