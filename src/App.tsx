@@ -21,7 +21,7 @@ import { brandLogo } from '@/lib/hka-content';
 import type { Profile, Role } from '@/lib/academy';
 import { SessionContextProvider, useSession } from "@/contexts/SessionContext";
 
-import { StudentPreview } from '@/components/accounts/OwnerDashboard';
+import { StudentManagementProfile, StudentPreview } from '@/components/accounts/OwnerDashboard';
 
 const dashboardPath: Record<Role, string> = {
   student: '/dashboard/student',
@@ -136,6 +136,7 @@ const App = () => (
                 <Route element={<AccessGate roles={["admin"]} />}><Route path="/dashboard/admin" element={<DashboardPage role="admin" />} /></Route>
                 <Route element={<AccessGate roles={['student']} />}><Route path={'/academy/courses/:courseId'} element={<CoursePlayer />} /></Route>
                 <Route element={<AccessGate roles={['admin']} />}><Route path={'/dashboard/student-preview'} element={<StudentPreview />} /></Route>
+                <Route element={<AccessGate roles={['coach', 'admin']} />}><Route path={'/dashboard/students/:studentId'} element={<StudentManagementProfile />} /></Route>
                 <Route element={<AccessGate roles={['coach', 'admin']} />}><Route path={'/dashboard/academy'} element={<AcademyWorkspace />} /></Route>
               </Route>
               {/* An unverified redirect must never display a payment success claim. */}

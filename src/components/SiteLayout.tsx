@@ -6,7 +6,11 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Wordmark } from "@/components/Wordmark";
 import { useSession } from '@/contexts/SessionContext';
 import { MemberNavigation } from "@/components/accounts/MemberNavigation";
+import { db } from '@/lib/academy';
 import { academy } from "@/lib/hka-content";
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -33,9 +37,14 @@ const titles: Record<string, string> = {
 
 export default function SiteLayout() {
   const location = useLocation();
-  const { profile } = useSession();
+  const { profile, session } = useSession();
+  const [signInOpen, setSignInOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); const [sidebarCollapsed, setSidebarCollapsed] = useState(false); const navigate = useNavigate();
   const lastPath = useRef(location.pathname); const memberMode = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/academy'); const section = new URLSearchParams(location.search).get('section') || ''; const dashboardRoot = profile?.role === 'admin' ? '/dashboard/admin' : profile?.role === 'student' ? '/dashboard/student' : profile?.role === 'guardian' ? '/dashboard/parent' : profile?.role === 'coach' ? '/dashboard/coach' : '/dashboard'; const sectionLabels = dashboardRoot === '/dashboard/admin' ? [['overview','Overview'],['students','Students'],['coaching','Coaching'],['memberships','Memberships & horses'],['settings','Settings']] : dashboardRoot === '/dashboard/student' ? [['courses','My learning'],['coaching','Coaching'],['horses','Horses'],['records','Achievements'],['profile','Account settings']] : [];
+
+  useEffect(() => {
+    if (session) setSignInOpen(false);
+  }, [session]);
 
   useEffect(() => {
     document.title = (titles[location.pathname] ?? (/^\/learning-pathways\/[^/]+$/.test(location.pathname) ? "Learning pathway" : /^\/academy\/courses\/[^/]+$/.test(location.pathname) ? "Course" : "Page not found")) + " | HKA Equestrian";
@@ -55,7 +64,8 @@ export default function SiteLayout() {
   }, [location.pathname, location.hash]);
 
   if (memberMode) return (<div className='min-h-screen bg-background lg:flex'><a href='#main-content' className='skip-link'>Skip to content</a><aside className={cn('hidden shrink-0 border-r border-primary/15 bg-[#edeade] transition-[width] lg:flex lg:min-h-screen lg:flex-col',sidebarCollapsed?'w-20':'w-72')}><div className='flex min-h-24 items-center justify-between border-b border-primary/10 px-4'>{!sidebarCollapsed&&<Wordmark/>}<Button variant='ghost' size='icon' onClick={()=>setSidebarCollapsed(value=>!value)} aria-label={sidebarCollapsed?'Expand sidebar':'Collapse sidebar'}>{sidebarCollapsed?<ChevronRight/>:<ChevronLeft/>}</Button></div><nav aria-label='Dashboard navigation' className='flex-1 space-y-1 p-3'><Link to={dashboardRoot} className={cn('flex min-h-11 items-center gap-3 rounded-sm px-3 text-sm hover:bg-primary/10',!section&&location.pathname===dashboardRoot&&'bg-primary/10 font-semibold')}><LayoutDashboard className='size-5 shrink-0'/>{!sidebarCollapsed&&'Dashboard home'}</Link>{sectionLabels.map(([key,label])=><Link key={key} to={dashboardRoot+'?section='+key} className={cn('flex min-h-11 items-center gap-3 rounded-sm px-3 text-sm hover:bg-primary/10',section===key&&'bg-primary/10 font-semibold')}><Users className='size-5 shrink-0'/>{!sidebarCollapsed&&label}</Link>)}{(profile?.role === 'admin' || profile?.role === 'coach') && <Link to='/dashboard/academy' className={cn('flex min-h-11 items-center gap-3 rounded-sm px-3 text-sm hover:bg-primary/10',location.pathname==='/dashboard/academy'&&'bg-primary/10 font-semibold')}><BookOpen className='size-5 shrink-0'/>{!sidebarCollapsed&&'Academy workspace'}</Link>}<Link to='/' className='flex min-h-11 items-center gap-3 rounded-sm px-3 text-sm hover:bg-primary/10'><Home className='size-5 shrink-0'/>{!sidebarCollapsed&&'Public website'}</Link></nav>{!sidebarCollapsed&&<div className='border-t border-primary/10 p-4'><MemberNavigation/></div>}</aside><div className='min-w-0 flex-1'><header className='sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-primary/15 bg-background/95 px-4 backdrop-blur lg:hidden'><Button variant='ghost' size='icon' onClick={()=>navigate(-1)} aria-label='Go back'><ArrowLeft/></Button><p className='truncate font-serif text-lg'>{titles[location.pathname]??'HKA Academy'}</p><Sheet open={menuOpen} onOpenChange={setMenuOpen}><SheetTrigger asChild><Button variant='ghost' size='icon' aria-label='Open dashboard menu'><Menu/></Button></SheetTrigger><SheetContent className='w-[min(88vw,360px)] overflow-y-auto'><SheetHeader className='mb-6 text-left'><SheetTitle>Dashboard menu</SheetTitle><SheetDescription>Open your authorised academy pages.</SheetDescription></SheetHeader><nav className='flex flex-col gap-2'><Link to={dashboardRoot} onClick={()=>setMenuOpen(false)} className='rounded-sm px-3 py-3 hover:bg-primary/5'>Dashboard home</Link>{sectionLabels.map(([key,label])=><Link key={key} to={dashboardRoot+'?section='+key} onClick={()=>setMenuOpen(false)} className='rounded-sm px-3 py-3 hover:bg-primary/5'>{label}</Link>)}{(profile?.role === 'admin' || profile?.role === 'coach') && <Link to='/dashboard/academy' onClick={()=>setMenuOpen(false)} className='rounded-sm px-3 py-3 hover:bg-primary/5'>Academy workspace</Link>}<Link to='/' onClick={()=>setMenuOpen(false)} className='rounded-sm px-3 py-3 hover:bg-primary/5'>Public website</Link><MemberNavigation mobile/></nav></SheetContent></Sheet></header><main id='main-content' tabIndex={-1} className='min-w-0 focus:outline-none'><Outlet/></main></div></div>); return (
-    <div className="flex min-h-screen flex-col">
+    <>
+    <div onClickCapture={(event) => { const anchor=(event.target as HTMLElement).closest('a'); if(anchor?.getAttribute('href')==='/sign-in'){ event.preventDefault(); setMenuOpen(false); setSignInOpen(true); } }} className="flex min-h-screen flex-col">
       <a href="#main-content" className="skip-link">Skip to content</a>
       <header className="relative z-30 border-b border-primary/10 bg-background">
         <div className="page-width flex min-h-24 items-center justify-between gap-6 py-2">
@@ -110,5 +120,20 @@ export default function SiteLayout() {
         </div>
       </footer>
     </div>
+    <Dialog open={signInOpen} onOpenChange={setSignInOpen}>
+      <DialogContent className='max-h-[92dvh] max-w-md overflow-y-auto border-[#B79B62]/40 bg-[#F6F1E7] p-6 sm:p-8'>
+        <DialogHeader className='text-left'>
+          <p className='eyebrow text-[#76633e]'>Your place in the academy</p>
+          <DialogTitle className='font-serif text-3xl text-[#2F4A3C]'>Welcome back.</DialogTitle>
+          <DialogDescription>Sign in securely without leaving the HKA homepage.</DialogDescription>
+        </DialogHeader>
+        <Auth supabaseClient={db()} providers={[]} theme='light' view='sign_in' showLinks={false} redirectTo={window.location.origin + '/dashboard'} appearance={{ theme: ThemeSupa, variables: { default: { colors: { brand: '#304b3f', brandAccent: '#243c31', inputBackground: '#f7f3e9', inputText: '#304b3f', inputLabelText: '#304b3f' }, radii: { borderRadiusButton: '2px', buttonBorderRadius: '2px', inputBorderRadius: '2px' } } } }} />
+        <div className='flex flex-wrap justify-between gap-3 border-t border-primary/15 pt-4 text-xs'>
+          <Link to='/password-reset' onClick={() => setSignInOpen(false)} className='underline underline-offset-4'>Forgot password?</Link>
+          <Link to='/sign-up' onClick={() => setSignInOpen(false)} className='underline underline-offset-4'>Create account</Link>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

@@ -414,4 +414,32 @@ grant execute on function public.hka_prepare_care_email_deliveries(timestamptz),
   public.hka_hold_care_email_delivery(uuid,uuid,text,text)
 to service_role;
 
+
+-- Private academy messaging with guardian oversight for minors.
+create table if not exists public.hka_messages (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.hka_profiles(id) on delete cascade,
+  sender_id uuid not null references public.hka_profiles(id) on delete cascade,
+  recipient_id uuid not null references public.hka_profiles(id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 4000),
+  read_at timestamptz,
+  created_at timestamptz not null default now(),
+  check (sender_id <> recipient_id)
+);
+alter table public.hka_messages enable row level security;
+grant select,insert,update(read_at) on public.hka_messages to authenticated;
+create policy hka_messages_read on public.hka_messages for select to authenticated using (
+  auth.uid() in (sender_id,recipient_id) or public.hka_admin()
+  or (public.hka_view_student(student_id) and exists(select 1 from public.hka_profiles p where p.id=auth.uid() and p.role='guardian'))
+);
+create policy hka_messages_insert on public.hka_messages for insert to authenticated with check (
+  sender_id=auth.uid() and (
+    public.hka_admin() or public.hka_teach(student_id)
+    or (student_id=auth.uid() and recipient_id in (select cs.coach_id from public.hka_coach_students cs where cs.student_id=auth.uid()))
+    or (public.hka_view_student(student_id) and exists(select 1 from public.hka_profiles p where p.id=auth.uid() and p.role='guardian'))
+  )
+);
+create policy hka_messages_update_read on public.hka_messages for update to authenticated using (recipient_id=auth.uid()) with check (recipient_id=auth.uid());
+create index if not exists hka_messages_student_created_idx on public.hka_messages(student_id,created_at desc);
+
 commit;

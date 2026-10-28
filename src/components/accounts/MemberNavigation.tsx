@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "@/contexts/SessionContext";
 import { errorText } from "@/lib/academy";
 
-export function MemberNavigation({ mobile = false }: { mobile?: boolean }) {
+export function MemberNavigation({ mobile = false, onSignIn }: { mobile?: boolean; onSignIn?: () => void }) {
   const { session, signOut } = useSession(); const navigate = useNavigate();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
