@@ -8,8 +8,8 @@ export default function Index() {
   return (
     <>
       <section className="page-width grid items-center gap-12 pb-14 pt-12 lg:grid-cols-[1fr_1fr] lg:gap-14 lg:pb-16 lg:pt-14">
-        <div className="max-w-xl">
-          <p className="eyebrow mb-7 flex items-center gap-3"><span className="h-px w-8 bg-[#B79B62]" />A life with horses. A journey of learning.</p>
+        <div className="min-w-0 max-w-xl">
+          <p className="eyebrow mb-7 flex min-w-0 items-start gap-3"><span className="mt-2 h-px w-8 shrink-0 bg-[#B79B62]" /><span className="min-w-0">A life with horses. A journey of learning.</span></p>
           <h1 className="font-serif text-[clamp(2.8rem,5vw,4.5rem)] leading-[1.06] tracking-[-0.045em]">
             Rooted in<br />Horsemanship.<br /><span className="italic text-[#7a694a]">Inspired by<br />Learning.</span>
           </h1>

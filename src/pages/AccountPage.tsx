@@ -27,6 +27,7 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
   const [busy, setBusy] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [registrationCooldown, setRegistrationCooldown] = useState(false);
+  const [staySignedIn, setStaySignedIn] = useState(true);
   const registrationLock = useRef(false);
   const screen = screens[mode];
   if (recovery && mode !== "update-password") return <Navigate to="/update-password" replace />;
@@ -59,8 +60,9 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
     setBusy(true);
     setMessage('');
     try {
-      const { error } = await db().auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + '/dashboard', data: details } });
+      const { data: authData, error } = await db().auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + '/dashboard', data: details } });
       if (error) throw error;
+      if (!staySignedIn && authData.session) await db().auth.signOut({ scope: 'local' });
       setRegistrationComplete(true);
       setMessage('Registration received. Check your inbox for the verification email before signing in.');
     } catch (error) {
@@ -107,6 +109,7 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
         <div className='space-y-2'><Label htmlFor='registration_email'>Email address</Label><Input id='registration_email' name='email' type='email' autoComplete='email' required disabled={busy || registrationComplete} /></div>
         <div className='space-y-2'><Label htmlFor='registration_password'>Password</Label><Input id='registration_password' name='password' type='password' autoComplete='new-password' required minLength={12} disabled={busy || registrationComplete} /></div>
         <div className='space-y-2'><Label htmlFor='registration_password_confirmation'>Confirm password</Label><Input id='registration_password_confirmation' name='password_confirmation' type='password' autoComplete='new-password' required minLength={12} disabled={busy || registrationComplete} /></div>
+        <label className='flex min-h-11 cursor-pointer items-start gap-3 text-sm'><input type='checkbox' checked={staySignedIn} onChange={event=>setStaySignedIn(event.target.checked)} className='mt-0.5 size-4 accent-[#2F4A3C]' disabled={busy || registrationComplete}/><span>Stay signed in on this device<span className='mt-1 block text-xs leading-5 text-muted-foreground'>If email verification is required, your session begins only after successful verification.</span></span></label>
         <Button className='h-12 w-full rounded-sm' disabled={busy || registrationCooldown || registrationComplete}>{registrationComplete ? 'Registration received' : registrationCooldown ? 'Please try again later' : busy ? 'Creating account…' : 'Create account'}</Button>
       </form> : mode === "update-password" && !session ? <p className="text-sm leading-7">Open the recovery link from your email, or <Link to="/password-reset" className="underline">request a new link</Link>.</p> : <>
         {details && <div className="mb-5 text-sm"><p>Registering {details.full_name} as a {details.account_type}.</p><Button variant="link" className="px-0" onClick={() => setDetails(null)}>Change details</Button></div>}
