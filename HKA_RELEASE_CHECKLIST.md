@@ -2,6 +2,84 @@
 
 Updated: 2026-10-29. Release decision: **NOT READY**. Controlled live acceptance is **BLOCKED** for authenticated workflows.
 
+## Premium app-style UX refinement — 2026-10-29
+
+Latest local implementation review: **PARTIAL — local checks PASS; authenticated acceptance BLOCKED / NOT TESTED.** This section describes the current refinement and supersedes overlapping UI implementation descriptions below. Release remains **NOT READY**. No deployment, SQL mutation, migration, policy change, billing modification or live test-record write occurred.
+
+### Review, checkpoint and preserved boundaries
+
+Read the four-page Professional Website Designer & Quality Control master prompt in design-references, current architecture, existing calendar/request helpers, relevant scheduling/guardian/horse policy definitions in migrations and this checklist before editing. Recoverable pre-edit source/checklist copy: `.elmony-checkpoints/premium-ux-20261029/`. Changed-source hashes and byte counts: `.elmony/premium-ux-evidence/change-review.json`.
+
+Existing React Router routes, AccessGate, SessionContext, Supabase singleton and academy persistence helpers remain byte-identical to the checkpoint. Payment helpers, memberships, prices and horse limits were preserved. Supabase source, migrations and hosted settings were not edited or applied. Production output was directed to `.elmony/premium-ux-build`; existing deployment was not changed.
+
+### 1. Calendars updated
+
+| Calendar / role | Current implementation | Evidence and acceptance boundary |
+| --- | --- | --- |
+| Founder/Admin coaching | Shared spacious branded month grid; Today/month controls; selected day/today; confirmed, pending, teaching and blocked markers. Date opens action dialog for scheduling, publishing availability, blocking time and reviewing that day's appointments. Three-stage review/save editors use existing tables/RPCs. Appointment details expose Founder reschedule/cancel; pending requests retain approval, alternative, decline/keep and cancellation-review paths. | Shared calendar, scheduling student selection, overlap rejection, availability/block callbacks and modal behavior PASS locally. Actual Founder saves, persisted appointments, alternatives, rescheduling, cancellation, concurrent conflict rejection and notification effects **NOT TESTED** without authorised session/approved data. |
+| Student coaching | Same calendar opens Request a Lesson immediately. Selected date is filled; time starts blank. Lesson type/format/duration → date/time and optional location/goals → review → actual pending request save. Only returned teaching windows produce selectable suggestions; absent visibility produces preferred-time proposal, never fabricated availability. Existing status-only reschedule/cancellation transitions retained. | Four-width date selection, validation, Back/value retention, pending review, controlled save failure and successful injected callback PASS. Real request save/approval/persistence **BLOCKED** by authorised session and designated records. |
+| Authorised Coach | Same calendar reached from existing Coaching schedule navigation. Client restricts lessons to own coaching identity and authorised assigned students. No scheduling/availability write controls are exposed beyond the existing Founder-only capability. | Source and static boundary checks PASS; generic read-only calendar interactions PASS. Actual coach roster/row visibility, live permissions and rejection **NOT TESTED**. |
+| Parent/Guardian | Same calendar reached from Appointments. Client scopes rows to current guardian's approved, consented child links. Existing capability has no guardian lesson-request insert service; calendar explains student/Founder request route rather than presenting an unsupported submit button. | Source link/consent filtering and generic read-only interactions checked. Actual verified-family visibility and negative child-access tests **NOT TESTED**. Guardian request creation is intentionally unavailable under preserved permissions. |
+| Horse owner / horse care | Existing Care Schedule uses shared calendar in care mode, preserving date-only records and current horse binding. Future date opens focused care planner; saved care appointment opens existing edit/reschedule fields. Care legend shows care status rather than teaching/booking features. No new horse lesson-booking capability introduced. | Integration/type review and shared calendar/dialog checks PASS. Actual CarePlanner, selected-horse fields, reminder settings, profile/document saves and storage persistence **NOT TESTED** with an authorised horse account. |
+
+Timezone helpers preserve member timezone across browser timezone and midnight boundaries, reject impossible dates, past/reversed ranges and missing/repeated daylight-saving wall times. Published time suggestions are bounded to selected day and exclude known blocked/confirmed overlaps. Fresh appointment/window reads precede scheduling writes; existing approval RPCs and server constraints remain authoritative. Local checks do not establish concurrency or live RLS acceptance.
+
+### 2. Forms and workflow refinements
+
+- Student lesson requests and Founder lesson creation, rescheduling, approval, alternatives and teaching/block windows use three-stage dialogs with retained step values and explicit review.
+- Course Studio new-course/details, module creation, lesson creation and assessment-question creation use focused action cards and dialogs. Existing module/lesson lists, ordering, publishing, duplication, archiving, private materials and previews remain reachable. Cancelling New course retains prior course selection.
+- Individual development plans, student assignments and feedback use focused editors; selecting a submission opens its feedback stage directly. Authorised submitted-file viewing remains available in student profiles and Course Studio review queue.
+- Horse profile creation and ownership-checked profile editing, private document upload and care planning/editing use focused dialogs. Existing fields, sex/height validation, reminder options, document attachment, care history, photo operations and membership limits remain.
+- Account-purpose onboarding is focused behind Add account purpose, showing existing role-specific fields. Existing secure linking and approval RPCs remain; invitation form safely retains its DOM form across async completion.
+- Profile settings and course-content editors share responsive dialog styling and unsaved-change confirmation. Existing save/error behavior remains; fields persist after failed saves. Shared forms prevent duplicate submissions, disable controls while saving, retain focus and use full-height mobile surfaces. Profile success notice no longer overlays an active editor.
+
+These are implementation changes, not certification of connected save behavior. No field or live record was discarded to shorten a form.
+
+### 3. Navigation and controls removed
+
+Removed redundant Founder sidebar Overview item and bottom-left Switch Dashboard control. Dashboard home remains single sidebar home destination; old overview URL still resolves. Distinct Founder Student Preview and Academy workspace remain. Role switching remains available through existing authorised account menus/RPC, and collapsed sidebar links retain accessible names.
+
+### 4. Interaction audit and actual results
+
+| Affected controls | Result actually demonstrated | Unverified operation |
+| --- | --- | --- |
+| Calendar days, selected date, Today/month navigation, appointment details and pending display | **PASS** synthetic component browser tests at 1440, 768, 390 and 320 px; no horizontal overflow; desktop/mobile screenshots reviewed. | Role-bound live appointments and cross-account visibility. |
+| Lesson Continue/Back/Cancel, Escape, keep/discard draft, selected date/time, student selection, review/submit | **PASS** retained input, focus restoration, native validation, honest pending wording, failed-save retention and injected success callback. | Real server insert/update/RPC success, persisted status, reload and recipient visibility. |
+| Founder availability/block editors | **PASS** desktop and phone review/callback tests, reversed-range rejection and known confirmed-lesson block conflict. | Real availability publication/editing and enforcement under current live policies. |
+| Course module/lesson Edit, Cancel, Save and author preview selection | **PASS** four widths; four intentional intercepted HTTP 403 responses retain edited input and show real error text; unsaved cancellation confirmed. | Real author create/edit/upload/publish, reopened data and authorised student consumption. |
+| Student directory/search, stable duplicate-name IDs, profile/Back and Manage | **PASS** actual components with isolated anonymous query-cache records at four widths, zero remote requests. | Authorised real student directory and individual record changes. |
+| Message thread selection, exact reply recipient callback, mobile Back, floating popup | **PASS** isolated two-coach regression fixtures at four widths; historical self-row exclusion preserved. | Actual send/delivery/read state and participant/guardian enforcement. |
+| Avatar/photo menu, dismissal, view/remove failure/retry, crop and keyboard focus | **PASS** isolated existing regressions at four widths, controlled storage responses only. | Real photo upload/removal/private access. |
+| Founder sidebar and existing role routes | **PASS** source/static checks for removed controls, preserved Student Preview/switch RPC and byte-identical route guards; collapsed-link labels reviewed. | Authenticated Founder collapse/menu/role switching in actual role session. |
+| New horse/profile/account-purpose/assignment editors and account settings | **PASS** source integration, type/build checks and shared-editor dirty/failure/focus tests. | Actual role-bound component walkthroughs and real save/reopen/cancel/permission operations **NOT TESTED**. |
+
+### 5. Current verification evidence
+
+- Application TypeScript: `node node_modules/typescript/bin/tsc -p tsconfig.app.json --noEmit` **PASS**, exit 0.
+- Production bundle: `node node_modules/vite/bin/vite.js build --outDir .elmony/premium-ux-build` **PASS**, 2,632 modules; existing large-chunk warning remains.
+- Source lint: **PASS**, 0 errors / 13 existing warnings; `.elmony/premium-ux-lint.json`.
+- Targeted calendar/time/conflict/client-boundary runner: **16 PASS / 0 FAIL**; `.elmony/premium-ux-unit.cjs` and `.elmony/premium-ux-evidence/unit-results.json`. Includes empty availability, overlap/adjacency, cancellation, reschedule exclusion, invalid duration, bounded long windows, timezone rollover, DST gap/fold and preserved guards.
+- Existing pure conversation/auth/calendar regressions: **23 PASS / 0 FAIL**, `.elmony/release-unit-check.cjs` and its current `.elmony/release-evidence/unit-results.json`. Synthetic records/storage only.
+- Latest calendar/guided-editor browser run: **23 PASS / 0 FAIL**, completed **2026-10-29 14:26:13 UTC**; `.elmony/premium-ux-final-browser.cjs`, `.elmony/premium-ux-harness.tsx` and `.elmony/premium-ux-evidence/browser-results.json`. Zero remote requests, uncaught exceptions or fresh console errors. This newer passing run supersedes earlier cached fixture-run results.
+- Course browser regressions: **4 PASS / 0 FAIL**, `.elmony/premium-course-browser.cjs` and `.elmony/premium-course-evidence/browser-results.json`; expected intercepted 403 failures only, zero remote writes.
+- Messages/avatar browser regressions: **11 PASS / 0 FAIL**, `.elmony/premium-messages-browser.cjs` and `.elmony/premium-messages-evidence/browser-results.json`; no uncaught exceptions or console errors.
+- Directory/profile browser regressions: **4 PASS / 0 FAIL**, current `.elmony/milestone1-directory-browser-check.cjs` and `.elmony/milestone1-directory-evidence/browser-results.json`; zero remote requests/exceptions.
+- Visual review: current calendar desktop/320 px, request review 390 px and availability review 390 px screenshots in `.elmony/premium-ux-evidence/`. These are labelled isolated fixtures, not authenticated screenshots.
+
+### 6. Exact remaining acceptance and continuation
+
+**Do not mark these features launch-complete from code or fixture results.** Minimum external blocker remains designated authorised Founder, Student, Coach, Guardian/linked-child and horse-owner sessions plus specific approval for isolated live test records. Credentials/tokens must not be posted in chat or evidence.
+
+Resume controlled acceptance with LA1 authentication, then LA2-LA6 using the prior explicit identity/write gates. For this refinement specifically:
+1. In Founder session, open Coaching and exercise day action, schedule/publish/block, reopen exact rows, approve/request alternative, reschedule and cancel an isolated lesson; verify fresh calendar/reload and conflict rejection.
+2. In Student session, request on selected future date, verify only pending saved state, Founder approval and refreshed appointment; test status-only reschedule/cancellation and failed operation retention.
+3. In assigned Coach and verified Guardian sessions, prove positive visibility of the same designated appointment and negative visibility after revoked/unrelated links; no new write powers are implied.
+4. Open Course Studio, selected student assignment/feedback, selected-horse profile/document/care and account-purpose/profile editors in real authorised sessions; test retained values, Cancel without writes, returned saved IDs and reopened persisted data. These actual authenticated editor walkthroughs remain **NOT TESTED**.
+5. If guardian request creation or coach scheduling/availability writes are desired beyond current permissions, obtain separate Founder approval for server capability/policy work first. Student-readable published teaching windows also require a separately approved existing-policy review; preferred-time proposals work within current scope.
+
+No production deployment is authorised. Earlier live acceptance and release blockers below remain in force where not superseded by the local implementation/evidence above.
+
+
 ## Controlled live acceptance - 2026-10-29
 
 This section supersedes overlapping earlier status entries and the earlier instruction to stop before controlled acceptance. Recovery implementation is preserved; no redesign or application source edits were made. HKA_RECOVERY_STATUS.md, this checklist and all four pages of the Professional Website Designer & Quality Control master prompt were read before testing.

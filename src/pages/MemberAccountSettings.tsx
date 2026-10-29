@@ -5,6 +5,8 @@ import { AccountRoleSettings } from '@/components/accounts/AccountRoles';
 import { DashboardHero, SelfAvatarEditor } from '@/components/accounts/StudentDashboard';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { WorkflowDialog } from '@/components/accounts/WorkflowDialog';
+import { DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -21,6 +23,7 @@ const preferenceLabels: Record<string, { title: string; description: string }> =
 export default function MemberAccountSettings() {
   const { profile, session, refreshProfile } = useSession();
   const [editing, setEditing] = useState(false);
+  const [dirty,setDirty]=useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [preferences, setPreferences] = useState<Record<string, boolean>>({});
@@ -91,7 +94,7 @@ export default function MemberAccountSettings() {
               <p className='mt-1 break-all text-xs text-muted-foreground'>{session?.user.email}</p>
             </div>
           </div>
-          <Button type='button' variant='outline' className='mt-6 w-full' onClick={() => setEditing(true)}><Pencil className='size-4' />Edit profile</Button>
+          <Button type='button' variant='outline' className='mt-6 w-full' onClick={() => {setDirty(false);setEditing(true);}}><Pencil className='size-4' />Edit profile</Button>
         </section>
         <section className='paper-card p-6'>
           <div className='flex items-start gap-3'><LockKeyhole className='mt-1 size-5 text-[#826e45]' /><div><h2 className='font-serif text-2xl'>Security</h2><p className='mt-2 text-sm leading-6 text-muted-foreground'>Password changes use Supabase secure recovery. Passwords are never stored by HKA.</p></div></div>
@@ -118,16 +121,10 @@ export default function MemberAccountSettings() {
         </section>
       </div>
     </div>
-    {message && <p className='fixed bottom-5 left-1/2 z-50 w-[90vw] max-w-md -translate-x-1/2 rounded-lg border border-[#B79B62]/40 bg-[#fffdf8] px-5 py-3 text-sm shadow-xl' role='status'>{message}</p>}
-    <Dialog open={editing} onOpenChange={value=>{if(!busy)setEditing(value);}}>
-      <DialogContent className='max-h-[90dvh] max-w-lg overflow-y-auto'>
-        <DialogHeader><DialogTitle>Edit personal information</DialogTitle><DialogDescription>Update only details that need changing.</DialogDescription></DialogHeader>
-        <form id='profile-editor' className='grid gap-4' onSubmit={saveProfile}>
+    {message && <p className='fixed bottom-5 left-1/2 z-40 w-[90vw] max-w-md -translate-x-1/2 rounded-lg border border-[#B79B62]/40 bg-[#fffdf8] px-5 py-3 text-sm shadow-xl' role='status'>{message}</p>}
+    <WorkflowDialog open={editing} onOpenChange={value=>{if(!busy){setEditing(value);if(!value)setDirty(false);}}} title='Edit personal information' description='Update only details that need changing.' dirty={dirty} busy={busy}><form onChange={()=>setDirty(true)} id='profile-editor' className='grid gap-4' onSubmit={saveProfile}>
           <div><Label htmlFor='settings-full-name'>Full name</Label><Input id='settings-full-name' name='full_name' autoComplete='name' defaultValue={profile.full_name} required maxLength={100} /></div>
           <div><Label htmlFor='settings-timezone'>Timezone</Label><Input id='settings-timezone' name='timezone' autoComplete='off' defaultValue={profile.timezone} required maxLength={100} /></div>
-        </form>
-        <DialogFooter><Button type='button' variant='outline' onClick={() => setEditing(false)} disabled={busy}>Cancel</Button><Button type='submit' form='profile-editor' disabled={busy}>{busy ? 'Saving…' : 'Save changes'}</Button></DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </form><DialogFooter><DialogClose asChild><Button type='button' variant='outline' disabled={busy}>Cancel</Button></DialogClose><Button type='submit' form='profile-editor' disabled={busy}>{busy ? 'Saving…' : 'Save changes'}</Button></DialogFooter></WorkflowDialog>
   </section>;
 }
