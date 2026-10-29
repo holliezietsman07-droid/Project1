@@ -14,6 +14,8 @@ export function coachingInstant(value: string, timezone: string) {
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) throw new Error('Choose a valid date and time.');
   const [year, month, day, hour, minute] = value.split(/[-T:]/).map(Number);
   const desired = Date.UTC(year, month-1, day, hour, minute);
+  const parsed = new Date(desired);
+  if (year < 100 || parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month-1 || parsed.getUTCDate() !== day || parsed.getUTCHours() !== hour || parsed.getUTCMinutes() !== minute) throw new Error('Choose a valid date and time.');
   let guess = desired;
   const formatter = new Intl.DateTimeFormat('en-GB', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
   const wallTime = (time: number) => {
@@ -25,6 +27,8 @@ export function coachingInstant(value: string, timezone: string) {
   throw new Error('This local time does not exist in your timezone. Choose another time.');
 }
 export function validateCoachingRange(start: string, end: string, now = Date.now()) {
-  if (Date.parse(start) <= now) throw new Error('Choose a future start time.');
-  if (Date.parse(end) <= Date.parse(start)) throw new Error('End time must be after start time.');
+  const starts = Date.parse(start), ends = Date.parse(end);
+  if (!Number.isFinite(starts) || !Number.isFinite(ends) || !Number.isFinite(now)) throw new Error('Choose valid start and end times.');
+  if (starts <= now) throw new Error('Choose a future start time.');
+  if (ends <= starts) throw new Error('End time must be after start time.');
 }

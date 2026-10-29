@@ -36,10 +36,14 @@ export default function MemberAccountSettings() {
     setBusy(true);
     setMessage('');
     try {
+      const name = String(form.get('full_name')).trim(), timezone = String(form.get('timezone')).trim();
+      if (!name) throw new Error('Enter your name.');
+      try { new Intl.DateTimeFormat('en', { timeZone: timezone }).format(); }
+      catch { throw new Error('Choose a valid timezone, such as Africa/Lusaka.'); }
       const { error } = await db().from('hka_profiles').update({
-        full_name: String(form.get('full_name')).trim(),
-        timezone: String(form.get('timezone')).trim(),
-      }).eq('id', profile.id);
+        full_name: name,
+        timezone,
+      }).eq('id', profile.id).select('id').single();
       if (error) throw error;
       await refreshProfile();
       setEditing(false);
@@ -59,7 +63,7 @@ export default function MemberAccountSettings() {
     setBusy(true);
     setMessage('');
     try {
-      const { error } = await db().from('hka_profiles').update({ notification_preferences: next }).eq('id', profile.id);
+      const { error } = await db().from('hka_profiles').update({ notification_preferences: next }).eq('id', profile.id).select('id').single();
       if (error) throw error;
       await refreshProfile();
       setMessage('Notification preference saved.');
@@ -114,9 +118,9 @@ export default function MemberAccountSettings() {
         </section>
       </div>
     </div>
-    {message && <p className='fixed bottom-5 left-1/2 z-50 max-w-md -translate-x-1/2 rounded-lg border border-[#B79B62]/40 bg-[#fffdf8] px-5 py-3 text-sm shadow-xl' role='status'>{message}</p>}
-    <Dialog open={editing} onOpenChange={setEditing}>
-      <DialogContent className='max-w-lg'>
+    {message && <p className='fixed bottom-5 left-1/2 z-50 w-[90vw] max-w-md -translate-x-1/2 rounded-lg border border-[#B79B62]/40 bg-[#fffdf8] px-5 py-3 text-sm shadow-xl' role='status'>{message}</p>}
+    <Dialog open={editing} onOpenChange={value=>{if(!busy)setEditing(value);}}>
+      <DialogContent className='max-h-[90dvh] max-w-lg overflow-y-auto'>
         <DialogHeader><DialogTitle>Edit personal information</DialogTitle><DialogDescription>Update only details that need changing.</DialogDescription></DialogHeader>
         <form id='profile-editor' className='grid gap-4' onSubmit={saveProfile}>
           <div><Label htmlFor='settings-full-name'>Full name</Label><Input id='settings-full-name' name='full_name' autoComplete='name' defaultValue={profile.full_name} required maxLength={100} /></div>

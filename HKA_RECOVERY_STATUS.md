@@ -1,5 +1,104 @@
 # HKA Equestrian - Interrupted release recovery assessment
 
+## Current Milestone 1 status - 2026-10-29
+
+**Achievable implementation repaired and locally stable; full Milestone 1 acceptance remains PARTIAL/BLOCKED. Release is NOT READY.**
+All five saved source additions are integrated. Application/configuration TypeScript and production bundling pass. Current evidence contains 23 passing helper checks and 34 passing browser check groups. No Milestone 2 work or deployment was begun.
+
+This section supersedes the earlier recovery findings below. Controlled account delivery, durable server saves and authorization boundaries remain unproven; local fixtures are not connected-account acceptance.
+
+### Exact integration and corrections
+
+| File | Current change |
+| --- | --- |
+| `src/lib/coaching.ts` | Reject impossible calendar components and nonfinite timestamp ranges; retain timezone conversion and approval semantics. |
+| `src/lib/conversations.ts` | Reused pair-based helper; label guardian conversations with child identity when sharing a coach. Preserve historical rows. |
+| `src/components/accounts/CoachingCalendar.tsx` | Existing saved file reused unchanged by both Founder and student coaching screens. |
+| `src/components/accounts/CourseContentEditor.tsx` | Existing saved file reused unchanged by AcademyWorkspace; missing dependency restored with actual private material/file controls. |
+| `src/components/accounts/SignInForm.tsx` | Used in standalone and popup sign-in; restore remembered email after Auth renders, clear email preference and display storage failures. |
+| `src/lib/auth-storage.ts` (new) | Complete missing storage adapter; isolate this app's token, migrate durable/tab sessions safely, clear both on sign-out and preserve active tokens over stale copies. |
+| `src/integrations/supabase/client.ts` | Retain single client and VITE variables; supply adapter and exported setSessionPersistence. |
+| `src/components/accounts/PrivateFileButton.tsx` (new) | Complete missing module with PrivateFileButton and LessonMaterials exports; authorize through existing Supabase/RLS, show failures and open short-lived private URLs in user-initiated tabs. |
+| `src/components/SiteLayout.tsx` | Share sign-in/registration popup flow; correct dynamic student title, modal sizing, focus return and scroll reset; remove duplicate registration headings/actions. |
+| `src/pages/AccountPage.tsx` | Use shared sign-in form, support existing registration inside popup, validate timezone, apply chosen session persistence before signup. |
+| `src/components/accounts/ConversationWorkspace.tsx` | Use pair helper; explicit recipient, self-send guard, read-only nonparticipant oversight, thread-scoped compose resets, working mobile Back and bounded columns. |
+| `src/components/accounts/OwnerDashboard.tsx` | Spaced searchable directory with stable IDs and reachable management; role-aware profile Back/breadcrumb, loading/error/unavailable state, private submission-file opening and safe async form references; Founder calendar and timezone/range validation. |
+| `src/components/accounts/StudentDashboard.tsx` | Calendar-first guided requests, real availability, future-date/duration validation, safe async reset; photo save/remove error handling, responsive crop frame and focus return. |
+| `src/pages/AcademyWorkspace.tsx` | Integrate module/lesson editing and author preview, readiness-gated course publication, handled lesson-publish failures and selected-course upload validation/reset. |
+| `src/pages/CoursePlayer.tsx` | Expose private materials for selected lesson through same shared file component. |
+| `src/components/accounts/HorseOrganizer.tsx` | Key horse detail subtree by horse ID to reset care edit state on selection; capture async form references; handle private-document open/rename errors. |
+| `src/pages/MemberAccountSettings.tsx` | Validate name/timezone, confirm updates return a row, preserve failed edits and prevent close during save; contain dialog/toast on mobile. |
+
+All five saved additions have active consumers, confirmed through TypeScript import analysis. None is intentionally unused. Existing routes and role gates remain in App.tsx; no parallel client, route tree, provider, payment flow or dependency was introduced.
+
+### TypeScript failures resolved
+
+- TS2307 at CourseContentEditor.tsx:7: missing PrivateFileButton module. Restored the expected module and both real exports.
+- TS2307 at SignInForm.tsx:5: missing auth-storage module. Implemented the expected typed adapter and preference exports.
+- TS2305 at SignInForm.tsx:6: missing setSessionPersistence export. Added it to the existing client and wired that same client to adapter.
+- Latest app and configuration project checks both exit 0. No exclusions, unsafe casts or disabled compiler checks were added.
+
+### Coaching assertions and root causes
+
+The original failing assertions were:
+- `assert.throws(() => coachingInstant('2026-02-30T09:00', 'Africa/Lusaka'))`, alongside invalid month/hour/string/timezone cases.
+- `assert.throws(() => validateCoachingRange('invalid', 'invalid'))`, alongside past and reversed ranges.
+
+Date.UTC normalized impossible dates into the following month; parsing now round-trips each UTC calendar component before conversion. Date.parse returned NaN, whose comparisons silently returned false; explicit finite checks now reject it.
+
+Both affected checks pass. Existing timezone, summer/winter DST, DST-gap and UTC-midnight assertions also pass. Full helper runner now reports **23 PASS, 0 FAIL**, including three added guardian/stale-token regressions. No schedules, prices, approval rules or coaching data were changed.
+
+### Current verification evidence
+
+| Actual command/check | Result |
+| --- | --- |
+| `node node_modules/typescript/bin/tsc -p tsconfig.app.json --noEmit` | PASS, exit 0 on latest source. |
+| `node node_modules/typescript/bin/tsc -p tsconfig.node.json --noEmit` | PASS, exit 0; configuration unchanged. |
+| `pnpm build --outDir .elmony/milestone1-build` | PASS, 2,628 modules; existing large-chunk warning. Existing dist preserved. |
+| `node node_modules/eslint/bin/eslint.js src --format json --output-file .elmony/milestone1-lint-results.json` | PASS, 0 errors / 13 existing warnings. |
+| `node .elmony/release-unit-check.cjs` | 23 PASS / 0 FAIL; synthetic records/storage only. |
+| `node .elmony/milestone1-browser-check.cjs` | 26 PASS / 0 FAIL; fresh browser exceptions 0, console errors 0. |
+| `node .elmony/milestone1-course-browser-check.cjs` | 4 PASS / 0 FAIL; editor defaults/cancel/failed-save input retention and preview switching. Four deliberately intercepted 403 responses were visibly handled; no uncaught or unexpected errors. |
+| `node .elmony/milestone1-directory-browser-check.cjs` | 4 PASS / 0 FAIL; rows/search/same-name IDs/profile opening/Back/management controls; zero remote requests, exceptions or console errors. |
+
+Browser viewports: 1440x1000, 768x1024, 390x844 and 320x740. Reviewed actual desktop auth and mobile registration/course screenshots; registration opens at top with reachable close control. Public/deep-link redirects, focus/Escape, remembered-email clearing, session preference, registration field mapping/adult/timezone/password validation, paired threads/reply callbacks/mobile Back/popup, real-empty calendar, avatar menu/remove-error/crop controls are covered.
+
+The directory harness uses actual OwnerDashboard/StudentManagementProfile components with explicitly synthetic query-cache data and an anonymous SessionContext. Course harness intercepts all Supabase requests. They demonstrate controls and layout, not authentication, server saves or permissions.
+
+Test-only files under .elmony include current runners/harnesses and evidence directories. Existing assertions were scoped to active dialog links and active message content, so inert background links and sidebar message previews do not create false failures. Fixture favicon was aligned with existing app asset. App code was not weakened for tests.
+
+### Milestone 1 acceptance completed and remaining
+
+| ID | Locally demonstrated / implementation completed | Remaining blocked or untested |
+| --- | --- | --- |
+| UI1 | Nonoverlapping block rows, name/ID search, empty search, separate same-name IDs, direct profile opening and reachable Manage action at four widths. | Investigate actual identically named live records using authorized read access; no records merged/deleted. |
+| UI2 | Profile opening, appropriate title, Founder Back navigation and bounded tabs at four widths; coach-specific links, loading/error states, async form references and file action implemented. | Actual Founder/coach saves, coach-role navigation, marking/download permissions and persistence require controlled sessions/content. |
+| UI3 | Calendar and date callback at four widths; timezone/DST/invalid-range tests pass; existing requests/availability/approval/cancellation paths retained. | Live published availability, request/approval/conflict/reschedule/cancel persistence need controlled identities/schedule. Server guard only permits students to request status changes; no attempt to bypass it. |
+| UI4 | Distinct synthetic coach threads, exact reply callbacks, historical self-row exclusion, mobile Back and floating popup pass; guardian child-label regression passes. | Two-user real delivery, authorization denials, oversight permissions and read-only investigation of historical self-conversations require controlled sessions. |
+| UI5 | Editor defaults/cancel, retained input on denied save, preview lesson switching, mobile containment; draft, upload and publication-readiness paths integrated. | Actual create/reopen/upload/publish/unpublish and student access/progress/marking require controlled author/student content. |
+| UI6 | Horse-scoped remount, safe async resets and handled file errors implemented; existing care sections/storage retained. | Horse selection/care/save/cancel/upload/reopen and cross-account permissions need controlled horse/session; no connected mutation attempted. |
+| UI7 | Reachable sign-in/signup routes and popups, mapped fields, email preference, session adapter, validation, focus/close and responsive checks pass. | Actual credentials, verification/recovery inbox links, refresh/tab session behavior with real tokens and hosted auth redirects remain untested. |
+| UI8 | Avatar hit tests/view/remove-error/retry/focus/crop pass at four widths; settings row-confirmed saves and mobile/error handling implemented. | Connected profile/preference/avatar persistence and permission rejection need controlled account/storage access. |
+
+Milestone 1 implementation can be reviewed locally; full connected acceptance remains blocked. Do not mark the whole milestone PASS based on fixtures.
+
+### Database operations performed this turn
+
+Destination remained sqaydpbqycvaictieafk.
+
+1. Read-only function metadata: hka_signup_profile, hka_create_student_link_code, hka_redeem_student_link_code and hka_guard_coaching_request_update.
+2. Exactly one SQL statement, read-only: `SELECT version FROM supabase_migrations.schema_migrations ORDER BY version;`.
+3. Result: 19 recorded migration versions, including **202610280003** and **202610290001**. Live signup and invitation definitions contain the previously repaired expressions. Their applied status is now confirmed by migration history and function metadata.
+4. Existing student coaching update guard still rejects changes to dates/details and allows only defined reschedule/cancellation status transitions. Client retains those restrictions.
+5. **Zero SQL mutations, migration replay, duplicate objects, RLS changes, account-permission changes, real-record test writes, function deployments or app deployments.**
+
+### Stopping point
+
+Stop at Milestone 1. Remaining user-dependent work is authorized controlled account/inbox/content access for the exact unproven criteria above; separate approval is still required for any future database or deployment changes. Milestones 2-4 were not started.
+
+## Original recovery assessment (historical)
+
+
 Date: 2026-10-29 (Africa/Johannesburg).
 Decision: **NOT READY. First incomplete milestone: Milestone 1 - UI and workflows.**
 This is an assessment, not another implementation run. No application source, existing checklist, migrations, live records, hosted settings or deployments were changed during recovery.

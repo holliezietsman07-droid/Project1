@@ -17,7 +17,7 @@ export function buildConversations(messages: Row[], profiles: Row[], currentUser
       const peer = participants.find(person => person !== currentUserId) ?? '';
       conversations.set(id, {
         id, studentId, recipientId: canReply ? peer : '',
-        name: canReply ? name(peer) : participants.map(name).join(' & '),
+        name: canReply ? name(peer) + (peer !== studentId && currentUserId !== studentId ? ' · ' + name(studentId) : '') : participants.map(name).join(' & ') + ' · ' + name(studentId),
         thread: [], unread: 0, canReply,
       });
     }

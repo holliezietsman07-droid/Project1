@@ -11,6 +11,10 @@ import { db, errorText, isEmailRateLimitError, isMinor, registrationErrorText } 
 
 import { PurposeSelector, RelevantOnboardingFields, type AccountPurpose } from '@/components/accounts/AccountRoles';
 
+import { SignInForm } from '@/components/accounts/SignInForm';
+import { setSessionPersistence } from '@/integrations/supabase/client';
+import { SESSION_PREFERENCE } from '@/lib/auth-storage';
+
 type AccountMode = "sign-in" | "sign-up" | "password-reset" | "update-password";
 const screens = {
   "sign-in": { eyebrow: "Your place in the academy", title: "Welcome back.", description: "A thoughtful space for your learning journey." },
@@ -18,7 +22,7 @@ const screens = {
   "password-reset": { eyebrow: "A little help along the way", title: "Reset your password.", description: "We will send a secure recovery link to your email." },
   "update-password": { eyebrow: "Your account, protected", title: "Choose a new password.", description: "Use a unique password of at least 12 characters." },
 };
-export default function AccountPage({ mode }: { mode: AccountMode }) {
+export default function AccountPage({ mode, embedded = false }: { mode: AccountMode; embedded?: boolean }) {
   const { session, loading, recovery } = useSession();
   const location = useLocation();
   const [details, setDetails] = useState<{ full_name: string; birth_date: string; timezone: string; account_type: string; account_purposes: AccountPurpose[]; onboarding: Record<string, unknown> } | null>(null);
@@ -27,7 +31,7 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
   const [busy, setBusy] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [registrationCooldown, setRegistrationCooldown] = useState(false);
-  const [staySignedIn, setStaySignedIn] = useState(true);
+  const [staySignedIn, setStaySignedIn] = useState(() => localStorage.getItem(SESSION_PREFERENCE) !== 'session');
   const registrationLock = useRef(false);
   const screen = screens[mode];
   if (recovery && mode !== "update-password") return <Navigate to="/update-password" replace />;
@@ -42,6 +46,8 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
     if (!purposes.length) { setMessage('Choose at least one account purpose.'); return; }
     if (purposes.includes('guardian') && isMinor(birth)) { setMessage('A parent or guardian account requires an adult aged 18 or over.'); return; }
     const onboarding={primary_discipline:data.get('primary_discipline'),additional_disciplines:data.get('additional_disciplines'),experience_level:data.get('experience_level'),riding_goals:data.get('riding_goals'),horse_information:data.get('student_horse')||data.get('owner_horse'),intro_horse_care:data.get('intro_horse_care')==='on',guardian_code:data.get('guardian_code'),coaching_disciplines:data.get('coaching_disciplines'),qualifications:data.get('qualifications'),coach_code:data.get('coach_code'),owner_type:data.get('owner_type')};
+    try { new Intl.DateTimeFormat('en', { timeZone: String(data.get('timezone')).trim() }).format(); }
+    catch { setMessage('Choose a valid timezone, such as Africa/Lusaka.'); return; }
     const role = String(data.get("account_type"));
     if (role === "guardian" && isMinor(birth)) { setMessage("A parent or guardian account requires an adult aged 18 or over."); return; }
     setMessage("");
@@ -60,9 +66,9 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
     setBusy(true);
     setMessage('');
     try {
-      const { data: authData, error } = await db().auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + '/dashboard', data: details } });
+      setSessionPersistence(staySignedIn);
+      const { error } = await db().auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + '/dashboard', data: details } });
       if (error) throw error;
-      if (!staySignedIn && authData.session) await db().auth.signOut({ scope: 'local' });
       setRegistrationComplete(true);
       setMessage('Registration received. Check your inbox for the verification email before signing in.');
     } catch (error) {
@@ -85,8 +91,8 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
       setMessage("If verification is available for this address, check your inbox.");
     } catch (error) { setMessage(errorText(error)); } finally { setBusy(false); }
   }
-  return <section className="page-width grid gap-10 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:py-20">
-    <div className="max-w-md lg:pt-10">
+  return <section className={embedded ? "min-w-0" : "page-width grid gap-10 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:py-20"}>
+    <div className={embedded ? "hidden" : "max-w-md lg:pt-10"}>
       <p className="eyebrow mb-5 text-[#76633e]">{screen.eyebrow}</p>
       <h1 className="section-heading text-[2.75rem] sm:text-[3.5rem]">{screen.title}</h1>
       <p className="mt-5 text-sm leading-7 text-muted-foreground">{screen.description}</p>
@@ -94,8 +100,8 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
       <p className="font-serif text-2xl leading-relaxed">Rooted in Horsemanship.<br /><span className="italic">Inspired by Learning.</span></p>
       <Link to="/learning-pathways" className="text-link mt-6">Explore while you’re here <ArrowUpRight aria-hidden="true" className="size-4" /></Link>
     </div>
-    <div className="paper-card w-full max-w-[560px] p-6 sm:p-9">
-      <h2 className="mb-6 font-serif text-2xl">{mode === "sign-up" ? "Join HKA Equestrian" : mode === "sign-in" ? "Member sign in" : "Password management"}</h2>
+    <div className={embedded ? "min-w-0 w-full" : "paper-card w-full max-w-[560px] p-6 sm:p-9"}>
+      <h2 className={embedded ? "sr-only" : "mb-6 font-serif text-2xl"}>{mode === "sign-up" ? "Join HKA Equestrian" : mode === "sign-in" ? "Member sign in" : "Password management"}</h2>
       {message && <p role="status" className="mb-5 border-l-2 border-primary p-3 text-sm">{message}</p>}
       {mode === "sign-up" && !details ? <form onSubmit={prepare} className="space-y-5">
         <div className="space-y-2"><Label htmlFor="full_name">Full name</Label><Input id="full_name" name="full_name" autoComplete="name" required maxLength={100} /></div>
@@ -111,7 +117,7 @@ export default function AccountPage({ mode }: { mode: AccountMode }) {
         <div className='space-y-2'><Label htmlFor='registration_password_confirmation'>Confirm password</Label><Input id='registration_password_confirmation' name='password_confirmation' type='password' autoComplete='new-password' required minLength={12} disabled={busy || registrationComplete} /></div>
         <label className='flex min-h-11 cursor-pointer items-start gap-3 text-sm'><input type='checkbox' checked={staySignedIn} onChange={event=>setStaySignedIn(event.target.checked)} className='mt-0.5 size-4 accent-[#2F4A3C]' disabled={busy || registrationComplete}/><span>Stay signed in on this device<span className='mt-1 block text-xs leading-5 text-muted-foreground'>If email verification is required, your session begins only after successful verification.</span></span></label>
         <Button className='h-12 w-full rounded-sm' disabled={busy || registrationCooldown || registrationComplete}>{registrationComplete ? 'Registration received' : registrationCooldown ? 'Please try again later' : busy ? 'Creating account…' : 'Create account'}</Button>
-      </form> : mode === "update-password" && !session ? <p className="text-sm leading-7">Open the recovery link from your email, or <Link to="/password-reset" className="underline">request a new link</Link>.</p> : <>
+      </form> : mode === "sign-in" ? <SignInForm/> : mode === "update-password" && !session ? <p className="text-sm leading-7">Open the recovery link from your email, or <Link to="/password-reset" className="underline">request a new link</Link>.</p> : <>
         {details && <div className="mb-5 text-sm"><p>Registering {details.full_name} as a {details.account_type}.</p><Button variant="link" className="px-0" onClick={() => setDetails(null)}>Change details</Button></div>}
         <div onSubmitCapture={(event) => {
           if (mode !== "sign-up" && mode !== "update-password") return;
