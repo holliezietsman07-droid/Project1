@@ -1,5 +1,7 @@
 # HKA UX and invitation-only launch review
 
+Latest focused assignment/Founder-role review: [HKA_COACH_MESSAGING_ACCESS.md](HKA_COACH_MESSAGING_ACCESS.md), 2026-10-31; it supersedes the Founder-role uncertainty and generic direct-Coach assignment instructions below. Founder remains authorized active admin, with zero assignments; external Coaches use protected approval/guardian consent.
+
 Date: 2026-10-31. Release decision: **NOT READY — authorised acceptance and Founder actions remain outstanding.**
 
 This report accompanies the latest section of HKA_RELEASE_CHECKLIST.md. IMPLEMENTED means source exists; VERIFIED means the specific local check below passed; BLOCKED and NOT TESTED remain separate from live acceptance. No deployment, database mutation, migration, policy change, course publication, test-account creation, billing change or real message/appointment write occurred.

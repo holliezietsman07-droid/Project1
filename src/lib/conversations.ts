@@ -5,7 +5,7 @@ export type Conversation = {
   thread: Row[]; last?: Row; unread: number; canReply: boolean;
 };
 
-export function buildConversations(messages: Row[], profiles: Row[], currentUserId: string, scopeStudentId?: string, recipientIds: string[] = []): Conversation[] {
+export function buildConversations(messages: Row[], profiles: Row[], currentUserId: string, scopeStudentId?: string, recipientIds: string[] = [], authorize?: (studentId: string, recipientId: string) => boolean): Conversation[] {
   const names = new Map(profiles.map(row => [String(row.id), String(row.full_name || 'Academy member')]));
   const name = (id: string) => names.get(id) ?? 'Academy member';
   const conversations = new Map<string, Conversation>();
@@ -13,11 +13,12 @@ export function buildConversations(messages: Row[], profiles: Row[], currentUser
     const participants = [sender, recipient].sort();
     const id = [studentId, ...participants].join(':');
     if (!conversations.has(id)) {
-      const canReply = participants.includes(currentUserId);
+      const participant = participants.includes(currentUserId);
       const peer = participants.find(person => person !== currentUserId) ?? '';
+      const canReply = participant && (!authorize || authorize(studentId, peer));
       conversations.set(id, {
-        id, studentId, recipientId: canReply ? peer : '',
-        name: canReply ? name(peer) + (peer !== studentId && currentUserId !== studentId ? ' · ' + name(studentId) : '') : participants.map(name).join(' & ') + ' · ' + name(studentId),
+        id, studentId, recipientId: participant ? peer : '',
+        name: participant ? name(peer) + (peer !== studentId && currentUserId !== studentId ? ' · ' + name(studentId) : '') : participants.map(name).join(' & ') + ' · ' + name(studentId),
         thread: [], unread: 0, canReply,
       });
     }
@@ -32,11 +33,11 @@ export function buildConversations(messages: Row[], profiles: Row[], currentUser
   }
   if (currentUserId) {
     if (scopeStudentId === currentUserId) {
-      for (const id of recipientIds) if (id && id !== currentUserId) threadFor(currentUserId, currentUserId, id);
+      for (const id of recipientIds) if (id && id !== currentUserId && (!authorize || authorize(currentUserId, id))) threadFor(currentUserId, currentUserId, id);
     } else {
       for (const row of profiles) {
         const id = String(row.id);
-        if (row.role === 'student' && id !== currentUserId && (!scopeStudentId || id === scopeStudentId)) threadFor(id, currentUserId, id);
+        if (row.role === 'student' && id !== currentUserId && (!scopeStudentId || id === scopeStudentId) && (!authorize || authorize(id, id))) threadFor(id, currentUserId, id);
       }
     }
   }

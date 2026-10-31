@@ -15,12 +15,14 @@ export function useMessaging() {
     refetchInterval: 15000, retry: 1,
   });
   const profiles = useRows('hka_profiles');
+  const coachPurposes = useRows('hka_account_roles', {}, profile?.role === 'coach');
+  const approvedCoach = profile?.role !== 'coach' || (coachPurposes.data ?? []).some(row => row.user_id === profile.id && row.purpose === 'coach' && row.status === 'authorized');
   const assignments = useRows('hka_coach_students');
   const guardians = useRows('hka_guardians', {}, profile?.role !== 'student');
   const people = profiles.data ?? [];
   const links = assignments.data ?? [], families = guardians.data ?? [];
   const allowed = (studentId: string, recipientId: string, coaches = links, family = families) =>
-    Boolean(profile && session?.user.id === profile.id && canSendMessage({
+    Boolean(profile && !profile.suspended && approvedCoach && session?.user.id === profile.id && canSendMessage({
       userId: session.user.id, role: profile.role, studentId, recipientId,
       profiles: people, assignments: coaches, guardians: family,
     }));
@@ -62,11 +64,11 @@ export function useMessaging() {
       previous => previous?.map(row => saved.has(row.id) ? { ...row, read_at: saved.get(row.id)! } : row));
     void refresh();
   }
-  const required = [messages, profiles, assignments, ...(profile?.role === 'student' ? [] : [guardians])];
+  const required = [messages, profiles, assignments, ...(profile?.role === 'student' ? [] : [guardians]), ...(profile?.role === 'coach' ? [coachPurposes] : [])];
   return { messages: messages.data ?? [], profiles: people, allowed, send, markRead, hasAssignments:links.length>0,
     drafts:drafts.data??{},setDrafts:(next:Record<string,string>)=>cache.setQueryData(['message-drafts',session?.user.id],next),
     recipientIds: links.filter(row => row.student_id === profile?.id && row.coach_id !== profile?.id).map(row => String(row.coach_id)),
     loading: required.some(query => query.isLoading),
-    error: required.some(query => query.error) ? 'Conversations or authorised contacts could not be loaded. Please try again.' : '',
+    error: required.some(query => query.error) ? 'Conversations or authorised contacts could not be loaded. Please try again.' : !approvedCoach && !coachPurposes.isLoading ? 'Founder approval is required for this coach account before sending messages. Existing history remains available.' : '',
   };
 }

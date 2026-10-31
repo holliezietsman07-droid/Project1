@@ -2,6 +2,20 @@
 
 Updated: 2026-10-31. Release decision: **NOT READY**. Authorised acceptance and Founder relationship/content actions remain outstanding.
 
+## Coach assignments and messaging access — 2026-10-31
+
+Latest focused review: [HKA_COACH_MESSAGING_ACCESS.md](HKA_COACH_MESSAGING_ACCESS.md). **READ-ONLY STATUS VERIFIED; LOCAL CONTROLS VERIFIED; LIVE ASSIGNMENT/DELIVERY NOT TESTED.**
+
+- Founder is one non-suspended admin profile with an **authorized, active admin purpose**; no separate authorized Coach purpose exists. Existing admin permissions make Founder an eligible assignment target and sender. Do not switch/downgrade Founder to Coach.
+- Fresh read-only assignment count remains **0**. Each Student requires their own explicit Founder/Coach assignment before Student-to-staff messaging; inbound Founder messages and Coach-role approval do not create that relationship.
+- Existing controls are wired to the existing Supabase singleton: **Founder Dashboard → Students → Manage → Coaching relationships → Link Founder for messaging**. Future explicit Founder submission is required for each approved real pair; no live relationship was created.
+- Direct relationship controls now target active Founder/admin profiles only, show saved links, and guard duplicates/suspended/unknown records. External Coaches use existing student invitation, Founder link review and guardian consent for minors; no consent workflow was replaced.
+- New messaging contacts are filtered by send authorization; denied historical threads remain readable as **History only**. Ordinary Coach send controls check the existing authorized Coach purpose. Unassigned Students retain a clear explanation.
+- Local results: application TypeScript and production build **PASS**; lint **0 errors / 13 existing warnings**; focused units **15 PASS**, existing message units **19 PASS**, existing regressions **23 PASS**; assignment/composer/directory browser checks **6 + 6 + 4 PASS**, all synthetic/intercepted with no live writes.
+- No live assignment, role update, message, consent change, RLS change, migration, record mutation or deployment occurred. Full Founder action and two-account acceptance instructions are in the report. Checkpoint: `.elmony-checkpoints/coach-access-20261031/`.
+
+**Remaining Founder action:** approve each exact real Student/Founder relationship and explicitly save it through existing controls, then authorise live cross-account acceptance; actual delivery and RLS acceptance remain **NOT TESTED**.
+
 ## Invitation-only launch refinement — 2026-10-31
 
 This section supersedes overlapping historical UI descriptions below. Full root-cause analysis, exact optional SQL proposal, changed files, observed test commands/results, approval boundaries and Essential/Optional launch work: [HKA_UX_LAUNCH_REPORT.md](HKA_UX_LAUNCH_REPORT.md).
