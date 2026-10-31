@@ -1,5 +1,7 @@
 # HKA Founder messaging: pre-approval security revision
 
+> Historical pre-approval review: execution status and local-environment blockers below are superseded by [approved isolated local testing](FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md), which records 137 PASS and 3 FAIL SQL assertions; live deployment remains unauthorised.
+
 Date: 2026-10-31. Connected project: `sqaydpbqycvaictieafk`.
 
 **REVIEW ONLY — migration and rollback remain unapplied. No deployment, SQL mutation, live permission change, account creation, consent change or message write occurred. Not ready to request live Founder approval: isolated database execution and the age/safeguarding decisions below remain open.**

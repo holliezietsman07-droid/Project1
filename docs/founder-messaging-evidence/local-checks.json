@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-31T14:01:59.275Z",
+  "scope": "Current local-only testing artifacts",
+  "sql": {
+    "status": "FAIL",
+    "pass": 137,
+    "fail": 3,
+    "total": 140,
+    "receipt": "isolated-run.json"
+  },
+  "source": {
+    "status": "PASS",
+    "count": 14
+  },
+  "javascriptParsers": {
+    "status": "PASS",
+    "files": [
+      "additional-cases.cjs",
+      "committed-cycle.cjs",
+      "disabled-trigger-cases.cjs",
+      "local-schema.cjs",
+      "run-docker.cjs",
+      "run-isolated.cjs",
+      "source-checks.cjs"
+    ]
+  },
+  "applicationBuild": {
+    "status": "PASS",
+    "exitCode": 0,
+    "output": "✓ 2642 modules transformed.\nrendering chunks...\ncomputing gzip size...\n.elmony/founder-local-security-build/index.html                     0.75 kB │ gzip:   0.44 kB\n.elmony/founder-local-security-build/assets/index-CxZqddY-.css     89.19 kB │ gzip:  16.20 kB\n.elmony/founder-local-security-build/assets/index-BuxBYmj-.js   1,034.52 kB │ gzip: 297.16 kB\n\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 14.65s\n"
+  },
+  "proposalsUnchanged": true,
+  "reportLinks": "PASS",
+  "noRemainingTestContainers": true
+}

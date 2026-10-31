@@ -1,20 +1,29 @@
 {
-  "date": "2026-10-31T12:52:15.175Z",
-  "status": "NOT_EXECUTED",
-  "sqlMutationsExecuted": false,
+  "date": "2026-10-31T13:57:49.472Z",
+  "status": "FAIL",
+  "scope": "Approved disposable local PostgreSQL testing only",
+  "sqlMutationsExecuted": true,
+  "sqlMutationDestination": "hka_messaging_security_1793455069470",
   "livePermissionsChanged": false,
-  "proposalApplied": false,
-  "rollbackApplied": false,
-  "preparedAssertions": 98,
+  "liveSqlMutationsExecuted": false,
+  "liveProposalApplied": false,
+  "liveRollbackApplied": false,
+  "deployed": false,
+  "proposalAppliedLocally": true,
+  "rollbackAppliedLocally": true,
+  "syntheticAccounts": 17,
+  "executedAssertions": 140,
+  "passedAssertions": 137,
+  "failedAssertions": 3,
+  "containerRemoved": true,
+  "finding": "Rollback does not detect disabled immutable-message trigger; recipient can clear a read receipt after rollback under that prior privileged drift.",
   "blockers": [
-    "Separate Founder approval for any isolated SQL mutations remains pending.",
-    "PostgreSQL executables were not found on PATH; Docker daemon inspection reported unavailable Linux engine pipe.",
-    "No verified matching current HKA schema-only isolated restore was available."
+    "Correct and retest rollback trigger-state drift handling.",
+    "Confirm Founder/minor consent scope with safeguarding owner.",
+    "Establish trusted missing-DOB adult evidence if an exception is required.",
+    "Confirm private schema API exposure and current complete schema compatibility.",
+    "Obtain separate explicit Founder approval before any live deployment."
   ],
-  "unproven": [
-    "PostgreSQL parsing and function compilation",
-    "RLS allow/deny assertions, grants and trigger behavior",
-    "Rollback execution and data fingerprints",
-    "Hosted JWT/API and live cross-account messaging"
-  ]
+  "report": "docs/FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md",
+  "canonicalRun": "isolated-run.json"
 }

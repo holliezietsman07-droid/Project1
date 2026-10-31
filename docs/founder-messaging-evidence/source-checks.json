@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-31T12:51:27.202Z",
+  "date": "2026-10-31T13:58:13.788Z",
   "scope": "Executed source/catalog and real conversation/React element regression checks; not SQL parsing, RLS execution or browser/live delivery",
   "results": [
     {

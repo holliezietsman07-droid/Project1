@@ -35,6 +35,8 @@ begin
   execute format('select md5(coalesce(string_agg(row_json::text,'''' order by row_json::text),'''')) from (select to_jsonb(t) as row_json from public.%I t) q',t.tablename) into rows_hash;
   result:=result||jsonb_build_object(t.tablename,rows_hash);
  end loop;
+ select md5(coalesce(string_agg(to_jsonb(u)::text,'' order by id),'')) into rows_hash from auth.users u;
+ result:=result||jsonb_build_object('auth.users',rows_hash);
  return result;
 end $$;
 create table hka_messaging_test.fingerprints(label text primary key,value jsonb);
