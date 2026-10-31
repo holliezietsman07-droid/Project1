@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-31T12:52:15.175Z",
+  "status": "NOT_EXECUTED",
+  "sqlMutationsExecuted": false,
+  "livePermissionsChanged": false,
+  "proposalApplied": false,
+  "rollbackApplied": false,
+  "preparedAssertions": 98,
+  "blockers": [
+    "Separate Founder approval for any isolated SQL mutations remains pending.",
+    "PostgreSQL executables were not found on PATH; Docker daemon inspection reported unavailable Linux engine pipe.",
+    "No verified matching current HKA schema-only isolated restore was available."
+  ],
+  "unproven": [
+    "PostgreSQL parsing and function compilation",
+    "RLS allow/deny assertions, grants and trigger behavior",
+    "Rollback execution and data fingerprints",
+    "Hosted JWT/API and live cross-account messaging"
+  ]
+}

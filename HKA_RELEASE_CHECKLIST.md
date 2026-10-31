@@ -1,5 +1,10 @@
 # HKA release checklist
 
+Current pre-approval security revision: [FOUNDER_MESSAGING_SECURITY_REVIEW.md](docs/FOUNDER_MESSAGING_SECURITY_REVIEW.md) supersedes earlier messaging SQL, guardian-read, dashboard-role and rollback guidance below.
+Revised proposals remain unapplied; 14 local source checks passed and 98 isolated PostgreSQL assertions are prepared but unexecuted.
+Live approval must wait for isolated testing, trusted missing-DOB adult evidence where applicable, safeguarding consent interpretation and private-schema exposure confirmation.
+
+
 Updated: 2026-10-31. Release decision: **NOT READY**. Authorised acceptance, Founder messaging-migration approval and content actions remain outstanding.
 
 ## Corrected Founder and Coach messaging — 2026-10-31

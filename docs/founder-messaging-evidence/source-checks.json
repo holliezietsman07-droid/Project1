@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-31T12:51:27.202Z",
+  "scope": "Executed source/catalog and real conversation/React element regression checks; not SQL parsing, RLS execution or browser/live delivery",
+  "results": [
+    {
+      "name": "Founder on Coach dashboard keeps canonical NULL Horse Owner scope",
+      "status": "PASS"
+    },
+    {
+      "name": "Server grant merges legacy scoped direct history while dashboard is Coach",
+      "status": "PASS"
+    },
+    {
+      "name": "History-only NULL grants remain canonical after restrictive rollback",
+      "status": "PASS"
+    },
+    {
+      "name": "Guardian oversight preserves actual child scope and cannot impersonate recipient",
+      "status": "PASS"
+    },
+    {
+      "name": "Approved Student purpose scope survives Guardian dashboard selection",
+      "status": "PASS"
+    },
+    {
+      "name": "Client requires exact current server grant and scope",
+      "status": "PASS"
+    },
+    {
+      "name": "Founder directory follows server grants on Coach dashboard",
+      "status": "PASS"
+    },
+    {
+      "name": "Coach dashboard alone never creates Founder directory",
+      "status": "PASS"
+    },
+    {
+      "name": "Preflight embeds each actual complete live policy expression",
+      "status": "PASS"
+    },
+    {
+      "name": "Privileged functions all live outside public and use fixed search paths",
+      "status": "PASS"
+    },
+    {
+      "name": "Messaging authorisation has no dashboard-state or global legacy helper dependency",
+      "status": "PASS"
+    },
+    {
+      "name": "Migration and rollback never mutate existing public application rows",
+      "status": "PASS"
+    },
+    {
+      "name": "Rollback only freezes direct feature and retains strict policies/API",
+      "status": "PASS"
+    },
+    {
+      "name": "Prepared PostgreSQL suite is bound to current scripts and explicitly unexecuted",
+      "status": "PASS"
+    }
+  ]
+}

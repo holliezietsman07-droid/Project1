@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-31",
+  "scope": "Executed local application/source checks only; proposals unapplied; no isolated SQL or live permission testing",
+  "checks": {
+    "applicationTypes": {
+      "chunk_id": "e49289",
+      "wall_time_seconds": 0.0000178,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "productionBuild": {
+      "chunk_id": "1e0417",
+      "wall_time_seconds": 0.0000253,
+      "exit_code": 0,
+      "original_token_count": 182,
+      "output": "✓ 2642 modules transformed.\nrendering chunks...\ncomputing gzip size...\n.elmony/founder-messaging-security-build/index.html                     0.75 kB │ gzip:   0.44 kB\n.elmony/founder-messaging-security-build/assets/index-CxZqddY-.css     89.19 kB │ gzip:  16.20 kB\n.elmony/founder-messaging-security-build/assets/index-BuxBYmj-.js   1,034.52 kB │ gzip: 297.16 kB\n\n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 10.15s\n"
+    },
+    "focusedLint": {
+      "chunk_id": "9e91ee",
+      "wall_time_seconds": 2.1335681,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "isolatedApprovalGuard": {
+      "chunk_id": "10353e",
+      "wall_time_seconds": 0.4239761,
+      "exit_code": 0,
+      "original_token_count": 23,
+      "output": "PASS isolated SQL runner refuses execution without Founder approval; no database connection\n"
+    }
+  },
+  "artifacts": [
+    {
+      "file": "supabase/proposals/202610310001_founder_direct_messaging.sql",
+      "sha256": "86a4c991c4db732863a10fd89c03d51a0c21c86a0b76ea2107a1138b936f6026",
+      "bytes": 19225
+    },
+    {
+      "file": "supabase/proposals/202610310001_founder_direct_messaging.rollback.sql",
+      "sha256": "9e32f84be1051552e32eb58c03d999ccf9165730040fcb749f89409da0a1f941",
+      "bytes": 3937
+    },
+    {
+      "file": "supabase/tests/founder_messaging/fixtures.sql",
+      "sha256": "4cb7c3993893c0bfbb4beb72762c18c01fd3e911cb08758667d7176f888fe743",
+      "bytes": 6695
+    },
+    {
+      "file": "supabase/tests/founder_messaging/run-isolated.cjs",
+      "sha256": "3d2c5f2b227743b7e072853062b362a5b5c565b1c77af64cca093078d6fc1d8b",
+      "bytes": 16981
+    },
+    {
+      "file": "supabase/tests/founder_messaging/source-checks.cjs",
+      "sha256": "a21bcc70f221e5342fd00ec866aeda49e6c8e537f7ab47a6e08e1d44e4714b23",
+      "bytes": 8793
+    },
+    {
+      "file": "src/lib/conversations.ts",
+      "sha256": "858193cf72da16e1cf4e33b786069d2d87d64a94f05243cea795885be69000b7",
+      "bytes": 5053
+    },
+    {
+      "file": "src/components/accounts/AcademyMessages.tsx",
+      "sha256": "a06c73e9a6099795b89dcf09c266ed7217e21a0a7f232a37d8f9bd4e77780784",
+      "bytes": 2372
+    },
+    {
+      "file": "docs/FOUNDER_MESSAGING_SECURITY_REVIEW.md",
+      "sha256": "173f65141a3f80c9b47f537af429bb731f4eddb0f7be7a4c0e37a0ec26cab374",
+      "bytes": 16437
+    },
+    {
+      "file": "HKA_RELEASE_CHECKLIST.md",
+      "sha256": "64742dd5e661fe7e233fc68d54fc0b02fa8051758570e83a6d2b36ed7df3fc21",
+      "bytes": 52964
+    },
+    {
+      "file": "HKA_UX_LAUNCH_REPORT.md",
+      "sha256": "063c7678a11c509466e0e60f86b8caf7a607fccafaa725856dd5e9600cc28a04",
+      "bytes": 28261
+    }
+  ]
+}

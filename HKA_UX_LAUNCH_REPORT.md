@@ -1,5 +1,9 @@
 # HKA UX and invitation-only launch review
 
+Current security revision: [FOUNDER_MESSAGING_SECURITY_REVIEW.md](docs/FOUNDER_MESSAGING_SECURITY_REVIEW.md) supersedes section 1's dashboard-dependent activation, guardian oversight, helper placement, preflight and rollback descriptions.
+Migration and restrictive rollback remain unapplied; local source evidence and prepared isolated scenarios are linked there, with unresolved age, safeguarding, exposure and database-execution gates.
+
+
 Current correction: section 1 below supersedes all prior Founder-assignment advice, including [HKA_COACH_MESSAGING_ACCESS.md](HKA_COACH_MESSAGING_ACCESS.md). Founder/Admin direct messaging is platform-wide; approved external Coaches remain restricted to assigned, authorised relationships. Database proposal and rollback are prepared but unapplied.
 
 Date: 2026-10-31. Release decision: **NOT READY — authorised acceptance and Founder actions remain outstanding.**
