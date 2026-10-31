@@ -1,22 +1,29 @@
 # HKA release checklist
 
-Updated: 2026-10-31. Release decision: **NOT READY**. Authorised acceptance and Founder relationship/content actions remain outstanding.
+Updated: 2026-10-31. Release decision: **NOT READY**. Authorised acceptance, Founder messaging-migration approval and content actions remain outstanding.
 
-## Coach assignments and messaging access — 2026-10-31
+## Corrected Founder and Coach messaging — 2026-10-31
 
-Latest focused review: [HKA_COACH_MESSAGING_ACCESS.md](HKA_COACH_MESSAGING_ACCESS.md). **READ-ONLY STATUS VERIFIED; LOCAL CONTROLS VERIFIED; LIVE ASSIGNMENT/DELIVERY NOT TESTED.**
+**Founder/Admin direct messaging is platform-wide. External Coach messaging is assignment-scoped.** Earlier recommendations to assign every Student to Founder are withdrawn. Full current permissions, exact proposal, rollback, limitations and account test procedure: [HKA_UX_LAUNCH_REPORT.md](HKA_UX_LAUNCH_REPORT.md#1-corrected-messaging-permissions--frontend-implemented-database-approval-pending).
 
-- Founder is one non-suspended admin profile with an **authorized, active admin purpose**; no separate authorized Coach purpose exists. Existing admin permissions make Founder an eligible assignment target and sender. Do not switch/downgrade Founder to Coach.
-- Fresh read-only assignment count remains **0**. Each Student requires their own explicit Founder/Coach assignment before Student-to-staff messaging; inbound Founder messages and Coach-role approval do not create that relationship.
-- Existing controls are wired to the existing Supabase singleton: **Founder Dashboard → Students → Manage → Coaching relationships → Link Founder for messaging**. Future explicit Founder submission is required for each approved real pair; no live relationship was created.
-- Direct relationship controls now target active Founder/admin profiles only, show saved links, and guard duplicates/suspended/unknown records. External Coaches use existing student invitation, Founder link review and guardian consent for minors; no consent workflow was replaced.
-- New messaging contacts are filtered by send authorization; denied historical threads remain readable as **History only**. Ordinary Coach send controls check the existing authorized Coach purpose. Unassigned Students retain a clear explanation.
-- Local results: application TypeScript and production build **PASS**; lint **0 errors / 13 existing warnings**; focused units **15 PASS**, existing message units **19 PASS**, existing regressions **23 PASS**; assignment/composer/directory browser checks **6 + 6 + 4 PASS**, all synthetic/intercepted with no live writes.
-- No live assignment, role update, message, consent change, RLS change, migration, record mutation or deployment occurred. Full Founder action and two-account acceptance instructions are in the report. Checkpoint: `.elmony-checkpoints/coach-access-20261031/`.
+- [x] Founder New Message directory, name/role search, direct management-profile entry, recent conversations, timestamps and unread/Sent/Read states implemented in existing messaging workspace.
+- [x] Student/Parent/Horse Owner and approved Coach use authorised server contact grants; Founder contact requires no coaching assignment.
+- [x] Removed Link Founder for messaging action; external Coach invitation, approval and guardian-consent workflows remain.
+- [x] Preserved existing Supabase singleton, private history, sender binding, draft retention, read receipts and floating messaging access.
+- [x] Exact database proposal prepared at `supabase/proposals/202610310001_founder_direct_messaging.sql`, outside automatic migrations; no changes applied.
+- [x] Safe permission rollback prepared beside proposal; it preserves nullable direct-message history and identity/update hardening.
+- [ ] **Founder approval required:** review exact SQL and rollback after fresh live helper/grant/trigger/constraint/policy comparison; metadata exploration limit prevented all requested definitions from being re-read.
+- [ ] Run exact proposed SQL and spoofing/private-history tests against disposable matching schema; SQL source assertions are not database execution.
+- [ ] After separate database approval, verify Founder → unassigned Student, Parent, Coach and Horse Owner; each recipient can reply without a Founder coaching assignment.
+- [ ] Verify approved assigned Coach send, unrelated Student denial, no global Coach directory and no access to another Coach's private conversation.
+- [ ] Verify direct API sender spoofing and content/scope mutation rejection; guardian consent/oversight, revoked relationships, saved history, names, unread and read state with authorised accounts.
+- [ ] Separate Founder approval for designated live messages, relationship/consent mutations and eventual deployment.
 
-**Remaining Founder action:** approve each exact real Student/Founder relationship and explicitly save it through existing controls, then authorise live cross-account acceptance; actual delivery and RLS acceptance remain **NOT TESTED**.
+Current local results: 33 messaging/source checks, 23 existing regressions and 15 real-component browser checks PASS; application/tooling TypeScript, focused lint and final local production build PASS. Browser fixtures had zero exceptions, console errors or remote traffic. Full evidence and limits are in the UX report. All live cross-account messaging and database execution remain **NOT TESTED**. Current UI explains approval pending until the secure contact RPC is approved and installed; no fake success or automatic assignment exists.
 
-## Invitation-only launch refinement — 2026-10-31
+The following launch entries are historical evidence. Their assignment-based Founder workaround, standalone optional name RPC and old next-task directions are superseded by this section. Other course, account and release gates still apply.
+
+## Historical invitation-only launch refinement — 2026-10-31
 
 This section supersedes overlapping historical UI descriptions below. Full root-cause analysis, exact optional SQL proposal, changed files, observed test commands/results, approval boundaries and Essential/Optional launch work: [HKA_UX_LAUNCH_REPORT.md](HKA_UX_LAUNCH_REPORT.md).
 
@@ -24,7 +31,7 @@ Checkpoint: `.elmony-checkpoints/launch-refinement-20261031/`. Source review: `.
 
 | Priority | Implementation and verification | Remaining acceptance |
 | --- | --- | --- |
-| Messaging | **IMPLEMENTED / VERIFIED locally:** one guarded insert path, exact student/peer IDs, no self-recipient workaround, assigned contacts, per-thread drafts, duplicate-send lock, recipient-only read receipts, unread refresh, honest errors, retained history and unobstructed composer. Founder/Student/Coach/Guardian/scoped student pages reuse existing Supabase client. | **BLOCKED:** live read-only counts show 4 students and **0 coach assignments**; student INSERT RLS requires an assigned recipient. Two existing staff-to-student message rows lack a reciprocal assignment. Founder must establish the intended approved relationship. Actual cross-account delivery/read/persistence is **NOT TESTED**. Hidden coach names require the separately reviewed optional name RPC if Founder wants full names under current profile RLS. |
+| Messaging | **IMPLEMENTED / VERIFIED locally:** one guarded insert path, exact student/peer IDs, no self-recipient workaround, assigned contacts, per-thread drafts, duplicate-send lock, recipient-only read receipts, unread refresh, honest errors, retained history and unobstructed composer. Founder/Student/Coach/Guardian/scoped student pages reuse existing Supabase client. | **SUPERSEDED:** historical live policy restricted Student replies to assigned recipients. The correct fix is the separate Founder/Coach permission proposal above; Founder assignments and standalone optional name RPC are no longer requested. Database approval and live cross-account delivery/read/persistence remain **NOT TESTED**. |
 | First-time Student | **IMPLEMENTED / VERIFIED locally:** five saved-data checklist steps, discipline/level/goals/pathway editor using existing role RPC, real empty catalogue, returning-student resume/assignment/feedback/coaching cards, exact lesson deep links and unsaved-work protection. | Saved preference round-trip, real enrolment/submission/access and cross-login persistence **NOT TESTED** with authorised accounts. |
 | Founder workspace / courses | **IMPLEMENTED / VERIFIED locally:** linked real counts, timezone-aware chronological schedule, exact request/submission/appointment/message actions, actual draft links, quick actions, functional attention/draft/pending/review filters and compact non-Home headings. | Read-only counts: **0 published courses, 1 draft, 2 modules, 1 lesson, 0 questions**. Founder must finish, preview and explicitly publish real content. Authenticated marking/scheduling/publication and reload acceptance **NOT TESTED**. |
 | Guided calendar | **IMPLEMENTED / VERIFIED locally:** preserved shared calendar and selected-date workflow, exact saved appointment/request deep links, Founder-confirmed vs Student-pending wording, saved timezone, existing DST/conflict validation and roles. | Live appointment creation, request approval, concurrency, persistence and cross-role positive/negative access remain **NOT TESTED** until designated records/accounts are approved. |
@@ -43,11 +50,11 @@ Checkpoint: `.elmony-checkpoints/launch-refinement-20261031/`. Source review: `.
 
 ### A. Essential before launch
 
-- [ ] **BLOCKED:** Founder selects and establishes intended existing student/staff assignments through approved relationship/consent workflows; no bulk links or RLS relaxation.
+- [ ] **BLOCKED:** Founder reviews and separately approves the secure messaging SQL/rollback above. Only external Coach access requires assignment/consent; Founder contact does not.
 - [ ] **NOT TESTED:** authorised Student ↔ assigned staff delivery/read/reload and unrelated/revoked/guardian/minor negative-access tests.
 - [ ] **NOT TESTED:** rider preference persistence, actual enrolment/resume, submission/feedback, selected-date appointment/request saves/reopen/reload and permitted role actions.
 - [ ] **Founder action:** complete and preview the real draft, then explicitly authorise first-course publication.
-- [ ] **Founder decision:** approve narrow assigned-staff name lookup if required; exact unapplied SQL proposal is in the report.
+- [ ] **Founder decision:** approve the minimal authorised contact/name projection as part of the messaging proposal; the old standalone name RPC is superseded.
 - [ ] **NOT TESTED:** invitation/account/deployed-origin acceptance and live image/horse/settings operations; obtain designated accounts/records and separate real-write approval.
 - [ ] Separate Founder release/deployment approval after gates pass. Do not deploy from this refinement.
 
@@ -57,7 +64,7 @@ Checkpoint: `.elmony-checkpoints/launch-refinement-20261031/`. Source review: `.
 - Additional coach/guardian calendar write capability only after separate server/security approval.
 - Bundle splitting and further non-essential mobile density refinements.
 
-**Next task:** Founder assignment/configuration, then designated-account positive/negative messaging acceptance; proceed through remaining authenticated gates without redoing passing local UI work or reapplying historical migrations.
+**Next task:** separate Founder approval, fresh metadata comparison and disposable SQL validation, then authorised positive/negative messaging acceptance; proceed through remaining release gates without automatic deployment.
 
 
 

@@ -1,4 +1,6 @@
-# HKA coach assignments and messaging access
+# Archived HKA coach assignments and messaging access
+
+**CORRECTION — 2026-10-31:** The Founder-assignment workaround and no-migration recommendation below are withdrawn. Founder/Admin direct messaging must be platform-wide, independent of coaching assignments. External Coach access remains assigned and consent-scoped. Use the corrected messaging section in [HKA_UX_LAUNCH_REPORT.md](HKA_UX_LAUNCH_REPORT.md) and current [HKA_RELEASE_CHECKLIST.md](HKA_RELEASE_CHECKLIST.md). The material below is historical diagnosis, not current setup instructions.
 
 Date: 2026-10-31. Status: **READ-ONLY DIAGNOSIS VERIFIED; LOCAL CONTROLS VERIFIED; LIVE ASSIGNMENT / DELIVERY NOT TESTED.**
 

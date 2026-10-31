@@ -28,5 +28,6 @@ export function messageFailure(error: unknown): string {
     return 'Your message was not sent. Founder direct messaging does not require a coaching assignment. Ask the academy to review messaging access; external Coach contacts require an approved relationship. Your draft is kept.';
   }
   if (/fetch|network|offline/i.test(message)) return 'Connection interrupted. Your draft is kept; check your connection before sending again.';
-  return message || 'Message could not be sent. Your draft is kept; please try again.';
+  if (messagingSetupPending(error)) return 'Secure messaging is awaiting academy approval. Your draft is kept; no Founder coaching assignment is needed.';
+  return 'Message could not be sent. Your draft is kept; please try again or contact the academy.';
 }

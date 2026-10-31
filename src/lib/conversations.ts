@@ -19,7 +19,8 @@ export function buildConversations(messages: Row[], profiles: Row[], currentUser
     const participants = [sender, recipient].sort();
     // Founder direct history and new messages share one pair, without rewriting saved rows.
     const direct = options && participants.some(id => people.get(id)?.role === 'admin');
-    const studentId = direct ? '' : originalStudentId;
+    const directContact = options?.contacts.find(row => participants.includes(row.id) && row.id !== currentUserId && row.can_message === true);
+    const studentId = direct ? String(directContact?.student_id ?? participants.find(id => people.get(id)?.role === 'student') ?? '') : originalStudentId;
     const id = conversationKey(studentId, sender, recipient);
     if (!conversations.has(id)) {
       const participant = participants.includes(currentUserId);

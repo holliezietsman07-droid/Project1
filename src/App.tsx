@@ -23,6 +23,7 @@ import type { Profile, Role } from '@/lib/academy';
 import { SessionContextProvider, useSession } from "@/contexts/SessionContext";
 
 import { StudentManagementProfile, StudentPreview } from '@/components/accounts/OwnerDashboard';
+import UserManagementProfile from '@/pages/UserManagementProfile';
 
 const dashboardPath: Record<Role, string> = {
   student: '/dashboard/student',
@@ -136,7 +137,7 @@ const App = () => (
                 <Route element={<AccessGate roles={["coach"]} />}><Route path="/dashboard/coach" element={<DashboardPage role="coach" />} /></Route>
                 <Route element={<AccessGate roles={["admin"]} />}><Route path="/dashboard/admin" element={<DashboardPage role="admin" />} /></Route>
                 <Route element={<AccessGate roles={['student']} />}><Route path={'/academy/courses/:courseId'} element={<CoursePlayer />} /></Route>
-                <Route element={<AccessGate roles={['admin']} />}><Route path={'/dashboard/student-preview'} element={<StudentPreview />} /></Route>
+                <Route element={<AccessGate roles={['admin']} />}><Route path={'/dashboard/student-preview'} element={<StudentPreview />} /><Route path='/dashboard/users/:userId' element={<UserManagementProfile />} /></Route>
                 <Route element={<AccessGate roles={['coach', 'admin']} />}><Route path={'/dashboard/students/:studentId'} element={<StudentManagementProfile />} /></Route>
                 <Route element={<AccessGate roles={['coach', 'admin']} />}><Route path={'/dashboard/academy'} element={<AcademyWorkspace />} /></Route>
               </Route>
