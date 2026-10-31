@@ -8,6 +8,7 @@ import type { Role, Row } from "@/lib/academy";
 import { StudentDashboard } from '@/components/accounts/StudentDashboard';
 import { OwnerDashboard } from '@/components/accounts/OwnerDashboard';
 import { CoachingWorkspace } from '@/components/accounts/CoachingWorkspace';
+import { AcademyMessages } from '@/components/accounts/AcademyMessages';
 
 const dashboardPath: Record<Role, string> = {
   student: "/dashboard/student", guardian: "/dashboard/parent", coach: "/dashboard/coach", admin: "/dashboard/admin",
@@ -50,6 +51,7 @@ const panels: Record<Role, Panel[]> = {
     { id: 'messages', title: 'Messages', table: 'hka_messages', empty: 'No academy messages yet.' },
   ],
   coach: [
+    { id: 'messages', title: 'Messages', table: 'hka_messages', empty: 'No academy messages yet.' },
     { id: "courses", title: "My courses", table: "hka_courses", empty: "No courses have been assigned." },
     { id: "students", title: "Assigned students", table: "hka_coach_students", empty: "No students have been assigned." },
     { id: "submissions", title: "Student submissions", table: "hka_submissions", empty: "No submissions await review." },
@@ -76,7 +78,7 @@ export function DashboardPage({ role }: { role: Role }) {
   if (role === 'student') return <StudentDashboard />;
   if (role === 'admin') return <OwnerDashboard />;
   const section=location.hash.replace('#','');const selected=panels[role].find(panel=>panel.id===section);
-  return <section className='dashboard-shell page-width py-8 lg:py-10'><DashboardHero label={roleName[role]+' dashboard'} defaultSubtitle={role==='coach'?'Assigned students, reviews and lessons — securely organised for your coaching work.':'Linked student progress, activities and academy updates — visible with verified permission.'} actions={role==='coach'?<Link to='/dashboard/academy' className='inline-flex min-h-10 items-center rounded-sm bg-primary px-4 text-xs font-medium text-primary-foreground'>Academy workspace</Link>:undefined}/>{selected?<div className='mt-8'><nav aria-label='Breadcrumb' className='mb-4 text-xs text-muted-foreground'><Link to={dashboardPath[role]} className='hover:underline'>Dashboard Home</Link><span aria-hidden='true'> / </span><span>{selected.title}</span></nav>{selected.id==='coaching'?<CoachingWorkspace/>:<DataPanel {...selected}/>}</div>:<RoleOverview role={role}/>} {role==='guardian'&&<Link to='/dashboard/parent#messages' className='floating-message' aria-label='Open messages'><MessageCircle className='size-6'/></Link>}</section>;
+  return <section className='dashboard-shell page-width py-8 lg:py-10'><DashboardHero label={roleName[role]+' dashboard'} defaultSubtitle={role==='coach'?'Assigned students, reviews and lessons — securely organised for your coaching work.':'Linked student progress, activities and academy updates — visible with verified permission.'} actions={role==='coach'?<Link to='/dashboard/academy' className='inline-flex min-h-10 items-center rounded-sm bg-primary px-4 text-xs font-medium text-primary-foreground'>Academy workspace</Link>:undefined}/>{selected?<div className='mt-8'><nav aria-label='Breadcrumb' className='mb-4 text-xs text-muted-foreground'><Link to={dashboardPath[role]} className='hover:underline'>Dashboard Home</Link><span aria-hidden='true'> / </span><span>{selected.title}</span></nav>{selected.id==='coaching'?<CoachingWorkspace/>:selected.id==='messages'?<AcademyMessages/>:<DataPanel {...selected}/>}</div>:<RoleOverview role={role}/>} {role==='guardian'&&<Link to='/dashboard/parent#messages' className='floating-message' aria-label='Open messages'><MessageCircle className='size-6'/></Link>}</section>;
   /* const Icon = roleIcon[role];
   return <section className="dashboard-shell page-width py-8 lg:py-10">
     <div className="dashboard-hero flex flex-col justify-between gap-6 md:flex-row md:items-end"><div><p className="eyebrow mb-4 text-[#76633e]">{roleName[role]} dashboard</p><h1 className="section-heading">Welcome, {profile.full_name}.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">Your private academy space brings current learning, coaching and account updates together.</p>{role === 'coach' && <Link to={'/dashboard/academy'} className={'mt-5 inline-flex min-h-11 items-center rounded-sm bg-primary px-5 text-xs font-medium text-primary-foreground'}>Open academy workspace</Link>}</div><Icon aria-hidden="true" strokeWidth={1.25} className="size-12 text-[#826e45]" /></div>

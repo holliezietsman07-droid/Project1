@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSession } from '@/contexts/SessionContext';
 import { useRows, useRefreshAcademy } from '@/hooks/use-academy';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,8 @@ import { errorText, listRows, rpc, saveRow, type Row } from '@/lib/academy';
 
 export function CoachingWorkspace() {
   const {profile}=useSession(), refresh=useRefreshAcademy();
+  const [searchParams,setSearchParams]=useSearchParams();
+  const handledLink=useRef('');
   const admin=profile?.role==='admin', student=profile?.role==='student', coach=profile?.role==='coach';
   const ready=profile?.membership_tier!==undefined;
   const appointments=useRows('hka_appointments');
@@ -28,11 +31,20 @@ export function CoachingWorkspace() {
   const authorisedStudents=(profiles.data??[]).filter(row=>row.role==='student'&&!row.suspended);
   const linkedIds=new Set((links.data??[]).filter(row=>coach?row.coach_id===profile?.id:row.guardian_id===profile?.id&&row.status==='approved'&&Boolean(row.consent_at)).map(row=>row.student_id));
   const visibleAppointments=(appointments.data??[]).filter(row=>admin||student&&row.student_id===profile?.id||coach&&row.coach_id===profile?.id&&linkedIds.has(row.student_id)||profile?.role==='guardian'&&linkedIds.has(row.student_id));
-  const visibleRequests=(requests.data??[]).filter(row=>admin||student&&row.student_id===profile?.id||coach&&linkedIds.has(row.student_id));
-  const studentLabel=(row:Row)=>String(row.student_id===profile?.id?profile.full_name:(profiles.data??[]).find(person=>person.id===row.student_id)?.full_name||'Student · '+String(row.student_id).slice(0,8));
+  const visibleRequests=useMemo(()=>{const assigned=new Set((links.data??[]).filter(link=>link.coach_id===profile?.id).map(link=>link.student_id));return (requests.data??[]).filter(row=>admin||student&&row.student_id===profile?.id||coach&&assigned.has(row.student_id));},[requests.data,links.data,admin,student,coach,profile?.id]);
+  const studentLabel=(row:Row)=>String(row.student_id===profile?.id?profile.full_name:(profiles.data??[]).find(person=>person.id===row.student_id)?.full_name||'Academy student');
   const windows=admin?availability.data??[]:[];
   const loading=appointments.isLoading||((admin||student||coach)&&ready&&requests.isLoading)||(admin&&availability.isLoading)||(!admin&&!student&&links.isLoading);
   const loadError=Boolean(appointments.error||((admin||student||coach)&&requests.error)||(admin&&availability.error)||(!admin&&!student&&links.error));
+  useEffect(() => {
+    const requestId=searchParams.get('request'), schedule=searchParams.get('action')==='schedule';
+    const link=requestId||(schedule?'schedule':'');
+    if(!link||loading||loadError||handledLink.current===link)return;
+    if(requestId){const row=visibleRequests.find(item=>item.id===requestId);if(!row)return;setDetail(row);}
+    else if(admin)setAction({day:dayInTimezone(new Date(),timezone),mode:'schedule'});
+    handledLink.current=link;
+  }, [searchParams,loading,loadError,admin,visibleRequests,timezone]);
+  const displayedRequests=searchParams.get('filter')==='pending'?visibleRequests.filter(row=>['pending','reschedule_requested','cancellation_requested'].includes(String(row.status))):visibleRequests;
   async function save(data:LessonDraft) {
     if(!profile||!action)throw new Error('Sign in again to save.');
     if(!admin&&!student)throw new Error('Founder scheduling approval is required.');
@@ -114,11 +126,11 @@ export function CoachingWorkspace() {
     {message&&<p role='status' className='rounded-lg border border-[#B79B62]/40 bg-background p-4 text-sm'>{message}</p>}
     {failure&&!detail&&<p role='alert' className='text-sm text-destructive'>{failure}</p>}
     {!admin&&<p className='text-xs leading-6 text-muted-foreground'>{student?'Suggest a preferred time; teaching availability is unconfirmed until Founder approval.':coach?'You can view lessons for your authorised students. Scheduling and teaching availability are managed by Founder.':'Only verified linked children appear. Existing permissions require lesson requests to be submitted by the student or arranged with Founder.'}</p>}
-    <CoachingCalendar appointments={visibleAppointments.map(row=>({...row,participant_label:studentLabel(row)}))} availability={windows} requests={visibleRequests.map(row=>({...row,participant_label:studentLabel(row)}))} timezone={timezone} loading={loading} error={loadError}
+    <CoachingCalendar selectedAppointmentId={searchParams.get('appointment')??undefined} appointments={visibleAppointments.map(row=>({...row,participant_label:studentLabel(row)}))} availability={windows} requests={visibleRequests.map(row=>({...row,participant_label:studentLabel(row)}))} timezone={timezone} loading={loading} error={loadError}
       heading={admin?'Academy teaching calendar':student?'Your lesson calendar':coach?'Your authorised teaching schedule':'Family lesson calendar'}
       actionLabel={admin?'Plan this day':'Request a Lesson'} onRequest={admin||student?day=>{setFailure('');if(admin){setDayActions(day);}else{setAction({day,mode:'request'});}}:undefined}
       renderActions={actions}/>
-    <section className='paper-card p-5 sm:p-6'><h3 className='font-serif text-2xl'>Lesson requests</h3><p className='mt-2 text-xs text-muted-foreground'>Open a request to see details and permitted actions.</p><div className='mt-4 grid gap-3 sm:grid-cols-2'>{visibleRequests.map(row=><button key={row.id} type='button' className='rounded-lg border border-primary/15 p-4 text-left hover:bg-primary/5' onClick={()=>{setFailure('');setDetail(row);}}><strong className='text-sm capitalize'>{String(row.lesson_format).replace('_',' ')} lesson</strong><span className='mt-1 block text-xs text-muted-foreground'>{formatCoachingTime(row.preferred_starts_at,timezone)}</span><span className='mt-2 inline-block rounded-full bg-[#B79B62]/15 px-2 py-1 text-[11px]'>{String(row.status).replace(/_/g,' ')}</span></button>)}</div>{!loading&&!visibleRequests.length&&<p className='mt-4 text-sm text-muted-foreground'>{profile.role==='guardian'?'Lesson requests follow student and Founder permissions.':'No lesson requests recorded.'}</p>}</section>
+    <section className='paper-card p-5 sm:p-6'><h3 className='font-serif text-2xl'>Lesson requests</h3><p className='mt-2 text-xs text-muted-foreground'>Open a request to see details and permitted actions.</p>{searchParams.get('filter')==='pending'&&<Button type='button' variant='ghost' className='mt-2' onClick={()=>{const next=new URLSearchParams(searchParams);next.delete('filter');setSearchParams(next);}}>Show all requests</Button>}<div className='mt-4 grid gap-3 sm:grid-cols-2'>{displayedRequests.map(row=><button key={row.id} type='button' className='rounded-lg border border-primary/15 p-4 text-left hover:bg-primary/5' onClick={()=>{setFailure('');setDetail(row);}}><strong className='text-sm capitalize'>{String(row.lesson_format).replace('_',' ')} lesson</strong><span className='mt-1 block text-xs text-muted-foreground'>{formatCoachingTime(row.preferred_starts_at,timezone)}</span><span className='mt-2 inline-block rounded-full bg-[#B79B62]/15 px-2 py-1 text-[11px]'>{String(row.status).replace(/_/g,' ')}</span></button>)}</div>{!loading&&!displayedRequests.length&&<p className='mt-4 text-sm text-muted-foreground'>{profile.role==='guardian'?'Lesson requests follow student and Founder permissions.':'No lesson requests recorded.'}</p>}</section>
     <WorkflowDialog open={Boolean(dayActions)} onOpenChange={open=>{if(!open)setDayActions('');}} title='Plan your teaching day' description={dayActions+' · '+timezone}>
       <div className='grid gap-3'>{([['schedule','Schedule a lesson','Choose a student and confirm lesson details.'],['available','Publish availability','Record a teaching window.'],['unavailable','Block time','Keep time clear of new lessons.']] as const).map(([mode,title,description])=><Button key={mode} type='button' variant='outline' className='h-auto justify-start whitespace-normal p-4 text-left' disabled={profiles.isLoading||Boolean(profiles.error)} onClick={()=>{setAction({day:dayActions,mode});setDayActions('');}}><span><strong className='block'>{title}</strong><span className='mt-1 block text-xs font-normal'>{description}</span></span></Button>)}{profiles.error&&<p role='alert'>Authorised student records could not be loaded.</p>}<h3 className='mt-3 font-serif text-xl'>Appointments on this day</h3>{visibleAppointments.filter(row=>row.status==='scheduled'&&dayInTimezone(new Date(String(row.starts_at)),timezone)===dayActions).map(row=><p key={row.id} className='rounded-lg border border-primary/15 p-3 text-sm'>{String(row.title)} · {formatCoachingTime(row.starts_at,timezone)}</p>)}{!visibleAppointments.some(row=>row.status==='scheduled'&&dayInTimezone(new Date(String(row.starts_at)),timezone)===dayActions)&&<p className='text-sm text-muted-foreground'>No confirmed appointments.</p>}</div>
     </WorkflowDialog>

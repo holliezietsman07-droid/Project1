@@ -7,7 +7,7 @@ export type Conversation = {
 
 export function buildConversations(messages: Row[], profiles: Row[], currentUserId: string, scopeStudentId?: string, recipientIds: string[] = []): Conversation[] {
   const names = new Map(profiles.map(row => [String(row.id), String(row.full_name || 'Academy member')]));
-  const name = (id: string) => names.get(id) ?? ('Academy member · ' + id.slice(0, 8));
+  const name = (id: string) => names.get(id) ?? 'Academy member';
   const conversations = new Map<string, Conversation>();
   function threadFor(studentId: string, sender: string, recipient: string) {
     const participants = [sender, recipient].sort();

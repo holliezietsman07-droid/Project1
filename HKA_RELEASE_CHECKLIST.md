@@ -1,6 +1,51 @@
 # HKA release checklist
 
-Updated: 2026-10-29. Release decision: **NOT READY**. Controlled live acceptance is **BLOCKED** for authenticated workflows.
+Updated: 2026-10-31. Release decision: **NOT READY**. Authorised acceptance and Founder relationship/content actions remain outstanding.
+
+## Invitation-only launch refinement — 2026-10-31
+
+This section supersedes overlapping historical UI descriptions below. Full root-cause analysis, exact optional SQL proposal, changed files, observed test commands/results, approval boundaries and Essential/Optional launch work: [HKA_UX_LAUNCH_REPORT.md](HKA_UX_LAUNCH_REPORT.md).
+
+Checkpoint: `.elmony-checkpoints/launch-refinement-20261031/`. Source review: `.elmony/launch-refinement-evidence/change-review.json`. No database mutation, migration, RLS change, billing change, real message/appointment/test record creation, course publication or deployment occurred.
+
+| Priority | Implementation and verification | Remaining acceptance |
+| --- | --- | --- |
+| Messaging | **IMPLEMENTED / VERIFIED locally:** one guarded insert path, exact student/peer IDs, no self-recipient workaround, assigned contacts, per-thread drafts, duplicate-send lock, recipient-only read receipts, unread refresh, honest errors, retained history and unobstructed composer. Founder/Student/Coach/Guardian/scoped student pages reuse existing Supabase client. | **BLOCKED:** live read-only counts show 4 students and **0 coach assignments**; student INSERT RLS requires an assigned recipient. Two existing staff-to-student message rows lack a reciprocal assignment. Founder must establish the intended approved relationship. Actual cross-account delivery/read/persistence is **NOT TESTED**. Hidden coach names require the separately reviewed optional name RPC if Founder wants full names under current profile RLS. |
+| First-time Student | **IMPLEMENTED / VERIFIED locally:** five saved-data checklist steps, discipline/level/goals/pathway editor using existing role RPC, real empty catalogue, returning-student resume/assignment/feedback/coaching cards, exact lesson deep links and unsaved-work protection. | Saved preference round-trip, real enrolment/submission/access and cross-login persistence **NOT TESTED** with authorised accounts. |
+| Founder workspace / courses | **IMPLEMENTED / VERIFIED locally:** linked real counts, timezone-aware chronological schedule, exact request/submission/appointment/message actions, actual draft links, quick actions, functional attention/draft/pending/review filters and compact non-Home headings. | Read-only counts: **0 published courses, 1 draft, 2 modules, 1 lesson, 0 questions**. Founder must finish, preview and explicitly publish real content. Authenticated marking/scheduling/publication and reload acceptance **NOT TESTED**. |
+| Guided calendar | **IMPLEMENTED / VERIFIED locally:** preserved shared calendar and selected-date workflow, exact saved appointment/request deep links, Founder-confirmed vs Student-pending wording, saved timezone, existing DST/conflict validation and roles. | Live appointment creation, request approval, concurrency, persistence and cross-role positive/negative access remain **NOT TESTED** until designated records/accounts are approved. |
+| Directory / profile / navigation / settings / horses | **IMPLEMENTED / VERIFIED within local scope:** distinct sidebar icons, one Founder Home, readable directory/record links without visible technical IDs, same existing avatar paths/helpers, compact account heading, grouped Founder settings, unsaved preference protection and configured-only horse limits. Duplicate-name inspection confirmed **2 distinct records**; nothing merged/deleted. | Actual image/storage/settings/horse saves, configured-limit denial and all role-bound walkthroughs **NOT TESTED**. Horse-limit behavior was type/source checked; not certified through a live account. |
+
+### Latest actual local checks
+
+- Application and tooling TypeScript: **PASS**, exit 0.
+- Local production build to `.elmony/launch-refinement-build`: **PASS**, 2,640 modules; existing large-bundle warning only.
+- Source lint: **PASS**, 0 errors / 13 pre-existing warnings.
+- Unit checks: **70 PASS / 0 FAIL** — messaging 19, saved-data/workspace 12, existing conversation/auth/time 23, calendar/boundary 16.
+- Browser checks: **76 PASS / 0 FAIL** — workspace 28, messaging 6, calendar 23, directory 4, existing message/avatar 11 and course editors 4. Widths: 1440, 768, 390, 320 px. New workspace/message runs reported zero uncaught exceptions/console errors.
+- Additional Founder desktop/phone screenshot and grouped-settings checks **PASS**; selected Student/Founder/message screenshots visually reviewed.
+- Protected routes, auth/session, Supabase singleton, core academy/time helpers, payment files and existing photo-operation helper block match checkpoint byte-for-byte.
+- These are synthetic/callback/local component checks, **not actual authenticated end-to-end acceptance**. Test commands, paths, fixture boundaries and superseded historical fixture failures are recorded in the full report.
+
+### A. Essential before launch
+
+- [ ] **BLOCKED:** Founder selects and establishes intended existing student/staff assignments through approved relationship/consent workflows; no bulk links or RLS relaxation.
+- [ ] **NOT TESTED:** authorised Student ↔ assigned staff delivery/read/reload and unrelated/revoked/guardian/minor negative-access tests.
+- [ ] **NOT TESTED:** rider preference persistence, actual enrolment/resume, submission/feedback, selected-date appointment/request saves/reopen/reload and permitted role actions.
+- [ ] **Founder action:** complete and preview the real draft, then explicitly authorise first-course publication.
+- [ ] **Founder decision:** approve narrow assigned-staff name lookup if required; exact unapplied SQL proposal is in the report.
+- [ ] **NOT TESTED:** invitation/account/deployed-origin acceptance and live image/horse/settings operations; obtain designated accounts/records and separate real-write approval.
+- [ ] Separate Founder release/deployment approval after gates pass. Do not deploy from this refinement.
+
+### B. Optional after launch
+
+- Broader assessment previews after real assessments exist.
+- Additional coach/guardian calendar write capability only after separate server/security approval.
+- Bundle splitting and further non-essential mobile density refinements.
+
+**Next task:** Founder assignment/configuration, then designated-account positive/negative messaging acceptance; proceed through remaining authenticated gates without redoing passing local UI work or reapplying historical migrations.
+
+
 
 ## Premium app-style UX refinement — 2026-10-29
 

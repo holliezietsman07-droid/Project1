@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { WorkflowDialog } from '@/components/accounts/WorkflowDialog';
@@ -9,14 +9,24 @@ type Props = {
   appointments: Row[]; availability: Row[]; requests?: Row[]; variant?:'lesson'|'care'; timezone: string; loading?: boolean; error?: boolean;
   onRequest?: (day: string) => void; heading?: string; actionLabel?: string;
   renderActions?: (row: Row, kind: 'appointment' | 'request', close:()=>void) => ReactNode;
-  onAppointment?: (row: Row) => void;
+  onAppointment?: (row: Row) => void; selectedAppointmentId?: string;
 };
-export function CoachingCalendar({ appointments, availability, requests = [], timezone, loading, error, onRequest, heading = 'Your academy calendar', variant='lesson', actionLabel = 'Request a Lesson', renderActions, onAppointment }: Props) {
+export function CoachingCalendar({ appointments, availability, requests = [], timezone, loading, error, onRequest, heading = 'Your academy calendar', variant='lesson', actionLabel = 'Request a Lesson', renderActions, onAppointment, selectedAppointmentId }: Props) {
   const today = dayInTimezone(new Date(), timezone);
   const [date, setDate] = useState<Date>(() => new Date(today + 'T12:00:00'));
   const [month, setMonth] = useState(date);
   const [detail, setDetail] = useState<{row: Row; kind: 'appointment' | 'request'} | null>(null);
   const key = calendarDateKey(date);
+  const opened = useRef('');
+  useEffect(() => {
+    if (!selectedAppointmentId || loading || error || opened.current === selectedAppointmentId) return;
+    const row = appointments.find(item => item.id === selectedAppointmentId);
+    if (!row) return;
+    opened.current = selectedAppointmentId;
+    const day = row.calendar_day ? String(row.calendar_day) : dayInTimezone(new Date(String(row.starts_at)), timezone);
+    const nextDate = new Date(day + 'T12:00:00'); setDate(nextDate); setMonth(nextDate);
+    setDetail({row, kind:'appointment'});
+  }, [selectedAppointmentId, appointments, loading, error, timezone]);
   const detailRow=detail?((detail.kind==='request'?requests:appointments).find(row=>row.id===detail.row.id)??detail.row):null;
   const rowDay = (row: Row, field = 'starts_at') => row.calendar_day ? String(row.calendar_day) : dayInTimezone(new Date(String(row[field])), timezone);
   const scheduled = appointments.filter(row => !['cancelled', 'declined'].includes(String(row.status)));

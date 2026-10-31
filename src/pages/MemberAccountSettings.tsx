@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Bell, LockKeyhole, Pencil, ShieldCheck, SlidersHorizontal, UserRound } from 'lucide-react';
 import { AccountRoleSettings } from '@/components/accounts/AccountRoles';
+import { RiderPreferencesEditor } from '@/components/accounts/RiderPreferencesEditor';
 import { DashboardHero, SelfAvatarEditor } from '@/components/accounts/StudentDashboard';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -81,7 +82,7 @@ export default function MemberAccountSettings() {
   if (!profile) return null;
 
   return <section className='dashboard-shell page-width py-8 lg:py-10'>
-    <DashboardHero label='Account settings' defaultSubtitle='Manage your profile, preferences, security and authorised account relationships.' />
+    <h1 className='font-serif text-3xl text-primary sm:text-4xl'>Account Settings</h1><p className='mt-2 text-sm text-muted-foreground'>Manage your profile, preferences, security and authorised account relationships.</p>
     <div className='mt-8 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]'>
       <aside className='space-y-6'>
         <section className='paper-card p-6 sm:p-8'>
@@ -117,7 +118,7 @@ export default function MemberAccountSettings() {
         </div>
         <section className='paper-card p-6 sm:p-8'>
           <div className='mb-6 flex items-start gap-3'><ShieldCheck className='mt-1 size-5 text-[#826e45]' /><div><h2 className='font-serif text-3xl'>Account roles & linked relationships</h2><p className='mt-2 text-sm text-muted-foreground'>Only authorised roles and verified relationships can access linked records.</p></div></div>
-          <AccountRoleSettings />
+          {profile.role==='student'&&<div className='mb-6'><RiderPreferencesEditor/></div>}<AccountRoleSettings />
         </section>
       </div>
     </div>

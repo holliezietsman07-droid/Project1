@@ -10,6 +10,7 @@ export function useRows(table: string, filters: Record<string, string> = {}, ena
     enabled: Boolean(session) && enabled,
     retry: 1,
     refetchOnWindowFocus: true,
+    refetchInterval: table === 'hka_messages' ? 15000 : false,
   });
 }
 export function useRefreshAcademy() {
