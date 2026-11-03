@@ -1,0 +1,15 @@
+{
+  "savedAt": {
+    "current_time": "2026-11-03 06:15:19 UTC"
+  },
+  "tool": "elmony_execute_supabase_sql",
+  "project": "sqaydpbqycvaictieafk",
+  "outcome": "NO_COMPLETION_RECEIPT",
+  "error": "tool call failed: timed out awaiting tools/call after 300s",
+  "queryFile": "read-only-catalog-query.sql",
+  "readOnlyTransaction": true,
+  "applicationRowsRequested": false,
+  "retries": 0,
+  "liveMutationsAuthorized": false,
+  "conclusion": "No result may be inferred. Metadata phase stopped; full catalog verification remains open."
+}

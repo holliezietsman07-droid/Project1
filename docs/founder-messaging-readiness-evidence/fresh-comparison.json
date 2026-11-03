@@ -1,0 +1,196 @@
+{
+  "capturedAt": "2026-11-03T06:13:45.369Z",
+  "project": "sqaydpbqycvaictieafk",
+  "status": "PARTIAL",
+  "tables": [
+    {
+      "table": "hka_messages",
+      "rlsEnabled": true,
+      "columnsMatch": true,
+      "columnCount": 7
+    },
+    {
+      "table": "hka_profiles",
+      "rlsEnabled": true,
+      "columnsMatch": true,
+      "columnCount": 12
+    },
+    {
+      "table": "hka_account_roles",
+      "rlsEnabled": true,
+      "columnsMatch": true,
+      "columnCount": 9
+    },
+    {
+      "table": "hka_guardians",
+      "rlsEnabled": true,
+      "columnsMatch": true,
+      "columnCount": 8
+    },
+    {
+      "table": "hka_coach_students",
+      "rlsEnabled": true,
+      "columnsMatch": true,
+      "columnCount": 3
+    },
+    {
+      "table": "hka_link_requests",
+      "rlsEnabled": true,
+      "columnsMatch": true,
+      "columnCount": 12
+    },
+    {
+      "table": "hka_student_link_codes",
+      "rlsEnabled": true,
+      "columnsMatch": true,
+      "columnCount": 9
+    }
+  ],
+  "policies": [
+    {
+      "table": "hka_messages",
+      "name": "hka_messages_insert",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_messages",
+      "name": "hka_messages_read",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_messages",
+      "name": "hka_messages_update_read",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_profiles",
+      "name": "profiles_read",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_profiles",
+      "name": "profiles_update",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_account_roles",
+      "name": "account_roles_read",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_guardians",
+      "name": "guardians_delete",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_guardians",
+      "name": "guardians_insert",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_guardians",
+      "name": "guardians_read",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_coach_students",
+      "name": "assignments_read",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_coach_students",
+      "name": "assignments_write",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_link_requests",
+      "name": "link_requests_read",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    },
+    {
+      "table": "hka_student_link_codes",
+      "name": "link_codes_read",
+      "expressionCommandPermissivenessMatch": true,
+      "roles": "UNVERIFIED: metadata helper omits policy target roles"
+    }
+  ],
+  "functions": [
+    {
+      "name": "hka_role",
+      "status": "OBSERVED",
+      "definitionMatches": true,
+      "ownerAcl": "UNVERIFIED: metadata helper omits owner and ACL"
+    },
+    {
+      "name": "hka_admin",
+      "status": "OBSERVED",
+      "definitionMatches": true,
+      "ownerAcl": "UNVERIFIED: metadata helper omits owner and ACL"
+    },
+    {
+      "name": "hka_active",
+      "status": "OBSERVED",
+      "definitionMatches": true,
+      "ownerAcl": "UNVERIFIED: metadata helper omits owner and ACL"
+    },
+    {
+      "name": "hka_teach",
+      "status": "OBSERVED",
+      "definitionMatches": true,
+      "ownerAcl": "UNVERIFIED: metadata helper omits owner and ACL"
+    },
+    {
+      "name": "hka_view_student",
+      "status": "OBSERVED",
+      "definitionMatches": true,
+      "ownerAcl": "UNVERIFIED: metadata helper omits owner and ACL"
+    },
+    {
+      "name": "hka_signup_profile",
+      "status": "UNAVAILABLE",
+      "definitionMatches": null,
+      "ownerAcl": "UNVERIFIED: metadata helper omits owner and ACL"
+    },
+    {
+      "name": "hka_has_purpose",
+      "status": "UNAVAILABLE",
+      "definitionMatches": null,
+      "ownerAcl": "UNVERIFIED: metadata helper omits owner and ACL"
+    },
+    {
+      "name": "hka_coaches",
+      "status": "UNAVAILABLE",
+      "definitionMatches": null,
+      "ownerAcl": "UNVERIFIED: metadata helper omits owner and ACL"
+    }
+  ],
+  "publicTriggers": {
+    "count": 0,
+    "scope": "Only seven requested public tables; auth.users trigger not inspected"
+  },
+  "unverified": [
+    "Exact policy role targets",
+    "Table, column and function effective grants and memberships",
+    "Constraints and indexes",
+    "Remaining three helper bodies",
+    "Auth signup trigger and auth.uid dependency",
+    "Migration history",
+    "Private schema collision",
+    "GraphQL resolver and configuration",
+    "Non-superuser migration privileges"
+  ],
+  "toolLimit": "Elmony context exploration budget reached; no retries attempted",
+  "liveMutations": false
+}

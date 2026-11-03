@@ -1,0 +1,3754 @@
+{
+  "capturedAt": "2026-11-03T06:14:18.234Z",
+  "scope": "Local structural backup audit; no raw data, passwords or identities emitted",
+  "backupRoot": "C:/Users/Hollie/HKA-Private-Backup",
+  "sets": [
+    {
+      "directory": "C:/Users/Hollie/HKA-Private-Backup",
+      "files": [
+        {
+          "file": "auth-data.sql",
+          "bytes": 13855,
+          "lastWriteTimeUtc": "2026-10-24T07:59:02.052Z",
+          "sha256": "d4478fbd160f25fdd928a89ad788b0ba6c1a2b486d946496f08cd46ec5db7468",
+          "dumpVersion": "17.11",
+          "serverVersion": "17.11",
+          "completionMarker": true,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [
+            {
+              "table": "auth.audit_log_entries",
+              "columns": [
+                "instance_id",
+                "id",
+                "payload",
+                "created_at",
+                "ip_address"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.custom_oauth_providers",
+              "columns": [
+                "id",
+                "provider_type",
+                "identifier",
+                "name",
+                "client_id",
+                "client_secret",
+                "acceptable_client_ids",
+                "scopes",
+                "pkce_enabled",
+                "attribute_mapping",
+                "authorization_params",
+                "enabled",
+                "email_optional",
+                "issuer",
+                "discovery_url",
+                "skip_nonce_check",
+                "cached_discovery",
+                "discovery_cached_at",
+                "authorization_url",
+                "token_url",
+                "userinfo_url",
+                "jwks_uri",
+                "created_at",
+                "updated_at",
+                "custom_claims_allowlist"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.flow_state",
+              "columns": [
+                "id",
+                "user_id",
+                "auth_code",
+                "code_challenge_method",
+                "code_challenge",
+                "provider_type",
+                "provider_access_token",
+                "provider_refresh_token",
+                "created_at",
+                "updated_at",
+                "authentication_method",
+                "auth_code_issued_at",
+                "invite_token",
+                "referrer",
+                "oauth_client_state_id",
+                "linking_target_id",
+                "email_optional"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.users",
+              "columns": [
+                "instance_id",
+                "id",
+                "aud",
+                "role",
+                "email",
+                "encrypted_password",
+                "email_confirmed_at",
+                "invited_at",
+                "confirmation_token",
+                "confirmation_sent_at",
+                "recovery_token",
+                "recovery_sent_at",
+                "email_change_token_new",
+                "email_change",
+                "email_change_sent_at",
+                "last_sign_in_at",
+                "raw_app_meta_data",
+                "raw_user_meta_data",
+                "is_super_admin",
+                "created_at",
+                "updated_at",
+                "phone",
+                "phone_confirmed_at",
+                "phone_change",
+                "phone_change_token",
+                "phone_change_sent_at",
+                "email_change_token_current",
+                "email_change_confirm_status",
+                "banned_until",
+                "reauthentication_token",
+                "reauthentication_sent_at",
+                "is_sso_user",
+                "deleted_at",
+                "is_anonymous"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "auth.identities",
+              "columns": [
+                "provider_id",
+                "user_id",
+                "identity_data",
+                "provider",
+                "last_sign_in_at",
+                "created_at",
+                "updated_at",
+                "id"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "auth.instances",
+              "columns": [
+                "id",
+                "uuid",
+                "raw_base_config",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_clients",
+              "columns": [
+                "id",
+                "client_secret_hash",
+                "registration_type",
+                "redirect_uris",
+                "grant_types",
+                "client_name",
+                "client_uri",
+                "logo_uri",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "client_type",
+                "token_endpoint_auth_method"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.sessions",
+              "columns": [
+                "id",
+                "user_id",
+                "created_at",
+                "updated_at",
+                "factor_id",
+                "aal",
+                "not_after",
+                "refreshed_at",
+                "user_agent",
+                "ip",
+                "tag",
+                "oauth_client_id",
+                "refresh_token_hmac_key",
+                "refresh_token_counter",
+                "scopes"
+              ],
+              "rowCount": 2
+            },
+            {
+              "table": "auth.mfa_amr_claims",
+              "columns": [
+                "session_id",
+                "created_at",
+                "updated_at",
+                "authentication_method",
+                "id"
+              ],
+              "rowCount": 2
+            },
+            {
+              "table": "auth.mfa_factors",
+              "columns": [
+                "id",
+                "user_id",
+                "friendly_name",
+                "factor_type",
+                "status",
+                "created_at",
+                "updated_at",
+                "secret",
+                "phone",
+                "last_challenged_at",
+                "web_authn_credential",
+                "web_authn_aaguid",
+                "last_webauthn_challenge_data"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_challenges",
+              "columns": [
+                "id",
+                "factor_id",
+                "created_at",
+                "verified_at",
+                "ip_address",
+                "otp_code",
+                "web_authn_session_data"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_recovery_code_sets",
+              "columns": [
+                "id",
+                "user_id",
+                "mfa_factor_id",
+                "failed_verification_count",
+                "verification_locked_until",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_recovery_codes",
+              "columns": [
+                "id",
+                "mfa_recovery_code_set_id",
+                "code_hash",
+                "consumed_at",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_authorizations",
+              "columns": [
+                "id",
+                "authorization_id",
+                "client_id",
+                "user_id",
+                "redirect_uri",
+                "scope",
+                "state",
+                "resource",
+                "code_challenge",
+                "code_challenge_method",
+                "response_type",
+                "status",
+                "authorization_code",
+                "created_at",
+                "expires_at",
+                "approved_at",
+                "nonce"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_client_states",
+              "columns": [
+                "id",
+                "provider_type",
+                "code_verifier",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_consents",
+              "columns": [
+                "id",
+                "user_id",
+                "client_id",
+                "scopes",
+                "granted_at",
+                "revoked_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.one_time_tokens",
+              "columns": [
+                "id",
+                "user_id",
+                "token_type",
+                "token_hash",
+                "relates_to",
+                "created_at",
+                "updated_at",
+                "expires_at"
+              ],
+              "rowCount": 1
+            },
+            {
+              "table": "auth.refresh_tokens",
+              "columns": [
+                "instance_id",
+                "id",
+                "token",
+                "user_id",
+                "revoked",
+                "created_at",
+                "updated_at",
+                "parent",
+                "session_id"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "auth.sso_providers",
+              "columns": [
+                "id",
+                "resource_id",
+                "created_at",
+                "updated_at",
+                "disabled"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.saml_providers",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "entity_id",
+                "metadata_xml",
+                "metadata_url",
+                "attribute_mapping",
+                "created_at",
+                "updated_at",
+                "name_id_format"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.saml_relay_states",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "request_id",
+                "for_email",
+                "redirect_to",
+                "created_at",
+                "updated_at",
+                "flow_state_id"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.scim_tokens",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "token_hash",
+                "prefix",
+                "created_at",
+                "expires_at",
+                "revoked_at",
+                "last_used_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.scim_users",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "user_id",
+                "resource",
+                "created_at",
+                "updated_at",
+                "deleted_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.sso_domains",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "domain",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.webauthn_challenges",
+              "columns": [
+                "id",
+                "user_id",
+                "challenge_type",
+                "session_data",
+                "created_at",
+                "expires_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.webauthn_credentials",
+              "columns": [
+                "id",
+                "user_id",
+                "credential_id",
+                "public_key",
+                "attestation_type",
+                "aaguid",
+                "sign_count",
+                "transports",
+                "backup_eligible",
+                "backed_up",
+                "friendly_name",
+                "created_at",
+                "updated_at",
+                "last_used_at"
+              ],
+              "rowCount": 0
+            }
+          ],
+          "insertTables": [],
+          "createdTables": [],
+          "createFunctionCount": 0,
+          "createPolicyCount": 0,
+          "grantStatementCount": 0,
+          "passwordClausePresent": true
+        },
+        {
+          "file": "data.sql",
+          "bytes": 24292,
+          "lastWriteTimeUtc": "2026-10-24T07:46:55.254Z",
+          "sha256": "9d6bb5857db65a6fa2ec6d6060bfdc3e15125c54653a58d8799f0b99213f3765",
+          "dumpVersion": "17.11",
+          "serverVersion": "17.11",
+          "completionMarker": true,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [
+            {
+              "table": "auth.audit_log_entries",
+              "columns": [
+                "instance_id",
+                "id",
+                "payload",
+                "created_at",
+                "ip_address"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.custom_oauth_providers",
+              "columns": [
+                "id",
+                "provider_type",
+                "identifier",
+                "name",
+                "client_id",
+                "client_secret",
+                "acceptable_client_ids",
+                "scopes",
+                "pkce_enabled",
+                "attribute_mapping",
+                "authorization_params",
+                "enabled",
+                "email_optional",
+                "issuer",
+                "discovery_url",
+                "skip_nonce_check",
+                "cached_discovery",
+                "discovery_cached_at",
+                "authorization_url",
+                "token_url",
+                "userinfo_url",
+                "jwks_uri",
+                "created_at",
+                "updated_at",
+                "custom_claims_allowlist"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.flow_state",
+              "columns": [
+                "id",
+                "user_id",
+                "auth_code",
+                "code_challenge_method",
+                "code_challenge",
+                "provider_type",
+                "provider_access_token",
+                "provider_refresh_token",
+                "created_at",
+                "updated_at",
+                "authentication_method",
+                "auth_code_issued_at",
+                "invite_token",
+                "referrer",
+                "oauth_client_state_id",
+                "linking_target_id",
+                "email_optional"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.users",
+              "columns": [
+                "instance_id",
+                "id",
+                "aud",
+                "role",
+                "email",
+                "encrypted_password",
+                "email_confirmed_at",
+                "invited_at",
+                "confirmation_token",
+                "confirmation_sent_at",
+                "recovery_token",
+                "recovery_sent_at",
+                "email_change_token_new",
+                "email_change",
+                "email_change_sent_at",
+                "last_sign_in_at",
+                "raw_app_meta_data",
+                "raw_user_meta_data",
+                "is_super_admin",
+                "created_at",
+                "updated_at",
+                "phone",
+                "phone_confirmed_at",
+                "phone_change",
+                "phone_change_token",
+                "phone_change_sent_at",
+                "email_change_token_current",
+                "email_change_confirm_status",
+                "banned_until",
+                "reauthentication_token",
+                "reauthentication_sent_at",
+                "is_sso_user",
+                "deleted_at",
+                "is_anonymous"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "auth.identities",
+              "columns": [
+                "provider_id",
+                "user_id",
+                "identity_data",
+                "provider",
+                "last_sign_in_at",
+                "created_at",
+                "updated_at",
+                "id"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "auth.instances",
+              "columns": [
+                "id",
+                "uuid",
+                "raw_base_config",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_clients",
+              "columns": [
+                "id",
+                "client_secret_hash",
+                "registration_type",
+                "redirect_uris",
+                "grant_types",
+                "client_name",
+                "client_uri",
+                "logo_uri",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "client_type",
+                "token_endpoint_auth_method"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.sessions",
+              "columns": [
+                "id",
+                "user_id",
+                "created_at",
+                "updated_at",
+                "factor_id",
+                "aal",
+                "not_after",
+                "refreshed_at",
+                "user_agent",
+                "ip",
+                "tag",
+                "oauth_client_id",
+                "refresh_token_hmac_key",
+                "refresh_token_counter",
+                "scopes"
+              ],
+              "rowCount": 2
+            },
+            {
+              "table": "auth.mfa_amr_claims",
+              "columns": [
+                "session_id",
+                "created_at",
+                "updated_at",
+                "authentication_method",
+                "id"
+              ],
+              "rowCount": 2
+            },
+            {
+              "table": "auth.mfa_factors",
+              "columns": [
+                "id",
+                "user_id",
+                "friendly_name",
+                "factor_type",
+                "status",
+                "created_at",
+                "updated_at",
+                "secret",
+                "phone",
+                "last_challenged_at",
+                "web_authn_credential",
+                "web_authn_aaguid",
+                "last_webauthn_challenge_data"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_challenges",
+              "columns": [
+                "id",
+                "factor_id",
+                "created_at",
+                "verified_at",
+                "ip_address",
+                "otp_code",
+                "web_authn_session_data"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_recovery_code_sets",
+              "columns": [
+                "id",
+                "user_id",
+                "mfa_factor_id",
+                "failed_verification_count",
+                "verification_locked_until",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_recovery_codes",
+              "columns": [
+                "id",
+                "mfa_recovery_code_set_id",
+                "code_hash",
+                "consumed_at",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_authorizations",
+              "columns": [
+                "id",
+                "authorization_id",
+                "client_id",
+                "user_id",
+                "redirect_uri",
+                "scope",
+                "state",
+                "resource",
+                "code_challenge",
+                "code_challenge_method",
+                "response_type",
+                "status",
+                "authorization_code",
+                "created_at",
+                "expires_at",
+                "approved_at",
+                "nonce"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_client_states",
+              "columns": [
+                "id",
+                "provider_type",
+                "code_verifier",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_consents",
+              "columns": [
+                "id",
+                "user_id",
+                "client_id",
+                "scopes",
+                "granted_at",
+                "revoked_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.one_time_tokens",
+              "columns": [
+                "id",
+                "user_id",
+                "token_type",
+                "token_hash",
+                "relates_to",
+                "created_at",
+                "updated_at",
+                "expires_at"
+              ],
+              "rowCount": 1
+            },
+            {
+              "table": "auth.refresh_tokens",
+              "columns": [
+                "instance_id",
+                "id",
+                "token",
+                "user_id",
+                "revoked",
+                "created_at",
+                "updated_at",
+                "parent",
+                "session_id"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "auth.sso_providers",
+              "columns": [
+                "id",
+                "resource_id",
+                "created_at",
+                "updated_at",
+                "disabled"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.saml_providers",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "entity_id",
+                "metadata_xml",
+                "metadata_url",
+                "attribute_mapping",
+                "created_at",
+                "updated_at",
+                "name_id_format"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.saml_relay_states",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "request_id",
+                "for_email",
+                "redirect_to",
+                "created_at",
+                "updated_at",
+                "flow_state_id"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.scim_tokens",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "token_hash",
+                "prefix",
+                "created_at",
+                "expires_at",
+                "revoked_at",
+                "last_used_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.scim_users",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "user_id",
+                "resource",
+                "created_at",
+                "updated_at",
+                "deleted_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.sso_domains",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "domain",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.webauthn_challenges",
+              "columns": [
+                "id",
+                "user_id",
+                "challenge_type",
+                "session_data",
+                "created_at",
+                "expires_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.webauthn_credentials",
+              "columns": [
+                "id",
+                "user_id",
+                "credential_id",
+                "public_key",
+                "attestation_type",
+                "aaguid",
+                "sign_count",
+                "transports",
+                "backup_eligible",
+                "backed_up",
+                "friendly_name",
+                "created_at",
+                "updated_at",
+                "last_used_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_profiles",
+              "columns": [
+                "id",
+                "full_name",
+                "birth_date",
+                "timezone",
+                "role",
+                "suspended",
+                "avatar_path",
+                "created_at"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "public.hka_achievements",
+              "columns": [
+                "id",
+                "student_id",
+                "coach_id",
+                "title",
+                "kind",
+                "description",
+                "issued_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_pathways",
+              "columns": [
+                "id",
+                "title",
+                "description",
+                "active"
+              ],
+              "rowCount": 5
+            },
+            {
+              "table": "public.hka_courses",
+              "columns": [
+                "id",
+                "pathway_id",
+                "coach_id",
+                "title",
+                "description",
+                "published",
+                "created_at",
+                "level",
+                "duration_minutes",
+                "eligibility",
+                "access_level",
+                "learning_objectives",
+                "archived_at",
+                "duplicated_from"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_ai_drafts",
+              "columns": [
+                "id",
+                "author_id",
+                "category",
+                "title",
+                "prompt_data",
+                "content",
+                "status",
+                "student_id",
+                "course_id",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_modules",
+              "columns": [
+                "id",
+                "course_id",
+                "title",
+                "description",
+                "position",
+                "published",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_lessons",
+              "columns": [
+                "id",
+                "course_id",
+                "title",
+                "content",
+                "kind",
+                "position",
+                "published",
+                "created_at",
+                "description",
+                "duration_minutes",
+                "learning_objectives",
+                "free_preview",
+                "module_id"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_files",
+              "columns": [
+                "id",
+                "owner_id",
+                "path",
+                "original_name",
+                "purpose",
+                "mime_type",
+                "size_bytes",
+                "lesson_id",
+                "student_id",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_questions",
+              "columns": [
+                "id",
+                "lesson_id",
+                "question_type",
+                "prompt",
+                "image_file_id",
+                "options",
+                "marking_criteria",
+                "points",
+                "position",
+                "requires_coach",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_answer_keys",
+              "columns": [
+                "question_id",
+                "answer",
+                "explanation"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_appointments",
+              "columns": [
+                "id",
+                "student_id",
+                "coach_id",
+                "title",
+                "starts_at",
+                "duration_minutes",
+                "location",
+                "status"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_submissions",
+              "columns": [
+                "id",
+                "student_id",
+                "lesson_id",
+                "response",
+                "file_id",
+                "submitted_at",
+                "status",
+                "review_kind",
+                "preliminary_feedback",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_assessments",
+              "columns": [
+                "id",
+                "submission_id",
+                "coach_id",
+                "grade",
+                "feedback",
+                "assessed_at",
+                "decision",
+                "automated"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_attempts",
+              "columns": [
+                "id",
+                "student_id",
+                "lesson_id",
+                "status",
+                "score",
+                "max_score",
+                "automated_feedback",
+                "started_at",
+                "updated_at",
+                "submitted_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_audit",
+              "columns": [
+                "id",
+                "actor_id",
+                "target_id",
+                "action",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_coach_students",
+              "columns": [
+                "id",
+                "coach_id",
+                "student_id"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_coaching_services",
+              "columns": [
+                "id",
+                "title",
+                "description",
+                "duration_minutes",
+                "price_usd",
+                "active"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_enrolment_requests",
+              "columns": [
+                "id",
+                "student_id",
+                "course_id",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_enrolments",
+              "columns": [
+                "id",
+                "student_id",
+                "course_id",
+                "status",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_guardians",
+              "columns": [
+                "id",
+                "student_id",
+                "guardian_id",
+                "child_label",
+                "status",
+                "verified_by",
+                "consent_at",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_horses",
+              "columns": [
+                "id",
+                "student_id",
+                "name",
+                "details",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_membership_plans",
+              "columns": [
+                "id",
+                "name",
+                "monthly_usd",
+                "description",
+                "active"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "public.hka_notifications",
+              "columns": [
+                "id",
+                "recipient_id",
+                "student_id",
+                "message",
+                "read_at",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_progress",
+              "columns": [
+                "id",
+                "student_id",
+                "lesson_id",
+                "completed_at",
+                "started_at",
+                "updated_at",
+                "last_position_seconds"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_responses",
+              "columns": [
+                "id",
+                "attempt_id",
+                "question_id",
+                "response",
+                "awarded_points",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_review_allowances",
+              "columns": [
+                "id",
+                "student_id",
+                "period_start",
+                "period_end",
+                "included_reviews",
+                "used_reviews",
+                "source",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_settings",
+              "columns": [
+                "id",
+                "value"
+              ],
+              "rowCount": 2
+            },
+            {
+              "table": "public.hka_training_plans",
+              "columns": [
+                "id",
+                "student_id",
+                "coach_id",
+                "title",
+                "content",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_training_records",
+              "columns": [
+                "id",
+                "student_id",
+                "horse_id",
+                "recorded_on",
+                "notes"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_transactions",
+              "columns": [
+                "id",
+                "student_id",
+                "stripe_payment_id",
+                "amount_cents",
+                "currency",
+                "status",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.buckets",
+              "columns": [
+                "id",
+                "name",
+                "owner",
+                "created_at",
+                "updated_at",
+                "public",
+                "avif_autodetection",
+                "file_size_limit",
+                "allowed_mime_types",
+                "owner_id",
+                "type",
+                "versioning_status",
+                "lifecycle_configuration",
+                "lifecycle_configuration_generation"
+              ],
+              "rowCount": 1
+            },
+            {
+              "table": "storage.buckets_analytics",
+              "columns": [
+                "name",
+                "type",
+                "format",
+                "created_at",
+                "updated_at",
+                "id",
+                "deleted_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.buckets_vectors",
+              "columns": [
+                "id",
+                "type",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.objects",
+              "columns": [
+                "id",
+                "bucket_id",
+                "name",
+                "owner",
+                "created_at",
+                "updated_at",
+                "last_accessed_at",
+                "metadata",
+                "version",
+                "owner_id",
+                "user_metadata",
+                "archived_at",
+                "is_delete_marker",
+                "is_versioned"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.s3_multipart_uploads",
+              "columns": [
+                "id",
+                "in_progress_size",
+                "upload_signature",
+                "bucket_id",
+                "key",
+                "version",
+                "owner_id",
+                "created_at",
+                "user_metadata",
+                "metadata"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.s3_multipart_uploads_parts",
+              "columns": [
+                "id",
+                "upload_id",
+                "size",
+                "part_number",
+                "bucket_id",
+                "key",
+                "etag",
+                "owner_id",
+                "version",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.vector_indexes",
+              "columns": [
+                "id",
+                "name",
+                "bucket_id",
+                "data_type",
+                "dimension",
+                "distance_metric",
+                "metadata_configuration",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            }
+          ],
+          "insertTables": [],
+          "createdTables": [],
+          "createFunctionCount": 0,
+          "createPolicyCount": 0,
+          "grantStatementCount": 0,
+          "passwordClausePresent": true
+        },
+        {
+          "file": "roles.sql",
+          "bytes": 370,
+          "lastWriteTimeUtc": "2026-10-24T07:42:54.601Z",
+          "sha256": "168a95a9c745af5ed4679751f90419ac9dc434240a213b03e32a06d5664c2308",
+          "dumpVersion": null,
+          "serverVersion": null,
+          "completionMarker": false,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [],
+          "insertTables": [],
+          "createdTables": [],
+          "createFunctionCount": 0,
+          "createPolicyCount": 0,
+          "grantStatementCount": 1,
+          "passwordClausePresent": false
+        },
+        {
+          "file": "schema.sql",
+          "bytes": 85811,
+          "lastWriteTimeUtc": "2026-10-24T07:40:03.902Z",
+          "sha256": "bc0bb6bc9aadd70ccaa193910998599417bf790c4028f8d649657df3b3a98a09",
+          "dumpVersion": null,
+          "serverVersion": null,
+          "completionMarker": false,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [],
+          "insertTables": [],
+          "createdTables": [
+            "public.hka_attempts",
+            "public.hka_achievements",
+            "public.hka_ai_drafts",
+            "public.hka_answer_keys",
+            "public.hka_appointments",
+            "public.hka_assessments",
+            "public.hka_audit",
+            "public.hka_coach_students",
+            "public.hka_coaching_services",
+            "public.hka_courses",
+            "public.hka_enrolment_requests",
+            "public.hka_enrolments",
+            "public.hka_files",
+            "public.hka_guardians",
+            "public.hka_horses",
+            "public.hka_lessons",
+            "public.hka_membership_plans",
+            "public.hka_modules",
+            "public.hka_notifications",
+            "public.hka_pathways",
+            "public.hka_profiles",
+            "public.hka_progress",
+            "public.hka_questions",
+            "public.hka_responses",
+            "public.hka_review_allowances",
+            "public.hka_settings",
+            "public.hka_submissions",
+            "public.hka_training_plans",
+            "public.hka_training_records",
+            "public.hka_transactions"
+          ],
+          "createFunctionCount": 19,
+          "createPolicyCount": 68,
+          "grantStatementCount": 121,
+          "passwordClausePresent": false
+        }
+      ],
+      "overlappingAuthTables": [
+        "auth.audit_log_entries",
+        "auth.custom_oauth_providers",
+        "auth.flow_state",
+        "auth.users",
+        "auth.identities",
+        "auth.instances",
+        "auth.oauth_clients",
+        "auth.sessions",
+        "auth.mfa_amr_claims",
+        "auth.mfa_factors",
+        "auth.mfa_challenges",
+        "auth.mfa_recovery_code_sets",
+        "auth.mfa_recovery_codes",
+        "auth.oauth_authorizations",
+        "auth.oauth_client_states",
+        "auth.oauth_consents",
+        "auth.one_time_tokens",
+        "auth.refresh_tokens",
+        "auth.sso_providers",
+        "auth.saml_providers",
+        "auth.saml_relay_states",
+        "auth.scim_tokens",
+        "auth.scim_users",
+        "auth.sso_domains",
+        "auth.webauthn_challenges",
+        "auth.webauthn_credentials"
+      ],
+      "existingManifests": [],
+      "allFourPartsPresent": true,
+      "relevantCoverage": [
+        {
+          "table": "public.hka_messages",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_profiles",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "public.hka_account_roles",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_guardians",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "public.hka_coach_students",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "public.hka_link_requests",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_student_link_codes",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_files",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "auth.users",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "auth.identities",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "storage.objects",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "storage.buckets",
+          "schema": false,
+          "dataSection": true
+        }
+      ],
+      "storageFileExportPresent": false,
+      "integrity": "SHA-256 calculated now; only existing manifest equality establishes prior byte integrity; neither proves restore"
+    },
+    {
+      "directory": "C:\\Users\\Hollie\\HKA-Private-Backup\\pre-care-008-2026-10-26",
+      "files": [
+        {
+          "file": "data.sql",
+          "bytes": 37091,
+          "lastWriteTimeUtc": "2026-10-26T09:32:24.108Z",
+          "sha256": "3bf307575af7aa95b8fd1168369acf128255d922ac59cd87d7fa94fd7d7bb2e8",
+          "dumpVersion": "17.11",
+          "serverVersion": "17.11",
+          "completionMarker": true,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [],
+          "insertTables": [
+            "auth.users",
+            "auth.identities",
+            "auth.sessions",
+            "auth.mfa_amr_claims",
+            "auth.one_time_tokens",
+            "auth.refresh_tokens",
+            "public.hka_profiles",
+            "public.hka_pathways",
+            "public.hka_courses",
+            "public.hka_ai_drafts",
+            "public.hka_ai_usage",
+            "public.hka_horses",
+            "public.hka_files",
+            "public.hka_audit",
+            "public.hka_horse_documents",
+            "public.hka_horse_profile_limits",
+            "public.hka_membership_plans",
+            "public.hka_settings",
+            "storage.buckets",
+            "storage.objects"
+          ],
+          "createdTables": [],
+          "createFunctionCount": 0,
+          "createPolicyCount": 0,
+          "grantStatementCount": 0,
+          "passwordClausePresent": false
+        },
+        {
+          "file": "schema.sql",
+          "bytes": 139977,
+          "lastWriteTimeUtc": "2026-10-26T09:30:23.660Z",
+          "sha256": "81c1d67a13807294f120e8b702a08d20c029b0c50f36b52a5be1a7fbcdfb8de6",
+          "dumpVersion": null,
+          "serverVersion": null,
+          "completionMarker": false,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [],
+          "insertTables": [],
+          "createdTables": [
+            "public.hka_attempts",
+            "public.hka_achievements",
+            "public.hka_ai_drafts",
+            "public.hka_ai_usage",
+            "public.hka_announcements",
+            "public.hka_answer_keys",
+            "public.hka_appointments",
+            "public.hka_assessments",
+            "public.hka_audit",
+            "public.hka_care_appointments",
+            "public.hka_care_attachments",
+            "public.hka_care_reminders",
+            "public.hka_coach_students",
+            "public.hka_coaching_requests",
+            "public.hka_coaching_services",
+            "public.hka_courses",
+            "public.hka_enrolment_requests",
+            "public.hka_enrolments",
+            "public.hka_files",
+            "public.hka_guardians",
+            "public.hka_horse_documents",
+            "public.hka_horse_profile_limits",
+            "public.hka_horse_records",
+            "public.hka_horses",
+            "public.hka_lessons",
+            "public.hka_membership_plans",
+            "public.hka_modules",
+            "public.hka_notifications",
+            "public.hka_owner_availability",
+            "public.hka_pathways",
+            "public.hka_profiles",
+            "public.hka_progress",
+            "public.hka_questions",
+            "public.hka_responses",
+            "public.hka_review_allowances",
+            "public.hka_settings",
+            "public.hka_submissions",
+            "public.hka_training_plans",
+            "public.hka_training_records",
+            "public.hka_transactions"
+          ],
+          "createFunctionCount": 30,
+          "createPolicyCount": 89,
+          "grantStatementCount": 175,
+          "passwordClausePresent": false
+        }
+      ],
+      "overlappingAuthTables": [],
+      "existingManifests": [],
+      "allFourPartsPresent": false,
+      "relevantCoverage": [
+        {
+          "table": "public.hka_messages",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_profiles",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "public.hka_account_roles",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_guardians",
+          "schema": true,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_coach_students",
+          "schema": true,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_link_requests",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_student_link_codes",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_files",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "auth.users",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "auth.identities",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "storage.objects",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "storage.buckets",
+          "schema": false,
+          "dataSection": true
+        }
+      ],
+      "storageFileExportPresent": false,
+      "integrity": "SHA-256 calculated now; only existing manifest equality establishes prior byte integrity; neither proves restore"
+    },
+    {
+      "directory": "C:\\Users\\Hollie\\HKA-Private-Backup\\pre-document-007-2026-10-26",
+      "files": [
+        {
+          "file": "data.sql",
+          "bytes": 40759,
+          "lastWriteTimeUtc": "2026-10-26T08:02:04.474Z",
+          "sha256": "d0e201130a848a16e07bcf05a1da00a2bf91a9da3d1aa06b8a7bb870fd05dade",
+          "dumpVersion": "17.11",
+          "serverVersion": "17.11",
+          "completionMarker": true,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [],
+          "insertTables": [
+            "auth.users",
+            "auth.identities",
+            "auth.sessions",
+            "auth.mfa_amr_claims",
+            "auth.one_time_tokens",
+            "auth.refresh_tokens",
+            "public.hka_profiles",
+            "public.hka_pathways",
+            "public.hka_courses",
+            "public.hka_ai_drafts",
+            "public.hka_ai_usage",
+            "public.hka_horses",
+            "public.hka_files",
+            "public.hka_audit",
+            "public.hka_horse_documents",
+            "public.hka_horse_profile_limits",
+            "public.hka_membership_plans",
+            "public.hka_settings",
+            "storage.buckets",
+            "storage.objects"
+          ],
+          "createdTables": [],
+          "createFunctionCount": 0,
+          "createPolicyCount": 0,
+          "grantStatementCount": 0,
+          "passwordClausePresent": false
+        },
+        {
+          "file": "schema.sql",
+          "bytes": 136319,
+          "lastWriteTimeUtc": "2026-10-26T08:00:15.748Z",
+          "sha256": "960013707a43fc7272a4f1d56bff985ef4c025ababb96577c452015c93074ef2",
+          "dumpVersion": null,
+          "serverVersion": null,
+          "completionMarker": false,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [],
+          "insertTables": [],
+          "createdTables": [
+            "public.hka_attempts",
+            "public.hka_achievements",
+            "public.hka_ai_drafts",
+            "public.hka_ai_usage",
+            "public.hka_announcements",
+            "public.hka_answer_keys",
+            "public.hka_appointments",
+            "public.hka_assessments",
+            "public.hka_audit",
+            "public.hka_care_appointments",
+            "public.hka_care_attachments",
+            "public.hka_care_reminders",
+            "public.hka_coach_students",
+            "public.hka_coaching_requests",
+            "public.hka_coaching_services",
+            "public.hka_courses",
+            "public.hka_enrolment_requests",
+            "public.hka_enrolments",
+            "public.hka_files",
+            "public.hka_guardians",
+            "public.hka_horse_documents",
+            "public.hka_horse_profile_limits",
+            "public.hka_horse_records",
+            "public.hka_horses",
+            "public.hka_lessons",
+            "public.hka_membership_plans",
+            "public.hka_modules",
+            "public.hka_notifications",
+            "public.hka_owner_availability",
+            "public.hka_pathways",
+            "public.hka_profiles",
+            "public.hka_progress",
+            "public.hka_questions",
+            "public.hka_responses",
+            "public.hka_review_allowances",
+            "public.hka_settings",
+            "public.hka_submissions",
+            "public.hka_training_plans",
+            "public.hka_training_records",
+            "public.hka_transactions"
+          ],
+          "createFunctionCount": 29,
+          "createPolicyCount": 89,
+          "grantStatementCount": 173,
+          "passwordClausePresent": false
+        }
+      ],
+      "overlappingAuthTables": [],
+      "existingManifests": [],
+      "allFourPartsPresent": false,
+      "relevantCoverage": [
+        {
+          "table": "public.hka_messages",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_profiles",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "public.hka_account_roles",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_guardians",
+          "schema": true,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_coach_students",
+          "schema": true,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_link_requests",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_student_link_codes",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_files",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "auth.users",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "auth.identities",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "storage.objects",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "storage.buckets",
+          "schema": false,
+          "dataSection": true
+        }
+      ],
+      "storageFileExportPresent": false,
+      "integrity": "SHA-256 calculated now; only existing manifest equality establishes prior byte integrity; neither proves restore"
+    },
+    {
+      "directory": "C:\\Users\\Hollie\\HKA-Private-Backup\\pre-email-reminders-2026-10-26",
+      "files": [
+        {
+          "file": "data.sql",
+          "bytes": 38413,
+          "lastWriteTimeUtc": "2026-10-26T14:07:28.948Z",
+          "sha256": "65aa23396d49ebc5310ac8c1cbbb549aa1969169a705e6f3dfc0c507f63707ed",
+          "dumpVersion": "17.11",
+          "serverVersion": "17.11",
+          "completionMarker": true,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [],
+          "insertTables": [
+            "auth.users",
+            "auth.identities",
+            "auth.sessions",
+            "auth.mfa_amr_claims",
+            "auth.one_time_tokens",
+            "auth.refresh_tokens",
+            "public.hka_profiles",
+            "public.hka_pathways",
+            "public.hka_courses",
+            "public.hka_ai_drafts",
+            "public.hka_ai_usage",
+            "public.hka_horses",
+            "public.hka_files",
+            "public.hka_audit",
+            "public.hka_care_appointments",
+            "public.hka_horse_documents",
+            "public.hka_horse_profile_limits",
+            "public.hka_membership_plans",
+            "public.hka_settings",
+            "storage.buckets",
+            "storage.objects"
+          ],
+          "createdTables": [],
+          "createFunctionCount": 0,
+          "createPolicyCount": 0,
+          "grantStatementCount": 0,
+          "passwordClausePresent": false
+        },
+        {
+          "file": "schema.sql",
+          "bytes": 141974,
+          "lastWriteTimeUtc": "2026-10-26T14:05:32.380Z",
+          "sha256": "14ebf5b16a998c0d7da06f53f704055c1fbec4117cd9f8746a84d6d1d8182f68",
+          "dumpVersion": null,
+          "serverVersion": null,
+          "completionMarker": false,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [],
+          "insertTables": [],
+          "createdTables": [
+            "public.hka_attempts",
+            "public.hka_achievements",
+            "public.hka_ai_drafts",
+            "public.hka_ai_usage",
+            "public.hka_announcements",
+            "public.hka_answer_keys",
+            "public.hka_appointments",
+            "public.hka_assessments",
+            "public.hka_audit",
+            "public.hka_care_appointments",
+            "public.hka_care_attachments",
+            "public.hka_care_reminders",
+            "public.hka_coach_students",
+            "public.hka_coaching_requests",
+            "public.hka_coaching_services",
+            "public.hka_courses",
+            "public.hka_enrolment_requests",
+            "public.hka_enrolments",
+            "public.hka_files",
+            "public.hka_guardians",
+            "public.hka_horse_documents",
+            "public.hka_horse_profile_limits",
+            "public.hka_horse_records",
+            "public.hka_horses",
+            "public.hka_lessons",
+            "public.hka_membership_plans",
+            "public.hka_modules",
+            "public.hka_notifications",
+            "public.hka_owner_availability",
+            "public.hka_pathways",
+            "public.hka_profiles",
+            "public.hka_progress",
+            "public.hka_questions",
+            "public.hka_responses",
+            "public.hka_review_allowances",
+            "public.hka_settings",
+            "public.hka_submissions",
+            "public.hka_training_plans",
+            "public.hka_training_records",
+            "public.hka_transactions"
+          ],
+          "createFunctionCount": 31,
+          "createPolicyCount": 89,
+          "grantStatementCount": 175,
+          "passwordClausePresent": false
+        }
+      ],
+      "overlappingAuthTables": [],
+      "existingManifests": [],
+      "allFourPartsPresent": false,
+      "relevantCoverage": [
+        {
+          "table": "public.hka_messages",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_profiles",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "public.hka_account_roles",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_guardians",
+          "schema": true,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_coach_students",
+          "schema": true,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_link_requests",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_student_link_codes",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_files",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "auth.users",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "auth.identities",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "storage.objects",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "storage.buckets",
+          "schema": false,
+          "dataSection": true
+        }
+      ],
+      "storageFileExportPresent": false,
+      "integrity": "SHA-256 calculated now; only existing manifest equality establishes prior byte integrity; neither proves restore"
+    },
+    {
+      "directory": "C:\\Users\\Hollie\\HKA-Private-Backup\\pre-horse-organiser-20261026-064025",
+      "files": [
+        {
+          "file": "auth-data.sql",
+          "bytes": 15927,
+          "lastWriteTimeUtc": "2026-10-26T04:46:48.466Z",
+          "sha256": "2f2a5ee3bcb7f498cc7ca9c3e59d15b8efb2620e36dac4c28f115b811cb80d3e",
+          "dumpVersion": "17.11",
+          "serverVersion": "17.11",
+          "completionMarker": true,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [
+            {
+              "table": "auth.audit_log_entries",
+              "columns": [
+                "instance_id",
+                "id",
+                "payload",
+                "created_at",
+                "ip_address"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.custom_oauth_providers",
+              "columns": [
+                "id",
+                "provider_type",
+                "identifier",
+                "name",
+                "client_id",
+                "client_secret",
+                "acceptable_client_ids",
+                "scopes",
+                "pkce_enabled",
+                "attribute_mapping",
+                "authorization_params",
+                "enabled",
+                "email_optional",
+                "issuer",
+                "discovery_url",
+                "skip_nonce_check",
+                "cached_discovery",
+                "discovery_cached_at",
+                "authorization_url",
+                "token_url",
+                "userinfo_url",
+                "jwks_uri",
+                "created_at",
+                "updated_at",
+                "custom_claims_allowlist"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.flow_state",
+              "columns": [
+                "id",
+                "user_id",
+                "auth_code",
+                "code_challenge_method",
+                "code_challenge",
+                "provider_type",
+                "provider_access_token",
+                "provider_refresh_token",
+                "created_at",
+                "updated_at",
+                "authentication_method",
+                "auth_code_issued_at",
+                "invite_token",
+                "referrer",
+                "oauth_client_state_id",
+                "linking_target_id",
+                "email_optional"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.users",
+              "columns": [
+                "instance_id",
+                "id",
+                "aud",
+                "role",
+                "email",
+                "encrypted_password",
+                "email_confirmed_at",
+                "invited_at",
+                "confirmation_token",
+                "confirmation_sent_at",
+                "recovery_token",
+                "recovery_sent_at",
+                "email_change_token_new",
+                "email_change",
+                "email_change_sent_at",
+                "last_sign_in_at",
+                "raw_app_meta_data",
+                "raw_user_meta_data",
+                "is_super_admin",
+                "created_at",
+                "updated_at",
+                "phone",
+                "phone_confirmed_at",
+                "phone_change",
+                "phone_change_token",
+                "phone_change_sent_at",
+                "email_change_token_current",
+                "email_change_confirm_status",
+                "banned_until",
+                "reauthentication_token",
+                "reauthentication_sent_at",
+                "is_sso_user",
+                "deleted_at",
+                "is_anonymous"
+              ],
+              "rowCount": 4
+            },
+            {
+              "table": "auth.identities",
+              "columns": [
+                "provider_id",
+                "user_id",
+                "identity_data",
+                "provider",
+                "last_sign_in_at",
+                "created_at",
+                "updated_at",
+                "id"
+              ],
+              "rowCount": 4
+            },
+            {
+              "table": "auth.instances",
+              "columns": [
+                "id",
+                "uuid",
+                "raw_base_config",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_clients",
+              "columns": [
+                "id",
+                "client_secret_hash",
+                "registration_type",
+                "redirect_uris",
+                "grant_types",
+                "client_name",
+                "client_uri",
+                "logo_uri",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "client_type",
+                "token_endpoint_auth_method"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.sessions",
+              "columns": [
+                "id",
+                "user_id",
+                "created_at",
+                "updated_at",
+                "factor_id",
+                "aal",
+                "not_after",
+                "refreshed_at",
+                "user_agent",
+                "ip",
+                "tag",
+                "oauth_client_id",
+                "refresh_token_hmac_key",
+                "refresh_token_counter",
+                "scopes"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "auth.mfa_amr_claims",
+              "columns": [
+                "session_id",
+                "created_at",
+                "updated_at",
+                "authentication_method",
+                "id"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "auth.mfa_factors",
+              "columns": [
+                "id",
+                "user_id",
+                "friendly_name",
+                "factor_type",
+                "status",
+                "created_at",
+                "updated_at",
+                "secret",
+                "phone",
+                "last_challenged_at",
+                "web_authn_credential",
+                "web_authn_aaguid",
+                "last_webauthn_challenge_data"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_challenges",
+              "columns": [
+                "id",
+                "factor_id",
+                "created_at",
+                "verified_at",
+                "ip_address",
+                "otp_code",
+                "web_authn_session_data"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_recovery_code_sets",
+              "columns": [
+                "id",
+                "user_id",
+                "mfa_factor_id",
+                "failed_verification_count",
+                "verification_locked_until",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_recovery_codes",
+              "columns": [
+                "id",
+                "mfa_recovery_code_set_id",
+                "code_hash",
+                "consumed_at",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_authorizations",
+              "columns": [
+                "id",
+                "authorization_id",
+                "client_id",
+                "user_id",
+                "redirect_uri",
+                "scope",
+                "state",
+                "resource",
+                "code_challenge",
+                "code_challenge_method",
+                "response_type",
+                "status",
+                "authorization_code",
+                "created_at",
+                "expires_at",
+                "approved_at",
+                "nonce"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_client_states",
+              "columns": [
+                "id",
+                "provider_type",
+                "code_verifier",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_consents",
+              "columns": [
+                "id",
+                "user_id",
+                "client_id",
+                "scopes",
+                "granted_at",
+                "revoked_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.one_time_tokens",
+              "columns": [
+                "id",
+                "user_id",
+                "token_type",
+                "token_hash",
+                "relates_to",
+                "created_at",
+                "updated_at",
+                "expires_at"
+              ],
+              "rowCount": 2
+            },
+            {
+              "table": "auth.refresh_tokens",
+              "columns": [
+                "instance_id",
+                "id",
+                "token",
+                "user_id",
+                "revoked",
+                "created_at",
+                "updated_at",
+                "parent",
+                "session_id"
+              ],
+              "rowCount": 4
+            },
+            {
+              "table": "auth.sso_providers",
+              "columns": [
+                "id",
+                "resource_id",
+                "created_at",
+                "updated_at",
+                "disabled"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.saml_providers",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "entity_id",
+                "metadata_xml",
+                "metadata_url",
+                "attribute_mapping",
+                "created_at",
+                "updated_at",
+                "name_id_format"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.saml_relay_states",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "request_id",
+                "for_email",
+                "redirect_to",
+                "created_at",
+                "updated_at",
+                "flow_state_id"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.scim_tokens",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "token_hash",
+                "prefix",
+                "created_at",
+                "expires_at",
+                "revoked_at",
+                "last_used_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.scim_users",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "user_id",
+                "resource",
+                "created_at",
+                "updated_at",
+                "deleted_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.sso_domains",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "domain",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.webauthn_challenges",
+              "columns": [
+                "id",
+                "user_id",
+                "challenge_type",
+                "session_data",
+                "created_at",
+                "expires_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.webauthn_credentials",
+              "columns": [
+                "id",
+                "user_id",
+                "credential_id",
+                "public_key",
+                "attestation_type",
+                "aaguid",
+                "sign_count",
+                "transports",
+                "backup_eligible",
+                "backed_up",
+                "friendly_name",
+                "created_at",
+                "updated_at",
+                "last_used_at"
+              ],
+              "rowCount": 0
+            }
+          ],
+          "insertTables": [],
+          "createdTables": [],
+          "createFunctionCount": 0,
+          "createPolicyCount": 0,
+          "grantStatementCount": 0,
+          "passwordClausePresent": true
+        },
+        {
+          "file": "data.sql",
+          "bytes": 37772,
+          "lastWriteTimeUtc": "2026-10-26T04:45:39.744Z",
+          "sha256": "6705fed7304504604b3068bccf548d10f529bf8a74195ac0ccbeb2250660589e",
+          "dumpVersion": "17.11",
+          "serverVersion": "17.11",
+          "completionMarker": true,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [
+            {
+              "table": "auth.audit_log_entries",
+              "columns": [
+                "instance_id",
+                "id",
+                "payload",
+                "created_at",
+                "ip_address"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.custom_oauth_providers",
+              "columns": [
+                "id",
+                "provider_type",
+                "identifier",
+                "name",
+                "client_id",
+                "client_secret",
+                "acceptable_client_ids",
+                "scopes",
+                "pkce_enabled",
+                "attribute_mapping",
+                "authorization_params",
+                "enabled",
+                "email_optional",
+                "issuer",
+                "discovery_url",
+                "skip_nonce_check",
+                "cached_discovery",
+                "discovery_cached_at",
+                "authorization_url",
+                "token_url",
+                "userinfo_url",
+                "jwks_uri",
+                "created_at",
+                "updated_at",
+                "custom_claims_allowlist"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.flow_state",
+              "columns": [
+                "id",
+                "user_id",
+                "auth_code",
+                "code_challenge_method",
+                "code_challenge",
+                "provider_type",
+                "provider_access_token",
+                "provider_refresh_token",
+                "created_at",
+                "updated_at",
+                "authentication_method",
+                "auth_code_issued_at",
+                "invite_token",
+                "referrer",
+                "oauth_client_state_id",
+                "linking_target_id",
+                "email_optional"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.users",
+              "columns": [
+                "instance_id",
+                "id",
+                "aud",
+                "role",
+                "email",
+                "encrypted_password",
+                "email_confirmed_at",
+                "invited_at",
+                "confirmation_token",
+                "confirmation_sent_at",
+                "recovery_token",
+                "recovery_sent_at",
+                "email_change_token_new",
+                "email_change",
+                "email_change_sent_at",
+                "last_sign_in_at",
+                "raw_app_meta_data",
+                "raw_user_meta_data",
+                "is_super_admin",
+                "created_at",
+                "updated_at",
+                "phone",
+                "phone_confirmed_at",
+                "phone_change",
+                "phone_change_token",
+                "phone_change_sent_at",
+                "email_change_token_current",
+                "email_change_confirm_status",
+                "banned_until",
+                "reauthentication_token",
+                "reauthentication_sent_at",
+                "is_sso_user",
+                "deleted_at",
+                "is_anonymous"
+              ],
+              "rowCount": 4
+            },
+            {
+              "table": "auth.identities",
+              "columns": [
+                "provider_id",
+                "user_id",
+                "identity_data",
+                "provider",
+                "last_sign_in_at",
+                "created_at",
+                "updated_at",
+                "id"
+              ],
+              "rowCount": 4
+            },
+            {
+              "table": "auth.instances",
+              "columns": [
+                "id",
+                "uuid",
+                "raw_base_config",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_clients",
+              "columns": [
+                "id",
+                "client_secret_hash",
+                "registration_type",
+                "redirect_uris",
+                "grant_types",
+                "client_name",
+                "client_uri",
+                "logo_uri",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "client_type",
+                "token_endpoint_auth_method"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.sessions",
+              "columns": [
+                "id",
+                "user_id",
+                "created_at",
+                "updated_at",
+                "factor_id",
+                "aal",
+                "not_after",
+                "refreshed_at",
+                "user_agent",
+                "ip",
+                "tag",
+                "oauth_client_id",
+                "refresh_token_hmac_key",
+                "refresh_token_counter",
+                "scopes"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "auth.mfa_amr_claims",
+              "columns": [
+                "session_id",
+                "created_at",
+                "updated_at",
+                "authentication_method",
+                "id"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "auth.mfa_factors",
+              "columns": [
+                "id",
+                "user_id",
+                "friendly_name",
+                "factor_type",
+                "status",
+                "created_at",
+                "updated_at",
+                "secret",
+                "phone",
+                "last_challenged_at",
+                "web_authn_credential",
+                "web_authn_aaguid",
+                "last_webauthn_challenge_data"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_challenges",
+              "columns": [
+                "id",
+                "factor_id",
+                "created_at",
+                "verified_at",
+                "ip_address",
+                "otp_code",
+                "web_authn_session_data"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_recovery_code_sets",
+              "columns": [
+                "id",
+                "user_id",
+                "mfa_factor_id",
+                "failed_verification_count",
+                "verification_locked_until",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.mfa_recovery_codes",
+              "columns": [
+                "id",
+                "mfa_recovery_code_set_id",
+                "code_hash",
+                "consumed_at",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_authorizations",
+              "columns": [
+                "id",
+                "authorization_id",
+                "client_id",
+                "user_id",
+                "redirect_uri",
+                "scope",
+                "state",
+                "resource",
+                "code_challenge",
+                "code_challenge_method",
+                "response_type",
+                "status",
+                "authorization_code",
+                "created_at",
+                "expires_at",
+                "approved_at",
+                "nonce"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_client_states",
+              "columns": [
+                "id",
+                "provider_type",
+                "code_verifier",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.oauth_consents",
+              "columns": [
+                "id",
+                "user_id",
+                "client_id",
+                "scopes",
+                "granted_at",
+                "revoked_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.one_time_tokens",
+              "columns": [
+                "id",
+                "user_id",
+                "token_type",
+                "token_hash",
+                "relates_to",
+                "created_at",
+                "updated_at",
+                "expires_at"
+              ],
+              "rowCount": 2
+            },
+            {
+              "table": "auth.refresh_tokens",
+              "columns": [
+                "instance_id",
+                "id",
+                "token",
+                "user_id",
+                "revoked",
+                "created_at",
+                "updated_at",
+                "parent",
+                "session_id"
+              ],
+              "rowCount": 4
+            },
+            {
+              "table": "auth.sso_providers",
+              "columns": [
+                "id",
+                "resource_id",
+                "created_at",
+                "updated_at",
+                "disabled"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.saml_providers",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "entity_id",
+                "metadata_xml",
+                "metadata_url",
+                "attribute_mapping",
+                "created_at",
+                "updated_at",
+                "name_id_format"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.saml_relay_states",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "request_id",
+                "for_email",
+                "redirect_to",
+                "created_at",
+                "updated_at",
+                "flow_state_id"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.scim_tokens",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "token_hash",
+                "prefix",
+                "created_at",
+                "expires_at",
+                "revoked_at",
+                "last_used_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.scim_users",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "user_id",
+                "resource",
+                "created_at",
+                "updated_at",
+                "deleted_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.sso_domains",
+              "columns": [
+                "id",
+                "sso_provider_id",
+                "domain",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.webauthn_challenges",
+              "columns": [
+                "id",
+                "user_id",
+                "challenge_type",
+                "session_data",
+                "created_at",
+                "expires_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "auth.webauthn_credentials",
+              "columns": [
+                "id",
+                "user_id",
+                "credential_id",
+                "public_key",
+                "attestation_type",
+                "aaguid",
+                "sign_count",
+                "transports",
+                "backup_eligible",
+                "backed_up",
+                "friendly_name",
+                "created_at",
+                "updated_at",
+                "last_used_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_profiles",
+              "columns": [
+                "id",
+                "full_name",
+                "birth_date",
+                "timezone",
+                "role",
+                "suspended",
+                "avatar_path",
+                "created_at",
+                "membership_tier",
+                "notification_preferences"
+              ],
+              "rowCount": 4
+            },
+            {
+              "table": "public.hka_achievements",
+              "columns": [
+                "id",
+                "student_id",
+                "coach_id",
+                "title",
+                "kind",
+                "description",
+                "issued_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_pathways",
+              "columns": [
+                "id",
+                "title",
+                "description",
+                "active"
+              ],
+              "rowCount": 5
+            },
+            {
+              "table": "public.hka_courses",
+              "columns": [
+                "id",
+                "pathway_id",
+                "coach_id",
+                "title",
+                "description",
+                "published",
+                "created_at",
+                "level",
+                "duration_minutes",
+                "eligibility",
+                "access_level",
+                "learning_objectives",
+                "archived_at",
+                "duplicated_from"
+              ],
+              "rowCount": 1
+            },
+            {
+              "table": "public.hka_ai_drafts",
+              "columns": [
+                "id",
+                "author_id",
+                "category",
+                "title",
+                "prompt_data",
+                "content",
+                "status",
+                "student_id",
+                "course_id",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 1
+            },
+            {
+              "table": "public.hka_ai_usage",
+              "columns": [
+                "id",
+                "founder_id",
+                "mode",
+                "model",
+                "material_type",
+                "status",
+                "input_chars",
+                "output_chars",
+                "input_tokens",
+                "output_tokens",
+                "created_at"
+              ],
+              "rowCount": 1
+            },
+            {
+              "table": "public.hka_announcements",
+              "columns": [
+                "id",
+                "title",
+                "body",
+                "published",
+                "created_by",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_horses",
+              "columns": [
+                "id",
+                "student_id",
+                "name",
+                "details",
+                "created_at",
+                "photo_path",
+                "birth_year",
+                "breed",
+                "sex",
+                "identification",
+                "height_hands",
+                "discipline",
+                "training_goals"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_modules",
+              "columns": [
+                "id",
+                "course_id",
+                "title",
+                "description",
+                "position",
+                "published",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_lessons",
+              "columns": [
+                "id",
+                "course_id",
+                "title",
+                "content",
+                "kind",
+                "position",
+                "published",
+                "created_at",
+                "description",
+                "duration_minutes",
+                "learning_objectives",
+                "free_preview",
+                "module_id"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_files",
+              "columns": [
+                "id",
+                "owner_id",
+                "path",
+                "original_name",
+                "purpose",
+                "mime_type",
+                "size_bytes",
+                "lesson_id",
+                "student_id",
+                "created_at",
+                "horse_id"
+              ],
+              "rowCount": 2
+            },
+            {
+              "table": "public.hka_questions",
+              "columns": [
+                "id",
+                "lesson_id",
+                "question_type",
+                "prompt",
+                "image_file_id",
+                "options",
+                "marking_criteria",
+                "points",
+                "position",
+                "requires_coach",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_answer_keys",
+              "columns": [
+                "question_id",
+                "answer",
+                "explanation"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_appointments",
+              "columns": [
+                "id",
+                "student_id",
+                "coach_id",
+                "title",
+                "starts_at",
+                "duration_minutes",
+                "location",
+                "status"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_submissions",
+              "columns": [
+                "id",
+                "student_id",
+                "lesson_id",
+                "response",
+                "file_id",
+                "submitted_at",
+                "status",
+                "review_kind",
+                "preliminary_feedback",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_assessments",
+              "columns": [
+                "id",
+                "submission_id",
+                "coach_id",
+                "grade",
+                "feedback",
+                "assessed_at",
+                "decision",
+                "automated"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_attempts",
+              "columns": [
+                "id",
+                "student_id",
+                "lesson_id",
+                "status",
+                "score",
+                "max_score",
+                "automated_feedback",
+                "started_at",
+                "updated_at",
+                "submitted_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_audit",
+              "columns": [
+                "id",
+                "actor_id",
+                "target_id",
+                "action",
+                "created_at"
+              ],
+              "rowCount": 1
+            },
+            {
+              "table": "public.hka_coach_students",
+              "columns": [
+                "id",
+                "coach_id",
+                "student_id"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_coaching_services",
+              "columns": [
+                "id",
+                "title",
+                "description",
+                "duration_minutes",
+                "price_usd",
+                "active"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_coaching_requests",
+              "columns": [
+                "id",
+                "student_id",
+                "service_id",
+                "lesson_format",
+                "preferred_starts_at",
+                "alternate_starts_at",
+                "duration_minutes",
+                "learning_goals",
+                "location",
+                "status",
+                "owner_message",
+                "fee_usd",
+                "travel_charge_usd",
+                "appointment_id",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_enrolment_requests",
+              "columns": [
+                "id",
+                "student_id",
+                "course_id",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_enrolments",
+              "columns": [
+                "id",
+                "student_id",
+                "course_id",
+                "status",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_guardians",
+              "columns": [
+                "id",
+                "student_id",
+                "guardian_id",
+                "child_label",
+                "status",
+                "verified_by",
+                "consent_at",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_horse_profile_limits",
+              "columns": [
+                "id",
+                "membership_tier",
+                "display_name",
+                "horse_profile_limit",
+                "minimum_horses",
+                "offering_active",
+                "sort_order",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 4
+            },
+            {
+              "table": "public.hka_horse_records",
+              "columns": [
+                "id",
+                "student_id",
+                "horse_id",
+                "record_type",
+                "recorded_on",
+                "title",
+                "notes",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_membership_plans",
+              "columns": [
+                "id",
+                "name",
+                "monthly_usd",
+                "description",
+                "active"
+              ],
+              "rowCount": 3
+            },
+            {
+              "table": "public.hka_notifications",
+              "columns": [
+                "id",
+                "recipient_id",
+                "student_id",
+                "message",
+                "read_at",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_owner_availability",
+              "columns": [
+                "id",
+                "coach_id",
+                "starts_at",
+                "ends_at",
+                "availability_type",
+                "note",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_progress",
+              "columns": [
+                "id",
+                "student_id",
+                "lesson_id",
+                "completed_at",
+                "started_at",
+                "updated_at",
+                "last_position_seconds"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_responses",
+              "columns": [
+                "id",
+                "attempt_id",
+                "question_id",
+                "response",
+                "awarded_points",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_review_allowances",
+              "columns": [
+                "id",
+                "student_id",
+                "period_start",
+                "period_end",
+                "included_reviews",
+                "used_reviews",
+                "source",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_settings",
+              "columns": [
+                "id",
+                "value"
+              ],
+              "rowCount": 4
+            },
+            {
+              "table": "public.hka_training_plans",
+              "columns": [
+                "id",
+                "student_id",
+                "coach_id",
+                "title",
+                "content",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_training_records",
+              "columns": [
+                "id",
+                "student_id",
+                "horse_id",
+                "recorded_on",
+                "notes"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "public.hka_transactions",
+              "columns": [
+                "id",
+                "student_id",
+                "stripe_payment_id",
+                "amount_cents",
+                "currency",
+                "status",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.buckets",
+              "columns": [
+                "id",
+                "name",
+                "owner",
+                "created_at",
+                "updated_at",
+                "public",
+                "avif_autodetection",
+                "file_size_limit",
+                "allowed_mime_types",
+                "owner_id",
+                "type",
+                "versioning_status",
+                "lifecycle_configuration",
+                "lifecycle_configuration_generation"
+              ],
+              "rowCount": 2
+            },
+            {
+              "table": "storage.buckets_analytics",
+              "columns": [
+                "name",
+                "type",
+                "format",
+                "created_at",
+                "updated_at",
+                "id",
+                "deleted_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.buckets_vectors",
+              "columns": [
+                "id",
+                "type",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.objects",
+              "columns": [
+                "id",
+                "bucket_id",
+                "name",
+                "owner",
+                "created_at",
+                "updated_at",
+                "last_accessed_at",
+                "metadata",
+                "version",
+                "owner_id",
+                "user_metadata",
+                "archived_at",
+                "is_delete_marker",
+                "is_versioned"
+              ],
+              "rowCount": 2
+            },
+            {
+              "table": "storage.s3_multipart_uploads",
+              "columns": [
+                "id",
+                "in_progress_size",
+                "upload_signature",
+                "bucket_id",
+                "key",
+                "version",
+                "owner_id",
+                "created_at",
+                "user_metadata",
+                "metadata"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.s3_multipart_uploads_parts",
+              "columns": [
+                "id",
+                "upload_id",
+                "size",
+                "part_number",
+                "bucket_id",
+                "key",
+                "etag",
+                "owner_id",
+                "version",
+                "created_at"
+              ],
+              "rowCount": 0
+            },
+            {
+              "table": "storage.vector_indexes",
+              "columns": [
+                "id",
+                "name",
+                "bucket_id",
+                "data_type",
+                "dimension",
+                "distance_metric",
+                "metadata_configuration",
+                "created_at",
+                "updated_at"
+              ],
+              "rowCount": 0
+            }
+          ],
+          "insertTables": [],
+          "createdTables": [],
+          "createFunctionCount": 0,
+          "createPolicyCount": 0,
+          "grantStatementCount": 0,
+          "passwordClausePresent": true
+        },
+        {
+          "file": "roles.sql",
+          "bytes": 370,
+          "lastWriteTimeUtc": "2026-10-26T04:44:29.619Z",
+          "sha256": "168a95a9c745af5ed4679751f90419ac9dc434240a213b03e32a06d5664c2308",
+          "dumpVersion": null,
+          "serverVersion": null,
+          "completionMarker": false,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [],
+          "insertTables": [],
+          "createdTables": [],
+          "createFunctionCount": 0,
+          "createPolicyCount": 0,
+          "grantStatementCount": 1,
+          "passwordClausePresent": false
+        },
+        {
+          "file": "schema.sql",
+          "bytes": 117413,
+          "lastWriteTimeUtc": "2026-10-26T04:42:48.261Z",
+          "sha256": "66e736727aa8d0a199760992865d203166d16fcb0aae8db6f57a70d207342a3d",
+          "dumpVersion": null,
+          "serverVersion": null,
+          "completionMarker": false,
+          "copyTerminated": true,
+          "transactionSnapshotRecorded": false,
+          "copyTables": [],
+          "insertTables": [],
+          "createdTables": [
+            "public.hka_attempts",
+            "public.hka_achievements",
+            "public.hka_ai_drafts",
+            "public.hka_ai_usage",
+            "public.hka_announcements",
+            "public.hka_answer_keys",
+            "public.hka_appointments",
+            "public.hka_assessments",
+            "public.hka_audit",
+            "public.hka_coach_students",
+            "public.hka_coaching_requests",
+            "public.hka_coaching_services",
+            "public.hka_courses",
+            "public.hka_enrolment_requests",
+            "public.hka_enrolments",
+            "public.hka_files",
+            "public.hka_guardians",
+            "public.hka_horse_profile_limits",
+            "public.hka_horse_records",
+            "public.hka_horses",
+            "public.hka_lessons",
+            "public.hka_membership_plans",
+            "public.hka_modules",
+            "public.hka_notifications",
+            "public.hka_owner_availability",
+            "public.hka_pathways",
+            "public.hka_profiles",
+            "public.hka_progress",
+            "public.hka_questions",
+            "public.hka_responses",
+            "public.hka_review_allowances",
+            "public.hka_settings",
+            "public.hka_submissions",
+            "public.hka_training_plans",
+            "public.hka_training_records",
+            "public.hka_transactions"
+          ],
+          "createFunctionCount": 26,
+          "createPolicyCount": 81,
+          "grantStatementCount": 157,
+          "passwordClausePresent": false
+        }
+      ],
+      "overlappingAuthTables": [
+        "auth.audit_log_entries",
+        "auth.custom_oauth_providers",
+        "auth.flow_state",
+        "auth.users",
+        "auth.identities",
+        "auth.instances",
+        "auth.oauth_clients",
+        "auth.sessions",
+        "auth.mfa_amr_claims",
+        "auth.mfa_factors",
+        "auth.mfa_challenges",
+        "auth.mfa_recovery_code_sets",
+        "auth.mfa_recovery_codes",
+        "auth.oauth_authorizations",
+        "auth.oauth_client_states",
+        "auth.oauth_consents",
+        "auth.one_time_tokens",
+        "auth.refresh_tokens",
+        "auth.sso_providers",
+        "auth.saml_providers",
+        "auth.saml_relay_states",
+        "auth.scim_tokens",
+        "auth.scim_users",
+        "auth.sso_domains",
+        "auth.webauthn_challenges",
+        "auth.webauthn_credentials"
+      ],
+      "existingManifests": [],
+      "allFourPartsPresent": true,
+      "relevantCoverage": [
+        {
+          "table": "public.hka_messages",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_profiles",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "public.hka_account_roles",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_guardians",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "public.hka_coach_students",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "public.hka_link_requests",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_student_link_codes",
+          "schema": false,
+          "dataSection": false
+        },
+        {
+          "table": "public.hka_files",
+          "schema": true,
+          "dataSection": true
+        },
+        {
+          "table": "auth.users",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "auth.identities",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "storage.objects",
+          "schema": false,
+          "dataSection": true
+        },
+        {
+          "table": "storage.buckets",
+          "schema": false,
+          "dataSection": true
+        }
+      ],
+      "storageFileExportPresent": false,
+      "integrity": "SHA-256 calculated now; only existing manifest equality establishes prior byte integrity; neither proves restore"
+    }
+  ],
+  "connectionAvailability": {
+    ".env.local": {
+      "databaseCredentialKeys": []
+    },
+    ".env.example": {
+      "databaseCredentialKeys": []
+    },
+    "environmentKeyNames": [],
+    "pooler": {
+      "exists": true,
+      "passwordPresent": false,
+      "expectedProject": true
+    },
+    "linkedProject": {
+      "exists": true,
+      "keys": [
+        "ref",
+        "name",
+        "organization_id",
+        "organization_slug"
+      ],
+      "expectedProject": true
+    },
+    "standardPgpassPresent": false
+  },
+  "artifacts": {
+    "202610310001_founder_direct_messaging.sql": "b0e363dc51e8eae1ec82dad37a6c49ced9d58dcefa9de0d8bfd3f6cc9f51905d",
+    "202610310001_founder_direct_messaging.rollback.sql": "30b4605ba65ac98fb797a8343a58538d8b2f39d14f61261cf49273a877e6c97d"
+  }
+}
