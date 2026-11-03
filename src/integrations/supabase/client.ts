@@ -1,18 +1,9 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { createAuthStorage, setAuthPersistence } from "@/lib/auth-storage";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim() ?? "";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() ?? "";
 
 let supabaseClient: SupabaseClient | null = null;
-
-function authStorageKey() {
-  return 'sb-' + new URL(supabaseUrl).hostname.split('.')[0] + '-auth-token';
-}
-
-export function setSessionPersistence(staySignedIn: boolean) {
-  setAuthPersistence(staySignedIn, authStorageKey(), window.localStorage, window.sessionStorage);
-}
 
 export function isSupabaseConfigured() {
   return Boolean(supabaseUrl && supabaseAnonKey);
@@ -32,9 +23,7 @@ export function getSupabaseClient() {
   }
 
   if (!supabaseClient) {
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: { storageKey: authStorageKey(), storage: createAuthStorage(window.localStorage, window.sessionStorage) },
-    });
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
   }
 
   return supabaseClient;
