@@ -1,16 +1,18 @@
 {
-  "date": "2026-10-31T14:14:05.139Z",
+  "date": "2026-11-03T04:57:14.714Z",
   "status": "PASS",
   "scope": "Disposable network-disabled Docker PostgreSQL; synthetic rows only; reconstructed relevant current HKA schema, not a full Supabase restore or hosted API test",
   "authorization": "Founder approval in current request: isolated local testing only",
-  "runId": "1793456045139",
-  "container": "hka-messaging-security-1793456045139",
-  "database": "hka_messaging_security_1793456045139",
+  "runId": "1793681834711",
+  "container": "hka-messaging-security-1793681834711",
+  "database": "hka_messaging_security_1793681834711",
   "liveMutations": false,
   "deployments": false,
   "fixtureAccounts": 17,
   "metadataLimitations": [
-    "Connector exploration budget exhausted for hka_coaches and hka_has_purpose; definitions sourced from existing multi-role migration without fresh live comparison."
+    "Synthetic minimal auth.users and auth.uid() claim shim; no hosted JWT verification.",
+    "Only seven messaging-related public tables reconstructed; hka_files is a minimal policy dependency.",
+    "No hosted PostgREST, realtime, storage, auth service or full Supabase schema restore."
   ],
   "phases": [
     {
@@ -44,13 +46,23 @@
       "name": "suite",
       "status": "PASS",
       "exitCode": 0,
-      "passedAssertions": 98,
+      "passedAssertions": 108,
       "failedAssertions": 0,
       "failures": [],
       "assertions": [
         "same-name SELECT expression drift",
         "same-name INSERT expression drift",
         "policy role-target drift",
+        "INSERT PUBLIC role-target drift",
+        "UPDATE PUBLIC role-target drift",
+        "anonymous role-target drift",
+        "role-target superset drift",
+        "UPDATE USING expression drift",
+        "UPDATE WITH CHECK expression drift",
+        "missing baseline policy",
+        "same-count policy name drift",
+        "policy command drift",
+        "policy permissiveness drift",
         "extra permissive policy",
         "migration preserves every public HKA application row",
         "new exposed API has no SECURITY DEFINER function",
@@ -260,6 +272,15 @@
       ]
     },
     {
+      "name": "frontend-contract-migration",
+      "status": "PASS",
+      "exitCode": 0,
+      "passedAssertions": 0,
+      "failedAssertions": 0,
+      "failures": [],
+      "assertions": []
+    },
+    {
       "name": "committed-disable-guard",
       "status": "PASS",
       "exitCode": 0,
@@ -315,52 +336,97 @@
         "committed rollback does not restore global Founder reads",
         "committed rollback preserves guardian privacy and legitimate child oversight"
       ]
+    },
+    {
+      "name": "frontend-contract-rollback",
+      "status": "PASS",
+      "exitCode": 0,
+      "passedAssertions": 0,
+      "failedAssertions": 0,
+      "failures": [],
+      "assertions": []
     }
   ],
   "logs": [
-    "docker-1793456045139-version.log",
-    "docker-1793456045139-schema.log",
-    "docker-1793456045139-baseline-policies.log",
-    "docker-1793456045139-suite.log",
-    "docker-1793456045139-additional-cases.log",
-    "docker-1793456045139-transaction-cleanup.log",
-    "docker-1793456045139-committed-fixtures.log",
-    "docker-1793456045139-committed-migration.log",
-    "docker-1793456045139-committed-send.log",
-    "docker-1793456045139-committed-disable-guard.log",
-    "docker-1793456045139-committed-disabled-rollback-rejected.log",
-    "docker-1793456045139-committed-rejection-checks.log",
-    "docker-1793456045139-committed-rollback.log",
-    "docker-1793456045139-committed-rollback-checks.log"
+    "docker-1793681834711-version.log",
+    "docker-1793681834711-schema.log",
+    "docker-1793681834711-baseline-policies.log",
+    "docker-1793681834711-suite.log",
+    "docker-1793681834711-additional-cases.log",
+    "docker-1793681834711-transaction-cleanup.log",
+    "docker-1793681834711-committed-fixtures.log",
+    "docker-1793681834711-committed-migration.log",
+    "docker-1793681834711-committed-send.log",
+    "docker-1793681834711-frontend-contract-migration.log",
+    "docker-1793681834711-committed-disable-guard.log",
+    "docker-1793681834711-committed-disabled-rollback-rejected.log",
+    "docker-1793681834711-committed-rejection-checks.log",
+    "docker-1793681834711-committed-rollback.log",
+    "docker-1793681834711-committed-rollback-checks.log",
+    "docker-1793681834711-frontend-contract-rollback.log"
   ],
   "cleanup": true,
-  "docker_runner_sha256": "63a55eca398e34b6eba2b4a4ba3dd68dcbe9cef6f6d0e8890b95af2ee3cc7a1c",
+  "docker_runner_sha256": "bdeb2e57a2f47a34c565146fce08efab47b21eaf5105c5423a9525d596815e65",
   "additional_cases_sha256": "971358e3db382962be222a07c2ea289189311a0ad812e28da0b3d7bb0b67ca72",
   "disabled_trigger_cases_sha256": "558cb580dbdfe723d8a4f0188dd2a93c4eb9a34dfac0382aad2219fad8cfeadd",
   "committed_cycle_sha256": "3b44beeab35b7803e52ef88de3c3642fe9264e01129ee91a5ff3b50b770ea443",
-  "metadata_sha256": "5e81dec19805862120e10720b6bbdba318776b9d57021b6cfc6c2df85dcef5d1",
-  "catalog_sha256": "a102dedfdc3a631ca3e383ca34f9a07887cc58056cc3f194f164c8bbcbd93246",
+  "metadata_sha256": "079bda8491b11bb6161189795a4004ffacb6a511430a1c47a7464a7b62fcce05",
+  "catalog_sha256": "079bda8491b11bb6161189795a4004ffacb6a511430a1c47a7464a7b62fcce05",
+  "hosted_schema_input_sha256": "5d7565461f781488ecd15d7f632aac6918666324ec34d94e7d41e1ab70eb2b7c",
+  "frontend_contract_sha256": "14a2c531a9512994d51df9da641d2b00ec6483151ac587b9b30c05efd62cdc88",
   "migration_sha256": "b0e363dc51e8eae1ec82dad37a6c49ced9d58dcefa9de0d8bfd3f6cc9f51905d",
   "rollback_sha256": "30b4605ba65ac98fb797a8343a58538d8b2f39d14f61261cf49273a877e6c97d",
   "fixtures_sha256": "1e14edd32fc8508942bd3bcfd2fd8c29a3a487ae0da6284ed815f83246d2a0fe",
-  "schema_sha256": "3e77a4c7e29b1e99f68c17a1420332b562f31e450a429c8fcc8e40b61b1b7952",
-  "runner_sha256": "3d2c5f2b227743b7e072853062b362a5b5c565b1c77af64cca093078d6fc1d8b",
+  "schema_sha256": "80cfa333384ba263db523f3d3b737f668bde1fc0f4665120538c71cdbaeb1529",
+  "runner_sha256": "485c771ba92fb13f68d45c2eaaed839e66a6d51fa22ac7a8d1032eea9223d8ef",
   "dockerEndpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
-  "expectedAssertions": 98,
-  "suite_sha256": "6f7232ce33f8cb818448673e90e54250e73c179df3cde77c16a77721289960eb",
-  "schemaSQL_sha256": "ab9ec3c94ec541e0d805e3aead697463f9c6ff8fe0906dacb7b1d16d7b7e99ad",
+  "expectedAssertions": 108,
+  "suite_sha256": "fac306c69dcae30bc02a2359ee4000ba892b9b1403ffffa6109cc8b0d4a1ddd6",
+  "schemaSQL_sha256": "cdd7ae4e3e90789c244047c6e16e3d7a5d7ff9cc46b0a2783a0880e5cf02b400",
   "isolation": {
     "network": "none",
     "portsPublished": false,
     "hostBindMounts": false,
-    "containerId": "2b607728171ca261e4df20607be0993701189cbdbd7a57b3ec85d66ac7effb98",
+    "containerId": "272ed3064189c5fb770a7fbb6f679e5a6233db3f2b3f60893bec57f7f7648e72",
     "imageId": "sha256:7374d196da7e301512cc5329e18040e0f7bb856287b323777cdadecccbc6c7e4"
   },
   "postgresVersion": "version                                    \n-------------------------------------------------------------------------------\n PostgreSQL 17.11 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit\n(1 row)",
   "additionalExpectedAssertions": 59,
   "additionalSuite_sha256": "336bec94d74d583b2af3039b7751ff3612fa022e8c432780ac478e7795ddeae4",
   "committedExpectedAssertions": 16,
-  "passedAssertions": 173,
+  "frontendContracts": [
+    {
+      "status": "PASS",
+      "rolledBack": false,
+      "contactRows": 16,
+      "messageRows": 3,
+      "checks": [
+        "exact ten-column contact projection and runtime types",
+        "current canSendMessage consumes real SQL grants",
+        "nullable adult peer scope",
+        "persisted direct thread displayed",
+        "rollback history-only controls",
+        "missing hosted RPC pending state",
+        "self-send denied"
+      ]
+    },
+    {
+      "status": "PASS",
+      "rolledBack": true,
+      "contactRows": 3,
+      "messageRows": 3,
+      "checks": [
+        "exact ten-column contact projection and runtime types",
+        "current canSendMessage consumes real SQL grants",
+        "nullable adult peer scope",
+        "persisted direct thread displayed",
+        "rollback history-only controls",
+        "missing hosted RPC pending state",
+        "self-send denied"
+      ]
+    }
+  ],
+  "passedAssertions": 183,
   "failedAssertions": 0,
-  "totalAssertions": 173
+  "totalAssertions": 183
 }

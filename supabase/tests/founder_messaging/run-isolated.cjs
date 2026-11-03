@@ -44,6 +44,16 @@ for (const [alter,label] of [
  ["alter policy hka_messages_read on public.hka_messages using (true);","same-name SELECT expression drift"],
  ["alter policy hka_messages_insert on public.hka_messages with check (true);","same-name INSERT expression drift"],
  ["alter policy hka_messages_read on public.hka_messages to public;","policy role-target drift"],
+ ["alter policy hka_messages_insert on public.hka_messages to public;","INSERT PUBLIC role-target drift"],
+ ["alter policy hka_messages_update_read on public.hka_messages to public;","UPDATE PUBLIC role-target drift"],
+ ["alter policy hka_messages_read on public.hka_messages to anon;","anonymous role-target drift"],
+ ["alter policy hka_messages_read on public.hka_messages to authenticated,anon;","role-target superset drift"],
+ ["alter policy hka_messages_update_read on public.hka_messages using(true);","UPDATE USING expression drift"],
+ ["alter policy hka_messages_update_read on public.hka_messages with check(true);","UPDATE WITH CHECK expression drift"],
+ ["drop policy hka_messages_read on public.hka_messages;","missing baseline policy"],
+ ["alter policy hka_messages_read on public.hka_messages rename to unreviewed_read;","same-count policy name drift"],
+ ["drop policy hka_messages_read on public.hka_messages; create policy hka_messages_read on public.hka_messages for all to authenticated using(true);","policy command drift"],
+ ["drop policy hka_messages_read on public.hka_messages; create policy hka_messages_read on public.hka_messages as restrictive for select to authenticated using(true);","policy permissiveness drift"],
  ["create policy unrelated_permissive on public.hka_messages for select using(true);","extra permissive policy"]]) {
  sql += 'savepoint drift;\n'+alter+'\n';
  assertions++;

@@ -14,7 +14,7 @@ const image='public.ecr.aws/supabase/postgres:17.11.0.003';
 const env=Object.fromEntries(Object.entries(process.env).filter(([k])=>!k.toUpperCase().startsWith('PG')));
 const result={date:new Date().toISOString(),status:'FAIL',scope:'Disposable network-disabled Docker PostgreSQL; synthetic rows only; reconstructed relevant current HKA schema, not a full Supabase restore or hosted API test',authorization:'Founder approval in current request: isolated local testing only',runId,container:name,database:db,liveMutations:false,deployments:false,fixtureAccounts:17,metadataLimitations:metadata.limitations,phases:[],logs:[],cleanup:false};
 const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
-for(const [k,p] of [['docker_runner','supabase/tests/founder_messaging/run-docker.cjs'],['additional_cases','supabase/tests/founder_messaging/additional-cases.cjs'],['disabled_trigger_cases','supabase/tests/founder_messaging/disabled-trigger-cases.cjs'],['committed_cycle','supabase/tests/founder_messaging/committed-cycle.cjs'],['metadata','docs/founder-messaging-evidence/local-schema-metadata.json'],['catalog','docs/founder-messaging-evidence/security-catalog.json'],['migration','supabase/proposals/202610310001_founder_direct_messaging.sql'],['rollback','supabase/proposals/202610310001_founder_direct_messaging.rollback.sql'],['fixtures','supabase/tests/founder_messaging/fixtures.sql'],['schema','supabase/tests/founder_messaging/local-schema.cjs'],['runner','supabase/tests/founder_messaging/run-isolated.cjs']])
+for(const [k,p] of [['docker_runner','supabase/tests/founder_messaging/run-docker.cjs'],['additional_cases','supabase/tests/founder_messaging/additional-cases.cjs'],['disabled_trigger_cases','supabase/tests/founder_messaging/disabled-trigger-cases.cjs'],['committed_cycle','supabase/tests/founder_messaging/committed-cycle.cjs'],['metadata','docs/founder-messaging-evidence/hosted-compatibility-snapshot.json'],['catalog','docs/founder-messaging-evidence/hosted-compatibility-snapshot.json'],['hosted_schema_input','supabase/tests/founder_messaging/hosted-schema-input.cjs'],['frontend_contract','supabase/tests/founder_messaging/frontend-contract.cjs'],['migration','supabase/proposals/202610310001_founder_direct_messaging.sql'],['rollback','supabase/proposals/202610310001_founder_direct_messaging.rollback.sql'],['fixtures','supabase/tests/founder_messaging/fixtures.sql'],['schema','supabase/tests/founder_messaging/local-schema.cjs'],['runner','supabase/tests/founder_messaging/run-isolated.cjs']])
  result[k+'_sha256']=hash(fs.readFileSync(p));
 function command(args,input,allowFailure=false) {
  const p=spawnSync('docker',args,{input,encoding:'utf8',maxBuffer:12*1024*1024,timeout:60000,env});
@@ -81,7 +81,16 @@ try {
  psql("do $$ begin if exists(select 1 from public.hka_profiles) or exists(select 1 from auth.users) or exists(select 1 from public.hka_messages) or to_regnamespace('hka_messaging') is not null or to_regnamespace('hka_messaging_test') is not null then raise exception 'Test transaction cleanup failed'; end if; end $$;",'transaction-cleanup');
  const committed=require('./committed-cycle.cjs')();
  result.committedExpectedAssertions=committed.reduce((n,p)=>n+[...p.sql.matchAll(/select hka_messaging_test\.(?:ok|denied)\(/g)].length,0);
- for(const phase of committed)psql(phase.sql,phase.name,phase.expectedError);
+ result.frontendContracts=[];
+ const contract=require('./frontend-contract.cjs');
+ for(const phase of committed) {
+  psql(phase.sql,phase.name,phase.expectedError);
+  if(['committed-send','committed-rollback-checks'].includes(phase.name)){
+   const afterRollback=phase.name==='committed-rollback-checks';
+   const log=psql(contract.sql(),'frontend-contract-'+(afterRollback?'rollback':'migration'));
+   result.frontendContracts.push(contract.verify(log,afterRollback));
+  }
+ }
  const committedCount=result.phases.filter(p=>p.name.startsWith('committed-')).reduce((n,p)=>n+p.passedAssertions+p.failedAssertions,0);
  if(committedCount!==result.committedExpectedAssertions)throw new Error('Incomplete committed-cycle output');
  result.status=result.phases.some(x=>x.status==='FAIL')?'FAIL':'PASS';

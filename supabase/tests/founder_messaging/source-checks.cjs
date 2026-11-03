@@ -71,7 +71,7 @@ test('Coach dashboard alone never creates Founder directory',()=>{
 });
 const migration=fs.readFileSync('supabase/proposals/202610310001_founder_direct_messaging.sql','utf8');
 const rollback=fs.readFileSync('supabase/proposals/202610310001_founder_direct_messaging.rollback.sql','utf8');
-const catalog=JSON.parse(fs.readFileSync('docs/founder-messaging-evidence/security-catalog.json','utf8')).catalog;
+const {catalog}=require('./hosted-schema-input.cjs');
 test('Preflight embeds each actual complete live policy expression',()=>{
  for(const policy of catalog.policies){
   for(const expression of [policy.qual,policy.with_check])if(expression!==null)assert(migration.includes('$baseline$'+expression+'$baseline$'));

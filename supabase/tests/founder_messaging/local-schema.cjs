@@ -3,11 +3,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '../../..');
 const read = p => fs.readFileSync(path.join(root,p),'utf8');
-const metadata = JSON.parse(read('docs/founder-messaging-evidence/local-schema-metadata.json'));
-const catalog = JSON.parse(read('docs/founder-messaging-evidence/security-catalog.json')).catalog;
+const {metadata,catalog,schemaAssertions} = require('./hosted-schema-input.cjs');
+// Catalog definitions refreshed from read-only hosted compatibility snapshot.
 const normalise = s => s.replaceAll('\\n','\n');
 const ident = s => '"' + s.replaceAll('"','""') + '"';
-const multi = read('supabase/migrations/202610280002_multi_role_onboarding.sql');
+// Existing dependency definitions and ACLs come from the fresh hosted snapshot.
 const quote = s => "'" + s.replaceAll("'","''") + "'";
 function localSchema() {
  let sql = `create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
@@ -24,23 +24,19 @@ grant execute on function auth.uid() to authenticated,anon;
   sql+='create table public.'+ident(t.table)+' ('+t.data.columns.map(c=>
    ident(c.column_name)+' '+c.data_type+(c.column_default!==null?' default '+c.column_default:'')+(c.is_nullable==='NO'?' not null':'')).join(',')+');\n';
  }
- const constraints=[...catalog.constraints,
- {table:'hka_student_link_codes',name:'hka_student_link_codes_pkey',definition:'PRIMARY KEY(id)'},
- {table:'hka_student_link_codes',name:'hka_student_link_codes_code_hash_key',definition:'UNIQUE(code_hash)'},
- {table:'hka_student_link_codes',name:'hka_student_link_codes_student_id_fkey',definition:'FOREIGN KEY(student_id) REFERENCES public.hka_profiles(id) ON DELETE CASCADE'},
- {table:'hka_student_link_codes',name:'hka_student_link_codes_kind_check',definition:"CHECK(kind in ('guardian','coach'))"},
- {table:'hka_student_link_codes',name:'hka_student_link_codes_max_uses_check',definition:'CHECK(max_uses between 1 and 10)'},
- {table:'hka_student_link_codes',name:'hka_student_link_codes_check',definition:'CHECK(uses between 0 and max_uses)'}];
+ const constraints=[...catalog.constraints];
  constraints.sort((a,b)=>Number(a.definition.startsWith('FOREIGN'))-Number(b.definition.startsWith('FOREIGN')));
  for(const c of constraints)sql+='alter table public.'+ident(c.table)+' add constraint '+ident(c.name)+' '+normalise(c.definition)+';\n';
  sql+='create unique index hka_account_roles_one_active on public.hka_account_roles(user_id) where is_active;\n';
+ for(const index of catalog.indexes.filter(i=>!i.indexdef.startsWith('CREATE UNIQUE INDEX')))
+  sql+=index.indexdef+';\n';
  // Ancillary profile-update policy dependency only; no files/lessons/storage are tested.
  sql+="create table public.hka_files(path text,owner_id uuid,purpose text); alter table public.hka_files enable row level security; grant select on public.hka_files to authenticated;\n";
  sql+=normalise(metadata.functions.find(x=>x.name==='hka_role').definition)+';\n';
  for(const name of ['hka_has_purpose','hka_coaches']) {
-  const match=multi.match(new RegExp('create or replace function public\\.'+name+'\\([\\s\\S]*?\\$\\$;','i'));
-  if(!match)throw new Error('Missing source helper '+name);
-  sql+=match[0]+'\n';
+  const f=metadata.functions.find(x=>x.name===name);
+  if(!f)throw new Error('Missing hosted helper '+name);
+  sql+=normalise(f.definition)+';\n';
  }
  for(const name of ['hka_role','hka_admin','hka_active','hka_teach','hka_view_student','hka_signup_profile']) {
   const f=metadata.functions.find(x=>x.name===name);
@@ -49,8 +45,13 @@ grant execute on function auth.uid() to authenticated,anon;
  }
  sql+='create trigger hka_auth_profile after insert on auth.users for each row execute function public.hka_signup_profile();\n';
  sql+='revoke all on all functions in schema public from public,anon,authenticated;\n';
- for(const name of ['hka_role()','hka_admin()','hka_active(uuid)','hka_teach(uuid)','hka_view_student(uuid)','hka_coaches(uuid)','hka_has_purpose(uuid,text)'])
-  sql+='grant execute on function public.'+name+' to authenticated;\n';
+ for(const f of catalog.functions) {
+  for(const acl of f.acl||[]) {
+   const match=acl.match(/^([^=]+)=([^/]+)\//);
+   if(match && ['authenticated','service_role'].includes(match[1]) && match[2].includes('X'))
+    sql+='grant execute on function public.'+f.signature+' to '+ident(match[1])+';\n';
+  }
+ }
  for(const t of tables) {
   sql+='alter table public.'+ident(t.table)+' enable row level security;\n';
   sql+='revoke all on public.'+ident(t.table)+' from public,anon,authenticated; grant select on public.'+ident(t.table)+' to authenticated;\n';
@@ -65,8 +66,17 @@ grant execute on function auth.uid() to authenticated,anon;
   if(p.with_check_clause!==null)sql+=' with check('+normalise(p.with_check_clause)+')';
   sql+=';\n';
  }
- const messageSource=read('supabase/migrations/202610260010_horse_care_email_delivery.sql');
- for(const policy of messageSource.matchAll(/create policy hka_messages_[\s\S]*?;/g))sql+=policy[0]+'\n';
+ for(const p of catalog.policies) {
+  sql+='create policy '+ident(p.policyname)+' on public.hka_messages as '+p.permissive+' for '+p.cmd+' to '+p.roles.map(r=>r==='public'?'public':ident(r)).join(',');
+  // Recreate original IN expression: reparsing deparsed nested OR flattens its
+  // parse tree and changes pg_get_expr text despite identical semantics.
+  const using=p.policyname==='hka_messages_read'
+   ? normalise(p.qual).replace('((auth.uid() = sender_id) OR (auth.uid() = recipient_id))','auth.uid() in (sender_id,recipient_id)')
+   : normalise(p.qual||'');
+  if(p.qual!==null)sql+=' using('+using+')';
+  if(p.with_check!==null)sql+=' with check('+normalise(p.with_check)+')';
+  sql+=';\n';
+ }
  for(const g of catalog.message_grants.filter(x=>['authenticated','anon','service_role'].includes(x.grantee)))
   sql+='grant '+g.privilege_type+' on public.hka_messages to '+ident(g.grantee)+';\n';
  sql+='grant update(read_at) on public.hka_messages to authenticated;\n';
@@ -76,6 +86,6 @@ grant execute on function auth.uid() to authenticated,anon;
   const expected=t.data.columns.map(c=>({name:c.column_name,type:c.data_type,nullable:c.is_nullable,default:c.column_default}));
   sql+='do $$ begin if (select jsonb_agg(jsonb_build_object(\'name\',column_name,\'type\',data_type,\'nullable\',is_nullable,\'default\',column_default) order by ordinal_position) from information_schema.columns where table_schema=\'public\' and table_name='+quote(t.table)+') is distinct from '+quote(JSON.stringify(expected))+'::jsonb then raise exception \'Reconstruction drift: '+t.table+'\'; end if; end $$;\n';
  }
- return sql;
+ return sql+schemaAssertions();
 }
 module.exports={localSchema,metadata,catalog};

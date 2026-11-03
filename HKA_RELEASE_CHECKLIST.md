@@ -1,8 +1,8 @@
 # HKA release checklist
 
-Current security revision: [FOUNDER_MESSAGING_SECURITY_REVIEW.md](docs/FOUNDER_MESSAGING_SECURITY_REVIEW.md), with the authorised local trigger-state correction and actual retest results in [FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md](docs/FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md). This status supersedes older prepared/unexecuted and failed local messaging results below.
+Current compatibility revision (2026-11-03): [FOUNDER_MESSAGING_COMPATIBILITY_CHECK.md](docs/FOUNDER_MESSAGING_COMPATIBILITY_CHECK.md), with full hosted policy definitions, fixture differences and actual evidence in [FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md](docs/FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md). This status supersedes historical prepared/unexecuted, failed and 173-assertion messaging results below.
 
-**Local messaging security: PASS — 173 PASS / 0 FAIL** (98 existing + 59 adversarial + 16 committed-cycle assertions), run `1793456045139`; [machine-readable evidence](docs/founder-messaging-evidence/isolated-run.json). All three former failures now pass. Source/catalog/conversation regressions: 14 PASS / 0 FAIL. Seven harness files parse; the revised adversarial file was checked again after its SQL fixture correction.
+**Local messaging security: PASS — 183 PASS / 0 FAIL** (108 migration/access/drift + 59 adversarial + 16 committed-cycle assertions), run `1793681834711`; [machine-readable evidence](docs/founder-messaging-evidence/isolated-run.json). All three former failures pass. Fresh hosted policies match strict authenticated preflight; proposal/rollback hashes unchanged. Two actual SQL contact projections pass current frontend contracts; source/React regressions 14/14, harness parsing 11/11 and current production build pass.
 
 - [x] Local migration and rollback record trigger name, exact definition and actual `pg_trigger.tgenabled`.
 - [x] Require reviewed `O` state and origin execution independently of the snapshot; missing/disabled/altered guards and unsafe matching snapshots rejected.
@@ -11,13 +11,17 @@ Current security revision: [FOUNDER_MESSAGING_SECURITY_REVIEW.md](docs/FOUNDER_M
 - [x] Normal committed rollback retained enabled/effective guard; recipient receipt clearing and identity/content changes denied.
 - [x] Founder, assigned Coach, Student and Guardian restrictions, unrelated-thread privacy, legitimate sends/oversight and message/receipt preservation passed.
 - [x] Disposable PostgreSQL 17.11 container used only 17 synthetic accounts, network disabled, no ports/bind mounts; removed after testing.
-- [ ] Confirm safeguarding consent interpretation, private-schema API exposure and current complete schema compatibility; establish trusted missing-DOB adult evidence if an exception is required.
-- [ ] Hosted JWT/API/browser and designated-account acceptance remain unverified; separate explicit approval is required for any live database operation or deployment.
+- [x] Read-only live pg_policies confirms all three policies target authenticated; exact preflight assumptions retained, PUBLIC/superset drift rejected.
+- [x] Confirm current effective API exposure: public, graphql_public only; private messaging schema excluded; GraphQL wrapper is disabled-extension stub.
+- [x] Inspect current migration dependencies, auth/signup trigger, helper ACLs, seven table schemas, 52 constraints and 19 recorded migration versions.
+- [x] Reproduce exact hosted policies locally; correct fixture ACL/parse-tree differences; current frontend consumes real local contact rows before/after rollback.
+- [ ] Confirm safeguarding consent interpretation; establish trusted missing-DOB adult evidence only if an exception is required; retain documented full-schema/auth-service/non-superuser test limits.
+- [ ] Hosted authenticated JWT/send/receipt/browser and designated-account acceptance remain unverified; separate explicit approval is required for live mutations or deployment.
 
 Revised proposals remain unapplied to live Supabase. No live database changes or application deployment occurred. Overall release decision remains **NOT READY**.
 
 
-Updated: 2026-10-31. Release decision: **NOT READY**. Authorised acceptance, Founder messaging-migration approval and content actions remain outstanding.
+Historical status (2026-10-31): **NOT READY**. Current compatibility results above supersede overlapping evidence; safeguarding, authorised hosted acceptance, Founder migration approval and content actions remain outstanding.
 
 ## Corrected Founder and Coach messaging — 2026-10-31
 

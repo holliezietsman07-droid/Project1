@@ -1,9 +1,9 @@
 {
-  "date": "2026-10-31T14:14:05.139Z",
+  "date": "2026-11-03T05:08:08.272Z",
   "status": "PASS",
-  "scope": "Authorised local SQL proposal correction and disposable PostgreSQL retesting only",
+  "scope": "Final read-only hosted messaging compatibility inspection and isolated synthetic PostgreSQL retest",
   "sqlMutationsExecuted": true,
-  "sqlMutationDestination": "hka_messaging_security_1793456045139",
+  "sqlMutationDestination": "hka_messaging_security_1793681834711",
   "livePermissionsChanged": false,
   "liveSqlMutationsExecuted": false,
   "liveProposalApplied": false,
@@ -12,22 +12,43 @@
   "proposalAppliedLocally": true,
   "rollbackAppliedLocally": true,
   "syntheticAccounts": 17,
-  "executedAssertions": 173,
-  "passedAssertions": 173,
+  "executedAssertions": 183,
+  "passedAssertions": 183,
   "failedAssertions": 0,
   "formerFailuresRetested": 3,
   "containerRemoved": true,
-  "finding": "Resolved locally: required trigger state O is checked independently of snapshot; exact definition and final catalog validation enforced. Disabled-trigger rollback rejected; normal rollback retains enabled/effective guard, immutable messages and receipts.",
+  "finding": "All three hosted policies exactly match strict preflight. Fresh dependency ACLs and policy parse-tree fixtures corrected; full suite and current frontend contact contracts pass. No SQL proposal revision needed.",
   "blockers": [
-    "Confirm Founder/minor consent scope with safeguarding owner.",
-    "Establish trusted missing-DOB adult evidence if an exception is required.",
-    "Confirm private schema API exposure and current complete schema compatibility.",
-    "Complete separately authorised hosted account/JWT/API/browser acceptance.",
-    "Obtain separate explicit Founder approval before any live database operation or deployment."
+    "Safeguarding owner must confirm Founder/minor consent interpretation before release.",
+    "Hosted authenticated send/receipt/JWT/realtime/browser acceptance requires separately authorised designated accounts/actions.",
+    "Separate explicit Founder approval is required for any live mutation or deployment."
   ],
-  "report": "docs/FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md",
+  "report": "docs/FOUNDER_MESSAGING_COMPATIBILITY_CHECK.md",
   "canonicalRun": "isolated-run.json",
-  "runId": "1793456045139",
+  "runId": "1793681834711",
   "migration_sha256": "b0e363dc51e8eae1ec82dad37a6c49ced9d58dcefa9de0d8bfd3f6cc9f51905d",
-  "rollback_sha256": "30b4605ba65ac98fb797a8343a58538d8b2f39d14f61261cf49273a877e6c97d"
+  "rollback_sha256": "30b4605ba65ac98fb797a8343a58538d8b2f39d14f61261cf49273a877e6c97d",
+  "liveReadOnlyMetadataInspected": true,
+  "hostedPolicyRoles": [
+    "authenticated"
+  ],
+  "policyRolePreflightChanged": false,
+  "proposalHashesUnchanged": true,
+  "postgrestExposedSchemas": [
+    "public",
+    "graphql_public"
+  ],
+  "graphqlExtensionEnabled": false,
+  "relevantHostedDependenciesVerified": true,
+  "sourceRegressionChecks": 14,
+  "frontendContactContractProjections": 2,
+  "harnessFilesParsed": 11,
+  "productionBuildPassed": true,
+  "fixtureLimits": [
+    "Synthetic minimal auth schema and JWT claim shim; seven public messaging tables and hka_files policy stub only.",
+    "Local postgres is superuser; hosted postgres is NOSUPERUSER/BYPASSRLS with verified required privileges.",
+    "Hosted services, unrelated schema and non-message service_role table ACLs are not fully restored."
+  ],
+  "localReport": "docs/FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md",
+  "releaseReady": false
 }

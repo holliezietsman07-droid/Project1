@@ -1,5 +1,23 @@
 # HKA messaging: isolated local security test report
 
+## Current final compatibility retest — 2026-11-03
+
+**PASS: 183/183 SQL assertions, 0 failures**, canonical disposable run `1793681834711` (108 migration/access/drift + 59 adversarial + 16 committed-cycle). Both complete proposal files are unchanged from the reviewed correction and pass against freshly captured hosted policy/dependency metadata.
+
+All three current live policies target **authenticated**, with exact commands, permissiveness, USING and WITH CHECK expressions matching preflight. The earlier PUBLIC record is not the current baseline. Strict role drift checks remain intact; all three PUBLIC-target mutations are rejected locally.
+
+Effective PostgREST exposure is **public, graphql_public**, confirmed by actual read-only 406/PGRST106 responses; hka_messaging is excluded. GraphQL resolver extension is absent and its public wrapper is a disabled-extension stub. Hosted owner privileges, auth UID/signup trigger, 19 recorded migration versions, seven required tables, 52 constraints and eight helpers were inspected read-only.
+
+Local fixture corrections remove excess authenticated helper EXECUTE, refresh constraints/helpers and reproduce the original SELECT IN parse tree without weakening exact catalog comparison. Two real local SQL contact projections pass seven current frontend contract checks each; 14 source/React checks and production build pass; 11 harness files parse. Message/history/receipt fingerprints remain identical; enabled guard and all Founder/Coach/Student/Guardian restrictions remain effective. Container removed.
+
+[Full compatibility findings and complete policy definitions](FOUNDER_MESSAGING_COMPATIBILITY_CHECK.md) · [hosted snapshot](founder-messaging-evidence/hosted-compatibility-snapshot.json) · [canonical execution receipt](founder-messaging-evidence/isolated-run.json) · [fixture comparison](founder-messaging-evidence/compatibility-comparison.json).
+
+No live application rows, RLS or settings changed; no migration, rollback or deployment was applied to hosted Supabase. Hosted authenticated delivery/browser acceptance and safeguarding approval remain separate release gates.
+
+## Historical trigger-correction report — 2026-10-31
+
+The original report below retains historical run IDs and limitations. Current policy/dependency/exposure results and current execution totals above supersede overlapping historical claims.
+
 Date: 2026-10-31. Authorisation: local proposal corrections and disposable local PostgreSQL retesting only.
 
 **Overall: PASS — 173 of 173 SQL assertions passed; 0 failed. All three previously failed assertions now pass.** The migration and restrictive rollback were corrected locally and executed with their complete BEGIN/COMMIT boundaries in separate local sessions. No live Supabase changes or application deployment occurred. Hosted acceptance and the remaining release gates below are still open.
