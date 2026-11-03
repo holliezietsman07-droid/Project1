@@ -61,13 +61,43 @@ begin begin execute statement; exception when raise_exception then if position(e
  ]) {
   sql+='savepoint rollback_case; '+alter+'\n'+ok('hka_messaging_test.was_rejected('+q(preflight)+","+q('Installed policies/helpers/triggers drifted')+')',label)+'rollback to savepoint rollback_case;\n';
  }
+ // The required safe state is independent of the installation snapshot.
+ for(const [alter,label] of [
+  ["alter table public.hka_messages enable replica trigger hka_message_guard_write;",'rollback rejects replica-only message guard'],
+  ["alter table public.hka_messages enable always trigger hka_message_guard_write;",'rollback rejects unreviewed ALWAYS trigger state'],
+  ["drop trigger hka_message_guard_write on public.hka_messages; create trigger hka_message_guard_write before update on public.hka_messages for each row execute function hka_messaging.guard_write();",'rollback rejects changed guard event definition'],
+  ["alter table public.hka_messages disable trigger hka_message_guard_write; update hka_messaging.installation_snapshot set trigger_definitions=(select jsonb_agg(jsonb_build_object('name',t.tgname,'definition',pg_get_triggerdef(t.oid),'enabled',t.tgenabled::text) order by t.tgname) from pg_trigger t where t.tgrelid='public.hka_messages'::regclass and not t.tgisinternal);",'rollback rejects disabled guard even when snapshot matches unsafe state'],
+  ["set local session_replication_role=replica;",'rollback rejects session that bypasses origin-mode triggers'],
+  ["create or replace function hka_messaging.guard_write() returns trigger language plpgsql security invoker set search_path='' as $tampered$ begin return new; end $tampered$;",'rollback rejects altered message guard implementation']
+ ]) {
+  sql+='savepoint unsafe_guard; '+alter+'\n'+ok('hka_messaging_test.was_rejected('+q(preflight)+','+q('Installed policies/helpers/triggers drifted')+')',label)+'rollback to savepoint unsafe_guard;\n';
+ }
+ for(const [script,phase] of [[migration,'migration'],[rollback,'rollback']]) {
+  const finalCheck=script.match(/do \$guard_state\$[\s\S]*?\$guard_state\$;/)[0];
+  for(const [alter,label] of [
+   ["alter table public.hka_messages disable trigger hka_message_guard_write;",'disabled guard'],
+   ["drop trigger hka_message_guard_write on public.hka_messages;",'missing guard'],
+   ["drop trigger hka_message_guard_write on public.hka_messages; create trigger hka_message_guard_write before update on public.hka_messages for each row execute function hka_messaging.guard_write();",'altered trigger definition'],
+   ["set local session_replication_role=replica;",'replication bypass']
+  ]) {
+   sql+='savepoint final_guard; '+alter+'\n'+ok('hka_messaging_test.was_rejected('+q(finalCheck)+','+q('Required message guard missing, disabled or altered')+')',phase+' precommit check rejects '+label)+'rollback to savepoint final_guard;\n';
+  }
+  sql+='savepoint final_body; create or replace function hka_messaging.guard_write() returns trigger language plpgsql security invoker set search_path=\'\' as $tampered$ begin return new; end $tampered$;\n'+
+   ok('hka_messaging_test.was_rejected('+q(finalCheck)+','+q('Message guard definition/state changed before commit')+')',phase+' precommit check rejects altered guard function')+'rollback to savepoint final_body;\n';
+ }
  sql+="insert into hka_messaging_test.fingerprints values('extra_before_rollback',hka_messaging_test.fingerprint());\n";
- sql+=require('./disabled-trigger-cases.cjs')({user,uid,ok,rollback:unwrap(rollback)});
+ sql+=require('./disabled-trigger-cases.cjs')({user,uid,ok,deny,rollback:unwrap(rollback)});
  // Demonstrate rollback resets accidental message-table privilege widening.
  sql+='grant select on public.hka_messages to anon; grant update(body) on public.hka_messages to authenticated;\n';
  sql+=unwrap(rollback);
  sql+=ok("not has_table_privilege('anon','public.hka_messages','SELECT') and not has_column_privilege('authenticated','public.hka_messages','body','UPDATE')",'rollback removes accidental anonymous reads and body-update grants');
  sql+=ok("hka_messaging_test.fingerprint()=(select value from hka_messaging_test.fingerprints where label='extra_before_rollback')",'additional rollback preserves all reconstructed HKA table fingerprints');
+ // Prove the retained trigger itself rejects immutable fields, even with widened grants.
+ sql+='savepoint effective_guard; grant update(id,student_id,sender_id,recipient_id,body,created_at) on public.hka_messages to authenticated;\n'+user(7);
+ for(const [field,value] of [['id',uid(999)],['student_id',uid(8)],['sender_id',uid(5)],['recipient_id',uid(5)],['body',q('Tampered rollback body')],['created_at',"timestamptz '2000-01-01'"]]) {
+  sql+=deny('update public.hka_messages set '+field+'='+value+' where id='+uid(102),'rollback guard rejects mutation of '+field+' even with accidental UPDATE grant');
+ }
+ sql+='reset role; rollback to savepoint effective_guard;\n';
  sql+=user(9)+deny(send(9,1,null),'rollback denies Horse Owner reply to Founder without independent relationship');
  sql+=user(7)+deny(send(7,1,7),'rollback denies minor reply to Founder without independent relationship');
  sql+=user(3)+send(3,7,7)+';\n'+ok('true','approved minor assigned-Coach messaging survives rollback');

@@ -1,8 +1,20 @@
 # HKA release checklist
 
-Current pre-approval security revision: [FOUNDER_MESSAGING_SECURITY_REVIEW.md](docs/FOUNDER_MESSAGING_SECURITY_REVIEW.md) supersedes earlier messaging SQL, guardian-read, dashboard-role and rollback guidance below.
-Revised proposals remain unapplied; 14 local source checks passed and 98 isolated PostgreSQL assertions are prepared but unexecuted.
-Live approval must wait for isolated testing, trusted missing-DOB adult evidence where applicable, safeguarding consent interpretation and private-schema exposure confirmation.
+Current security revision: [FOUNDER_MESSAGING_SECURITY_REVIEW.md](docs/FOUNDER_MESSAGING_SECURITY_REVIEW.md), with the authorised local trigger-state correction and actual retest results in [FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md](docs/FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md). This status supersedes older prepared/unexecuted and failed local messaging results below.
+
+**Local messaging security: PASS — 173 PASS / 0 FAIL** (98 existing + 59 adversarial + 16 committed-cycle assertions), run `1793456045139`; [machine-readable evidence](docs/founder-messaging-evidence/isolated-run.json). All three former failures now pass. Source/catalog/conversation regressions: 14 PASS / 0 FAIL. Seven harness files parse; the revised adversarial file was checked again after its SQL fixture correction.
+
+- [x] Local migration and rollback record trigger name, exact definition and actual `pg_trigger.tgenabled`.
+- [x] Require reviewed `O` state and origin execution independently of the snapshot; missing/disabled/altered guards and unsafe matching snapshots rejected.
+- [x] Both scripts revalidate actual trigger/function state before COMMIT.
+- [x] Complete rollback file rejected pre-existing disabled guard in a separate session (expected psql exit 3), preserving feature state and every synthetic row/receipt.
+- [x] Normal committed rollback retained enabled/effective guard; recipient receipt clearing and identity/content changes denied.
+- [x] Founder, assigned Coach, Student and Guardian restrictions, unrelated-thread privacy, legitimate sends/oversight and message/receipt preservation passed.
+- [x] Disposable PostgreSQL 17.11 container used only 17 synthetic accounts, network disabled, no ports/bind mounts; removed after testing.
+- [ ] Confirm safeguarding consent interpretation, private-schema API exposure and current complete schema compatibility; establish trusted missing-DOB adult evidence if an exception is required.
+- [ ] Hosted JWT/API/browser and designated-account acceptance remain unverified; separate explicit approval is required for any live database operation or deployment.
+
+Revised proposals remain unapplied to live Supabase. No live database changes or application deployment occurred. Overall release decision remains **NOT READY**.
 
 
 Updated: 2026-10-31. Release decision: **NOT READY**. Authorised acceptance, Founder messaging-migration approval and content actions remain outstanding.
@@ -15,16 +27,16 @@ Updated: 2026-10-31. Release decision: **NOT READY**. Authorised acceptance, Fou
 - [x] Student/Parent/Horse Owner and approved Coach use authorised server contact grants; Founder contact requires no coaching assignment.
 - [x] Removed Link Founder for messaging action; external Coach invitation, approval and guardian-consent workflows remain.
 - [x] Preserved existing Supabase singleton, private history, sender binding, draft retention, read receipts and floating messaging access.
-- [x] Exact database proposal prepared at `supabase/proposals/202610310001_founder_direct_messaging.sql`, outside automatic migrations; no changes applied.
+- [x] Exact database proposal prepared at `supabase/proposals/202610310001_founder_direct_messaging.sql`, outside automatic migrations; corrected and tested locally, not applied to live Supabase.
 - [x] Safe permission rollback prepared beside proposal; it preserves nullable direct-message history and identity/update hardening.
 - [ ] **Founder approval required:** review exact SQL and rollback after fresh live helper/grant/trigger/constraint/policy comparison; metadata exploration limit prevented all requested definitions from being re-read.
-- [ ] Run exact proposed SQL and spoofing/private-history tests against disposable matching schema; SQL source assertions are not database execution.
+- [x] Executed the corrected complete proposed SQL and spoofing/private-history/guard-state tests against a disposable reconstructed messaging schema: 173 PASS / 0 FAIL. Schema-fidelity and hosted acceptance limits remain in the local security report.
 - [ ] After separate database approval, verify Founder → unassigned Student, Parent, Coach and Horse Owner; each recipient can reply without a Founder coaching assignment.
 - [ ] Verify approved assigned Coach send, unrelated Student denial, no global Coach directory and no access to another Coach's private conversation.
 - [ ] Verify direct API sender spoofing and content/scope mutation rejection; guardian consent/oversight, revoked relationships, saved history, names, unread and read state with authorised accounts.
 - [ ] Separate Founder approval for designated live messages, relationship/consent mutations and eventual deployment.
 
-Current local results: 33 messaging/source checks, 23 existing regressions and 15 real-component browser checks PASS; application/tooling TypeScript, focused lint and final local production build PASS. Browser fixtures had zero exceptions, console errors or remote traffic. Full evidence and limits are in the UX report. All live cross-account messaging and database execution remain **NOT TESTED**. Current UI explains approval pending until the secure contact RPC is approved and installed; no fake success or automatic assignment exists.
+Earlier application check results (not rerun for this SQL-only correction): 33 messaging/source checks, 23 existing regressions and 15 real-component browser checks PASS; application/tooling TypeScript, focused lint and final local production build PASS. Browser fixtures had zero exceptions, console errors or remote traffic. Full evidence and limits are in the UX report. All live cross-account messaging and live database execution remain **NOT TESTED**; local SQL execution now passes as recorded above. Current UI explains approval pending until the secure contact RPC is approved and installed; no fake success or automatic assignment exists.
 
 The following launch entries are historical evidence. Their assignment-based Founder workaround, standalone optional name RPC and old next-task directions are superseded by this section. Other course, account and release gates still apply.
 

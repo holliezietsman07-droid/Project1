@@ -319,7 +319,7 @@ revoke all(id,student_id,sender_id,recipient_id,body,created_at,read_at)
 grant select,insert on public.hka_messages to authenticated;
 grant update(read_at) on public.hka_messages to authenticated;
 
--- Record exact installed definitions to make rollback fail closed on later drift.
+-- Record exact installed definitions AND enabled states for rollback drift checks.
 -- This owner-only catalog snapshot contains definitions, never application rows.
 create table hka_messaging.installation_snapshot (
  singleton boolean primary key default true check(singleton),
@@ -336,8 +336,32 @@ select
  (select jsonb_object_agg(p.oid::regprocedure::text,jsonb_build_object('definition',pg_get_functiondef(p.oid),'owner',pg_get_userbyid(p.proowner),'acl',p.proacl::text))
   from pg_proc p join pg_namespace n on n.oid=p.pronamespace
   where n.nspname='hka_messaging' or (n.nspname='public' and p.proname='hka_message_contacts')),
- (select jsonb_agg(pg_get_triggerdef(t.oid) order by t.tgname) from pg_trigger t
+ (select jsonb_agg(jsonb_build_object('name',t.tgname,'definition',pg_get_triggerdef(t.oid),'enabled',t.tgenabled::text) order by t.tgname) from pg_trigger t
   where t.tgrelid='public.hka_messages'::regclass and not t.tgisinternal);
+
+-- Validate the actual catalog immediately before commit, independently of any
+-- recorded enabled state. O is the reviewed origin-mode INSERT/UPDATE guard.
+do $guard_state$
+begin
+ if current_setting('session_replication_role')<>'origin'
+ or not exists(select 1 from pg_trigger t
+  where t.tgrelid='public.hka_messages'::regclass
+   and t.tgname='hka_message_guard_write' and not t.tgisinternal
+   and t.tgenabled='O'
+   and pg_get_triggerdef(t.oid)='CREATE TRIGGER hka_message_guard_write BEFORE INSERT OR UPDATE ON public.hka_messages FOR EACH ROW EXECUTE FUNCTION hka_messaging.guard_write()') then
+  raise exception 'Required message guard missing, disabled or altered; origin-mode execution required.';
+ end if;
+ if (select jsonb_agg(jsonb_build_object('name',t.tgname,'definition',pg_get_triggerdef(t.oid),'enabled',t.tgenabled::text) order by t.tgname)
+     from pg_trigger t where t.tgrelid='public.hka_messages'::regclass and not t.tgisinternal)
+    is distinct from (select trigger_definitions from hka_messaging.installation_snapshot where singleton)
+ or (select jsonb_build_object('definition',pg_get_functiondef(p.oid),'owner',pg_get_userbyid(p.proowner),'acl',p.proacl::text)
+     from pg_proc p where p.oid='hka_messaging.guard_write()'::regprocedure)
+    is distinct from (select function_definitions->'hka_messaging.guard_write()'
+     from hka_messaging.installation_snapshot where singleton) then
+  raise exception 'Message guard definition/state changed before commit.';
+ end if;
+end
+$guard_state$;
 
 notify pgrst,'reload schema';
 commit;

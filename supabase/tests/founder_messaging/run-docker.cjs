@@ -21,12 +21,18 @@ function command(args,input,allowFailure=false) {
  if(!allowFailure&&(p.error||p.status!==0))throw new Error('Docker '+args.slice(0,2).join(' ')+': '+(p.error?.message||p.stderr||p.stdout));
  return p;
 }
-function psql(sql,label) {
+function psql(sql,label,expectedError) {
  const p=command(['exec','-i',name,'psql','-X','--no-password','--set=ON_ERROR_STOP=1','--set=VERBOSITY=verbose','-h','127.0.0.1','-U','postgres','-d',db],sql,true);
  const log=(p.stdout||'')+(p.stderr||'');
  const logName='docker-'+runId+'-'+label+'.log';
  fs.writeFileSync(path.join(evidenceDir,logName),log);
  result.logs.push(logName);
+ if(expectedError) {
+  const rejected=!p.error && p.status!==0 && log.includes(expectedError);
+  result.phases.push({name:label,status:rejected?'PASS':'FAIL',exitCode:p.status,expectedRejection:true,passedAssertions:0,failedAssertions:0,error:p.error?.message});
+  if(!rejected)throw new Error(label+' did not reject with expected error: '+log);
+  return log;
+ }
  const passes=[...log.matchAll(/^\s*PASS: (.+)$/gm)].map(m=>m[1].trim());
  const failures=[...log.matchAll(/^\s*FAIL: (.+)$/gm)].map(m=>m[1].trim());
  result.phases.push({name:label,status:!p.error&&p.status===0&&failures.length===0?'PASS':'FAIL',exitCode:p.status,passedAssertions:passes.length,failedAssertions:failures.length,failures,assertions:passes,error:p.error?.message});
@@ -75,7 +81,7 @@ try {
  psql("do $$ begin if exists(select 1 from public.hka_profiles) or exists(select 1 from auth.users) or exists(select 1 from public.hka_messages) or to_regnamespace('hka_messaging') is not null or to_regnamespace('hka_messaging_test') is not null then raise exception 'Test transaction cleanup failed'; end if; end $$;",'transaction-cleanup');
  const committed=require('./committed-cycle.cjs')();
  result.committedExpectedAssertions=committed.reduce((n,p)=>n+[...p.sql.matchAll(/select hka_messaging_test\.(?:ok|denied)\(/g)].length,0);
- for(const phase of committed)psql(phase.sql,phase.name);
+ for(const phase of committed)psql(phase.sql,phase.name,phase.expectedError);
  const committedCount=result.phases.filter(p=>p.name.startsWith('committed-')).reduce((n,p)=>n+p.passedAssertions+p.failedAssertions,0);
  if(committedCount!==result.committedExpectedAssertions)throw new Error('Incomplete committed-cycle output');
  result.status=result.phases.some(x=>x.status==='FAIL')?'FAIL':'PASS';

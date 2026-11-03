@@ -97,8 +97,9 @@ begin
  insert into public.hka_link_requests(code_id,student_id,claimant_id,kind,status,founder_approved_at,founder_id,guardian_consented_at)
  values(hka_messaging_test.uid(201),hka_messaging_test.uid(7),hka_messaging_test.uid(3),'coach','approved',now(),hka_messaging_test.uid(1),now());
  -- Historical rows are established before proposed identity-write trigger exists.
- insert into public.hka_messages(id,student_id,sender_id,recipient_id,body)
- select hka_messaging_test.uid(n),hka_messaging_test.uid(student),hka_messaging_test.uid(sender),hka_messaging_test.uid(recipient),'Historical fixture'
+ insert into public.hka_messages(id,student_id,sender_id,recipient_id,body,read_at)
+ select hka_messaging_test.uid(n),hka_messaging_test.uid(student),hka_messaging_test.uid(sender),hka_messaging_test.uid(recipient),'Historical fixture',
+  case when n=105 then timestamptz '2020-01-01 00:00:00+00' else null end
  from (values(101,7,3,5),(102,7,3,7),(103,8,4,8),(104,7,1,6),(105,2,2,3),(106,7,7,1)) v(n,student,sender,recipient);
 end
 $fixtures$;

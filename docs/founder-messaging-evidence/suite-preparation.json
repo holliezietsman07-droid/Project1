@@ -1,8 +1,8 @@
 {
-  "date": "2026-10-31T13:57:49.804Z",
+  "date": "2026-10-31T14:14:05.480Z",
   "status": "PREPARED_NOT_EXECUTED",
   "assertions": 98,
   "scope": "SQL suite generated locally; no SQL parser or database execution",
-  "migration_sha256": "86a4c991c4db732863a10fd89c03d51a0c21c86a0b76ea2107a1138b936f6026",
-  "rollback_sha256": "9e32f84be1051552e32eb58c03d999ccf9165730040fcb749f89409da0a1f941"
+  "migration_sha256": "b0e363dc51e8eae1ec82dad37a6c49ced9d58dcefa9de0d8bfd3f6cc9f51905d",
+  "rollback_sha256": "30b4605ba65ac98fb797a8343a58538d8b2f39d14f61261cf49273a877e6c97d"
 }
