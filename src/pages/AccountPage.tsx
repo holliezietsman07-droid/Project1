@@ -1,5 +1,5 @@
 import { useRef, useState, type FormEvent } from "react";
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { ArrowUpRight } from "lucide-react";
@@ -23,8 +23,8 @@ const screens = {
   "update-password": { eyebrow: "Your account, protected", title: "Choose a new password.", description: "Use a unique password of at least 12 characters." },
 };
 export default function AccountPage({ mode, embedded = false }: { mode: AccountMode; embedded?: boolean }) {
-  const { session, loading, recovery } = useSession();
-  const location = useLocation();
+  const { session, profile, loading, recovery } = useSession();
+ 
   const [details, setDetails] = useState<{ full_name: string; birth_date: string; timezone: string; account_type: string; account_purposes: AccountPurpose[]; onboarding: Record<string, unknown> } | null>(null);
   const [purposes, setPurposes] = useState<AccountPurpose[]>(['student']);
   const [message, setMessage] = useState("");
@@ -36,8 +36,8 @@ export default function AccountPage({ mode, embedded = false }: { mode: AccountM
   const screen = screens[mode];
   if (recovery && mode !== "update-password") return <Navigate to="/update-password" replace />;
   if (!loading && session && (mode === "sign-in" || mode === "sign-up")) {
-    const from = (location.state as { from?: string } | null)?.from;
-    return <Navigate to={from?.startsWith("/") && !from.startsWith("//") ? from : "/dashboard"} replace />;
+    // Always resolve the current account's dashboard after profile loading.
+    if (profile?.id === session.user.id) return <Navigate to="/dashboard" replace state={null} />;
   }
   function prepare(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

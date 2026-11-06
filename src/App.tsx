@@ -57,7 +57,7 @@ function preferredFirstName(profile: Profile) {
 }
 
 function WelcomeExperience() {
-  const { session, profile, loading, error } = useSession();
+  const { session, profile, loading, error, recovery, welcomeUserId } = useSession();
   const navigate = useNavigate();
   const welcomedUser = useRef<string | null>(null);
   const [activeUser, setActiveUser] = useState<string | null>(null);
@@ -77,17 +77,21 @@ function WelcomeExperience() {
       setLeaving(false);
       return;
     }
-    if (loading || error || !profile || welcomedUser.current === session.user.id) return;
+    if (loading || error || recovery || welcomeUserId !== session.user.id || !profile || profile.id !== session.user.id || profile.suspended || welcomedUser.current === session.user.id) return;
     welcomedUser.current = session.user.id;
     setLeaving(false);
     setActiveUser(session.user.id);
-  }, [error, loading, profile, session]);
+  }, [error, loading, profile, recovery, session, welcomeUserId]);
 
   useEffect(() => {
     if (!activeUser) return;
-    const welcomeTimer = window.setTimeout(() => setLeaving(true), 1450);
+    const welcomeTimer = window.setTimeout(() => {
+      if (!profile || profile.id !== activeUser || profile.suspended) return;
+      navigate(dashboardPath[profile.role], { replace: true, state: null });
+      setLeaving(true);
+    }, 1450);
     return () => window.clearTimeout(welcomeTimer);
-  }, [activeUser]);
+  }, [activeUser, navigate, profile]);
 
   useEffect(() => {
     if (!activeUser || !leaving) return;

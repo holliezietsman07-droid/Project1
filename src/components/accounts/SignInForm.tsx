@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { db } from '@/lib/academy';
+import { useSession } from '@/contexts/SessionContext';
 import { SESSION_PREFERENCE } from '@/lib/auth-storage';
 import { setSessionPersistence } from '@/integrations/supabase/client';
 
 export function SignInForm() {
+  const { beginSignIn } = useSession();
   const [error, setError] = useState('');
   const formRef = useRef<HTMLDivElement>(null);
   const [rememberEmail, setRememberEmail] = useState(() => localStorage.getItem('hka-remembered-email') !== null);
@@ -33,6 +35,7 @@ export function SignInForm() {
     if (rememberEmail && email) localStorage.setItem('hka-remembered-email', email);
     else localStorage.removeItem('hka-remembered-email');
     setSessionPersistence(staySignedIn);
+    beginSignIn();
     } catch { event.preventDefault(); event.stopPropagation(); setError('Browser storage is unavailable. Allow storage to sign in securely.'); }
   }}>
     {error && <p role='alert' className='mb-3 text-sm text-destructive'>{error}</p>}

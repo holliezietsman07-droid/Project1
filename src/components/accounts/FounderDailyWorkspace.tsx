@@ -23,7 +23,7 @@ export function FounderDailyWorkspace() {
   const attentionIds=[...new Set([...day.attentionIds,...unread.map(row=>String(row.student_id))])];
   const cards=[
     {title:'Pending Coaching Requests',count:day.pending.length,to:'/dashboard/admin?section=coaching&filter=pending'},
-    {title:'Upcoming Lessons',count:day.upcoming.length,to:'/dashboard/admin?section=coaching'},
+    {title:'Upcoming Lessons',count:day.upcoming.length,to:'/dashboard/admin?section=coaching&filter=upcoming'},
     {title:'Assignments to Mark',count:day.marking.length,to:'/dashboard/academy?tab=reviews'},
     {title:'Course Drafts',count:day.drafts.length,to:'/dashboard/academy?tab=courses&filter=drafts'},
     {title:'Students Requiring Attention',count:attentionIds.length,to:'/dashboard/admin?section=students&filter=attention'},
