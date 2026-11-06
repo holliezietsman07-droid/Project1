@@ -3,7 +3,9 @@
 create schema hka_messaging_test;
 grant usage on schema hka_messaging_test to authenticated,anon;
 create function hka_messaging_test.uid(n integer) returns uuid
-language sql immutable as $$ select ('f1000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid $$;
+-- Reuse the reviewed identity UUID with entirely synthetic local auth/profile rows.
+language sql immutable as $fixture_identity$ select case when n=1 then 'f7c3e52e-4f5e-47d0-8139-b28cb296d526'::uuid
+ else ('f1000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid end $fixture_identity$;
 create function hka_messaging_test.ok(condition boolean,label text) returns text
 language plpgsql as $$
 begin
@@ -63,7 +65,8 @@ begin
   (14,'Legacy Age Case',array['student'],'student',false,true),
   (15,'Revoked Coach',array['coach'],'coach',false,true),
   (16,'Child Horse Owner',array['horse_owner'],'student',false,true),
-  (17,'Pending Guardian',array['guardian'],'guardian',false,true)
+  (17,'Pending Guardian',array['guardian'],'guardian',false,true),
+  (18,'Another Admin',array['admin','horse_owner'],'admin',false,true)
  ) v(n,name,purposes,dashboard,suspended,confirmed) loop
   birthday:=case when row.n in (7,13,16) then (current_date-interval '12 years')::date else date '1990-01-01' end;
   insert into auth.users(id,email,email_confirmed_at,raw_user_meta_data)

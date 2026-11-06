@@ -3,6 +3,8 @@
 -- Supersedes October proposal; see docs/MESSAGE_HOLLIE_APPROVAL.md.
 -- Existing activation consent suffices; no plan, assignment, link code or chat approval.
 -- This proposal has NOT been applied.
+-- Designated Founder: Hollie Zietsman, auth.users.id f7c3e52e-4f5e-47d0-8139-b28cb296d526.
+-- Identity source: supabase/activation/202610220001_founder_role.sql; never any Admin.
 begin;
 set local lock_timeout='5s';
 set local statement_timeout='30s';
@@ -75,6 +77,14 @@ begin
     and data_type='date' and is_nullable='NO') then
   raise exception 'Age schema drift: review trusted adulthood evidence; NULL is never proof of adulthood.';
  end if;
+ if not exists(select 1 from public.hka_profiles p join auth.users u on u.id=p.id
+  where p.id='f7c3e52e-4f5e-47d0-8139-b28cb296d526'::uuid
+   and not p.suspended and u.email_confirmed_at is not null
+   and p.birth_date <= (current_date-interval '18 years')::date
+   and exists(select 1 from public.hka_account_roles ar
+    where ar.user_id=p.id and ar.purpose='admin' and ar.status='authorized')) then
+  raise exception 'Designated Hollie Founder account must be present, confirmed, adult and authorised.';
+ end if;
 end
 $preflight$;
 
@@ -133,10 +143,18 @@ language sql stable security definer set search_path='' as $$
    and hka_messaging.guardian(g.guardian_id,person)))
 $$;
 
+-- Owner-only identity constant; dashboard, name, sort order and other Admins
+-- cannot redirect this channel. Activation/role checks still fail closed.
+create function hka_messaging.founder_id() returns uuid
+language sql immutable set search_path='' as $founder_identity$
+ select 'f7c3e52e-4f5e-47d0-8139-b28cb296d526'::uuid
+$founder_identity$;
+
 create function hka_messaging.founder(person uuid) returns boolean
-language sql stable security definer set search_path='' as $$
- select hka_messaging.ready(person) and hka_messaging.has_role(person,'admin')
-$$;
+language sql stable security definer set search_path='' as $designated_founder$
+ select person=hka_messaging.founder_id() and hka_messaging.ready(person)
+  and hka_messaging.adult(person) and hka_messaging.has_role(person,'admin')
+$designated_founder$;
 
 create function hka_messaging.coach(coach uuid,student uuid) returns boolean
 language sql stable security definer set search_path='' as $$
@@ -203,7 +221,7 @@ $$;
 -- projection is bound to auth.uid() and returns no email, DOB or onboarding data.
 create function hka_messaging.contacts()
 returns table(id uuid,full_name text,role text,role_label text,student_id uuid,
- student_name text,relationship text,can_message boolean,directory_entry boolean,created_at timestamptz)
+ student_name text,relationship text,can_message boolean,directory_entry boolean,created_at timestamptz,founder_id uuid)
 language sql stable security definer set search_path='' as $$
  with actor as (select auth.uid() as id),
  candidates as (
@@ -235,7 +253,7 @@ language sql stable security definer set search_path='' as $$
  ),
  projected as (
   select p.id,p.full_name,case when hka_messaging.founder(p.id) then 'admin' else p.role end as role,
-   coalesce((select string_agg(case ar.purpose when 'admin' then 'Founder / Admin'
+   coalesce((select string_agg(case ar.purpose when 'admin' then case when hka_messaging.founder(p.id) then 'Founder' else 'Admin' end
      when 'student' then 'Student' when 'guardian' then 'Parent / Guardian'
      when 'coach' then 'Coach' when 'horse_owner' then 'Horse Owner' end,' / ' order by ar.purpose)
     from public.hka_account_roles ar where ar.user_id=p.id and ar.status='authorized'),
@@ -247,7 +265,7 @@ language sql stable security definer set search_path='' as $$
      then 'Assigned coaching relationship' else 'Approved family relationship' end as relationship,
    hka_messaging.can_send(a.id,c.student_id,p.id) as can_message,
    hka_messaging.founder(a.id) and hka_messaging.direct_enabled()
-    and hka_messaging.ready(p.id) as directory_entry,p.created_at
+    and hka_messaging.ready(p.id) as directory_entry,p.created_at,hka_messaging.founder_id() as founder_id
   from normalised c join public.hka_profiles p on p.id=c.id
   left join public.hka_profiles s on s.id=c.student_id cross join actor a
   where a.id<>p.id and hka_messaging.ready(a.id)
@@ -265,7 +283,7 @@ $$;
 -- Public API remains securely accessible; wrapper itself has NO elevated rights.
 create function public.hka_message_contacts()
 returns table(id uuid,full_name text,role text,role_label text,student_id uuid,
- student_name text,relationship text,can_message boolean,directory_entry boolean,created_at timestamptz)
+ student_name text,relationship text,can_message boolean,directory_entry boolean,created_at timestamptz,founder_id uuid)
 language sql stable security invoker set search_path='' as $$
  select * from hka_messaging.contacts()
 $$;

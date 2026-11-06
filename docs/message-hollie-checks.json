@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-06T14:05:28.437Z",
+  "scope": "Local project revision; no SQL database execution or connected mutations",
+  "checks": [
+    {
+      "command": "node .elmony/message-hollie-unit.cjs",
+      "status": "PASS",
+      "result": "Designated Founder, two Admins, missing/conflicting identity, scope-separated Admin history and existing messaging regression assertions."
+    },
+    {
+      "command": "node .elmony/message-hollie-browser.cjs",
+      "status": "PASS",
+      "result": "13 actual-app browser checks with all remote requests intercepted; no unexpected browser exceptions. See message-hollie-evidence/results.json."
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc --noEmit -p tsconfig.app.json",
+      "status": "PASS"
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js src/lib/messaging.ts src/lib/conversations.ts src/components/accounts/FloatingAcademyChat.tsx src/components/accounts/AcademyMessages.tsx",
+      "status": "PASS"
+    },
+    {
+      "command": "npm.cmd run build",
+      "status": "PASS"
+    },
+    {
+      "command": "node --check supabase/tests/founder_messaging/run-message-hollie.cjs",
+      "status": "PASS"
+    },
+    {
+      "command": "node --check .elmony/message-hollie-browser.cjs",
+      "status": "PASS"
+    },
+    {
+      "command": "node supabase/tests/founder_messaging/run-message-hollie.cjs --prepare-only",
+      "status": "PREPARED_NOT_EXECUTED",
+      "assertions": 129,
+      "result": "Generated schema and SQL suite only; no database connection, SQL parsing or SQL execution."
+    }
+  ],
+  "pending": [
+    "Separate Founder approval for disposable SQL execution",
+    "Database send, reply, privacy and rollback results for current revision",
+    "Committed cross-connection persistence and hosted UI/API/JWT/realtime acceptance",
+    "Founder review of send, reply, privacy and rollback results before any separate connected-project approval"
+  ]
+}

@@ -1,0 +1,130 @@
+{
+    "generated_at":  "2026-11-06T14:05:38.8513856Z",
+    "algorithm":  "SHA-256 over exact file bytes; manifest excludes itself",
+    "designated_founder":  "f7c3e52e-4f5e-47d0-8139-b28cb296d526",
+    "connected_project":  "sqaydpbqycvaictieafk",
+    "disposable_sql_status":  "AWAITING_SEPARATE_FOUNDER_APPROVAL",
+    "connected_status":  "PENDING_FOUNDER_REVIEW_OF_SEND_REPLY_PRIVACY_ROLLBACK_RESULTS_AND_SEPARATE_APPROVAL",
+    "files":  [
+                  {
+                      "path":  "src/lib/messaging.ts",
+                      "sha256":  "9bbb459e1b4953543c3f9bda7e3a429fcaca9104247653ffaf8c5363bec71994",
+                      "bytes":  2754
+                  },
+                  {
+                      "path":  "src/lib/conversations.ts",
+                      "sha256":  "678d5d337a940f14db1a790bf7bd4b9979d3d81ca1bf6311801f24c93096ada5",
+                      "bytes":  5238
+                  },
+                  {
+                      "path":  "src/components/accounts/FloatingAcademyChat.tsx",
+                      "sha256":  "30321dc0c95f4d017df3e30d081f2fd0ed8bed2c7cfb7466c38ad6311543c1f8",
+                      "bytes":  3316
+                  },
+                  {
+                      "path":  "src/components/accounts/AcademyMessages.tsx",
+                      "sha256":  "b707bf41bf607bdaa672521d5342aab801c7c0f1d4a26b607558b3027b5cca1a",
+                      "bytes":  3179
+                  },
+                  {
+                      "path":  "supabase/proposals/202611060001_message_hollie.sql",
+                      "sha256":  "44e987828a138e6c784761e684e8f18c24fb855ee8222d7eb678e33d92e47173",
+                      "bytes":  22323
+                  },
+                  {
+                      "path":  "supabase/proposals/202611060001_message_hollie.rollback.sql",
+                      "sha256":  "194f577577150ded4795f64246659d394e693279df5fa3b3d3d74718747e68a0",
+                      "bytes":  6406
+                  },
+                  {
+                      "path":  "supabase/tests/founder_messaging/fixtures.sql",
+                      "sha256":  "f499e92fef6a43a3871d471de1e5be2d49275fd4727fed585d6ba9b813d6d382",
+                      "bytes":  7207
+                  },
+                  {
+                      "path":  "supabase/tests/founder_messaging/run-message-hollie.cjs",
+                      "sha256":  "c4ad794a01bf4d8e0d46272bccc64b8434e0c35b1c8e5262cab9ff5be7f2ad6c",
+                      "bytes":  23687
+                  },
+                  {
+                      "path":  ".elmony/message-hollie-unit.cjs",
+                      "sha256":  "8c87c1f1d1e308ab6c8b47e0d7ff6a81790d7ef1b4b1fec9535f96c8fc9c9d51",
+                      "bytes":  5087
+                  },
+                  {
+                      "path":  ".elmony/message-hollie-browser.cjs",
+                      "sha256":  "159a948a4b4ee9d6c173b1a9eaab94dd2a1a09c698465800784da9da0e195f26",
+                      "bytes":  16330
+                  },
+                  {
+                      "path":  ".elmony/release-cdp.cjs",
+                      "sha256":  "efd181db261bba7c759b14249aecb0d712ee1fa5784fbc71604d747abd9e62bd",
+                      "bytes":  4571
+                  },
+                  {
+                      "path":  ".elmony/message-hollie-security-suite.sql",
+                      "sha256":  "6e2512266ed63cd205ba4e91e176eddde0de3fdc0eb31bfb9bee12f6d51e8064",
+                      "bytes":  158363
+                  },
+                  {
+                      "path":  ".elmony/message-hollie-local-schema.sql",
+                      "sha256":  "cdd7ae4e3e90789c244047c6e16e3d7a5d7ff9cc46b0a2783a0880e5cf02b400",
+                      "bytes":  64416
+                  },
+                  {
+                      "path":  ".elmony/message-hollie-evidence/results.json",
+                      "sha256":  "adb1d2291f592afab1a184ae5c8978ee6d0926e88a9ee0c2fec71577432ce871",
+                      "bytes":  5064
+                  },
+                  {
+                      "path":  ".elmony/message-hollie-evidence/founder-horse-owner-unread.png",
+                      "sha256":  "36f5a3cb62002bf6a9b42e596430e61532478ec0f4d4e95f2b53effd7a68d8a8",
+                      "bytes":  160794
+                  },
+                  {
+                      "path":  ".elmony/message-hollie-evidence/coach-dedicated-message-hollie.png",
+                      "sha256":  "126aa543b46f366c50f542910f71c32a8304d75743345537d5a2576747cd5f15",
+                      "bytes":  151498
+                  },
+                  {
+                      "path":  "docs/MESSAGE_HOLLIE_APPROVAL.md",
+                      "sha256":  "ac3c34ae20be38c52407967144e1be1173478f154df8ac8238814e35af521b5c",
+                      "bytes":  7931
+                  },
+                  {
+                      "path":  "docs/MESSAGE_HOLLIE_ISOLATED_TEST_PLAN.md",
+                      "sha256":  "68dde5c1477d44a00ad851f4a61527d512ae90c15c714e59870e6cf7187fc1f5",
+                      "bytes":  8266
+                  },
+                  {
+                      "path":  "docs/message-hollie-suite-preparation.json",
+                      "sha256":  "665f8614b3e81895b14151a7480b215f449818a786d31e626d7971498d0bad77",
+                      "bytes":  1129
+                  },
+                  {
+                      "path":  "docs/message-hollie-checks.json",
+                      "sha256":  "625d9cbedef3ebf095bf9506cc4d51f367feaf3dfdb7aa1463daf08765994c0e",
+                      "bytes":  1959
+                  },
+                  {
+                      "path":  "supabase/activation/202610220001_founder_role.sql",
+                      "sha256":  "5ae2bc2688e49198c4e6c2136c7fcfb031925ca649708518973eab0a82445817",
+                      "bytes":  2188
+                  },
+                  {
+                      "path":  "supabase/tests/founder_messaging/local-schema.cjs",
+                      "sha256":  "80cfa333384ba263db523f3d3b737f668bde1fc0f4665120538c71cdbaeb1529",
+                      "bytes":  6482
+                  },
+                  {
+                      "path":  "supabase/tests/founder_messaging/hosted-schema-input.cjs",
+                      "sha256":  "5d7565461f781488ecd15d7f632aac6918666324ec34d94e7d41e1ab70eb2b7c",
+                      "bytes":  3978
+                  },
+                  {
+                      "path":  "docs/founder-messaging-evidence/hosted-compatibility-snapshot.json",
+                      "sha256":  "079bda8491b11bb6161189795a4004ffacb6a511430a1c47a7464a7b62fcce05",
+                      "bytes":  54693
+                  }
+              ]
+}

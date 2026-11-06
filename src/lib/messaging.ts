@@ -11,9 +11,21 @@ export function canSendMessage({ userId, studentId, recipientId, contacts }: Mes
     contact.id === recipientId && String(contact.student_id ?? '') === studentId && contact.can_message === true));
 }
 
+// Designation is supplied by the caller-bound RPC, never inferred from Admin role.
+export function designatedFounderId(contacts: Row[]): string | undefined {
+  if (!contacts.length || contacts.some(row => typeof row.founder_id !== 'string' || !row.founder_id)) return undefined;
+  const ids = new Set(contacts.map(row => String(row.founder_id)));
+  return ids.size === 1 ? [...ids][0] : undefined;
+}
+
+export function founderContact(contacts: Row[]): Row | undefined {
+  const id = designatedFounderId(contacts);
+  return id ? contacts.find(row => row.id === id && row.relationship === 'Founder direct message') : undefined;
+}
+
 export function messageRole(person?: Row): string {
   if (person?.role_label) return String(person.role_label);
-  const labels: Record<string, string> = { admin: 'Founder / Admin', coach: 'Coach', guardian: 'Parent / Guardian', student: 'Student', horse_owner: 'Horse Owner' };
+  const labels: Record<string, string> = { admin: 'Admin', coach: 'Coach', guardian: 'Parent / Guardian', student: 'Student', horse_owner: 'Horse Owner' };
   return labels[String(person?.role)] ?? 'Academy member';
 }
 

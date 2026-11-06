@@ -1,5 +1,5 @@
 import type { Row } from '@/lib/academy';
-import { messageRole } from '@/lib/messaging';
+import { designatedFounderId, messageRole } from '@/lib/messaging';
 
 export type Conversation = {
   id: string; studentId: string; recipientId: string; name: string;
@@ -15,13 +15,14 @@ export function buildConversations(messages: Row[], profiles: Row[], currentUser
   const people = new Map(profiles.map(row => [String(row.id), row]));
   const name = (id: string) => String(people.get(id)?.full_name || 'Academy member');
   const conversations = new Map<string, Conversation>();
+  const founderId = designatedFounderId(options?.contacts ?? []);
   function threadFor(originalStudentId: string, sender: string, recipient: string) {
     const participants = [sender, recipient].sort();
     // Founder direct history and new messages share one pair, without rewriting saved rows.
     const isParticipant = participants.includes(currentUserId);
     const directContact = isParticipant ? options?.contacts.find(row => participants.includes(row.id) && row.id !== currentUserId && row.relationship === 'Founder direct message')
       ?? options?.contacts.find(row => participants.includes(row.id) && row.id !== currentUserId) : undefined;
-    const direct = options && (directContact?.relationship === 'Founder direct message' || participants.some(id => people.get(id)?.role === 'admin'));
+    const direct = Boolean(options && founderId && participants.includes(founderId));
     const studentId = direct && isParticipant ? String(directContact ? directContact.student_id ?? '' : participants.find(id => people.get(id)?.role === 'student') ?? '') : originalStudentId;
     // Direct identity survives purpose changes and dashboard switches; scope still
     // comes from the current server grant for every send.

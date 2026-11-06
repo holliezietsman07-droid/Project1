@@ -60,7 +60,8 @@ grant update(read_at) on public.hka_messages to authenticated;
 -- INTENTIONAL DIFFERENCES FROM PRE-MIGRATION SCHEMA:
 -- * nullable student_id retains non-Student direct history without deleting rows;
 -- * hka_messaging schema, owner-only installation snapshot and all helpers remain;
--- * public.hka_message_contacts() retains its exact ten-column return contract;
+-- * public.hka_message_contacts() retains its eleven-column contract, including designated founder_id;
+-- * owner-only Founder identity constant remains bound to Hollie, never any other Admin;
 -- * strict participant/child-oversight RLS and immutable-message trigger remain;
 -- * no table UPDATE/DELETE or cross-guardian/global Founder SELECT is restored.
 -- FRONTEND: retain grant-driven useMessaging/contacts support. Existing Founder

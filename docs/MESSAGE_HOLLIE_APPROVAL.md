@@ -1,47 +1,79 @@
 # Message Hollie — Founder approval package
 
-Status: frontend prepared; backend SQL NOT APPLIED. Separate, explicit Founder approval of the linked forward SQL is required before any connected-project mutation. This request to prepare SQL is not that approval.
+Status: revised frontend and SQL prepared; backend SQL NOT APPLIED. No disposable SQL has run for this revision. Separate, explicit Founder approval is required before disposable execution; connected project `sqaydpbqycvaictieafk` remains pending until Founder reviews send, reply, privacy and rollback results and separately approves connected execution.
 
-Target: existing connected project `sqaydpbqycvaictieafk`. Latest read-only metadata on 6 November 2026 still shows no `hka_message_contacts`, non-null `hka_messages.student_id`, and legacy assignment-scoped INSERT/global Admin SELECT. Frontend changes alone cannot activate delivery or enforce the proposed privacy rules.
+## Revised files and exact checksums
 
-## Exact scripts
+[SHA-256 manifest](message-hollie-checksums.json) lists exact file hashes, including source, SQL, fixtures, test runners, generated SQL and browser evidence.
+[Isolated test plan](MESSAGE_HOLLIE_ISOLATED_TEST_PLAN.md) defines destination, inputs, approval gates, expected observations, evidence and cleanup.
 
-- [Forward SQL](../supabase/proposals/202611060001_message_hollie.sql)
-- [Restrictive rollback](../supabase/proposals/202611060001_message_hollie.rollback.sql)
+| File | Revision |
+| --- | --- |
+| [Forward SQL](../supabase/proposals/202611060001_message_hollie.sql) | Binds messaging Founder to Hollie's designated auth UUID, validates eligibility and returns the same `founder_id` on every contact grant. |
+| [Rollback SQL](../supabase/proposals/202611060001_message_hollie.rollback.sql) | Retains eleven-column contact contract and exact Founder binding; freezes new direct sends without restoring broad legacy access. |
+| [messaging.ts](../src/lib/messaging.ts) | Resolves designated identity from server grants; missing/conflicting identity fails closed; Admin is labelled separately. |
+| [conversations.ts](../src/lib/conversations.ts) | Only designated Founder/member pair merges direct history across scopes; another Admin's history remains scope-separated. |
+| [FloatingAcademyChat.tsx](../src/components/accounts/FloatingAcademyChat.tsx) | Message Hollie and Founder inbox selection use designated identity rather than any authorised Admin. |
+| [AcademyMessages.tsx](../src/components/accounts/AcademyMessages.tsx) | Uses designated contact; exposes visible Message Hollie action in Coach's dedicated Messages page and other full member inboxes. |
+| [fixtures.sql](../supabase/tests/founder_messaging/fixtures.sql) | 18 synthetic accounts, two eligible Admins; local Founder UUID matches reviewed designation; adult Horse Owner has no Student purpose. |
+| [SQL preparation/execution runner](../supabase/tests/founder_messaging/run-message-hollie.cjs) | Prepares 129 assertions, hashes and schema without connection; execution requires separate local approval, explicit forward/rollback hashes and empty loopback test database. |
+| [Browser test](../.elmony/message-hollie-browser.cjs) | Two Admins, exact NULL-scope owner payload, unread Founder Messages receipt, exact reply and dedicated Coach Messages entry. |
+| [Unit checks](../.elmony/message-hollie-unit.cjs) | Admin ordering, missing/conflicting designation, canonical pair identity, scope preservation and strict grant checks. |
 
-These scripts supersede the October messaging proposal, remain outside automatic migrations, and must not be run together with it. Neither script changes existing messages, roles, assignments, plans or guardian consent records. Forward migration is transactional, locks only the message table, checks existing policy expressions and RLS, and aborts on schema/permission drift.
+## Founder identity and privacy
 
-## Intended access
+Designated account: **Hollie Zietsman**, `auth.users.id = f7c3e52e-4f5e-47d0-8139-b28cb296d526`.
+Source: existing [Founder activation](../supabase/activation/202610220001_founder_role.sql), not display name, email, selected dashboard, first contact or Admin role alone.
+Forward preflight aborts if this UUID is absent, suspended, unconfirmed, non-adult or lacks authorised durable Admin purpose. It does not change roles or account identity.
+Other eligible Admins receive Message Hollie as ordinary members; they gain no Founder messaging directory or unrelated conversation access.
 
-An active messaging account means confirmed email, unsuspended profile, and at least one durable authorised account purpose. Existing activation safeguards for minors still require an approved, consented adult guardian link. Selected dashboard and plan do not determine messaging access. Existing activation consent suffices for Founder contact: no coaching assignment, invitation code, coaching consent or separate chat approval is introduced.
+An active account means confirmed email, unsuspended profile and durable authorised purpose. Existing consented, approved Guardian activation remains mandatory for minors. No plan, coaching assignment, link code or separate chat approval is added for Founder contact.
+External Coach access to other users retains assignment and existing approval/consent requirements.
 
-An authorised Founder can initiate a private conversation with any active member. All active members, including external Coaches and Horse Owners, can initiate the same channel to Founder. Founder identity comes from durable authorised Admin purpose, even when using another dashboard.
+One direct conversation per designated Founder/member pair survives dashboard changes. Adult Horse Owner with only Horse Owner purpose uses `student_id = NULL`; durable Students and minors retain canonical safeguarding scope.
+Every send rechecks current server grants and table RLS. New messages are unread until recipient opens visible conversation.
+Only recipient may record server-generated read receipt; message content/identity/timestamps cannot be rewritten.
+SELECT remains limited to active participants and authorised Guardians overseeing linked minors who actually participate; no global Founder/Admin access to private third-party conversations.
 
-One conversation per Founder/member pair is assembled from existing message rows; legacy child scopes and current canonical scopes share that pair. Dashboard/purpose changes preserve conversation and draft identity. Each send still rechecks the exact current server contact grant and scope. This reuses `hka_messages`; no parallel conversation store is added.
+## Exact SQL and rollback boundaries
 
-New messages are inserted with `read_at = NULL`, reach the recipient's existing Messages inbox, and remain unread until the recipient opens the visible conversation. Only the recipient may set a server-generated read timestamp; content, participants and message timestamps cannot be changed. Realtime updates and existing polling refresh inboxes.
+These proposals remain outside automatic migrations and supersede October messaging SQL; do not apply both proposals.
+Neither changes saved messages, roles, assignments, plans or Guardian consent records.
+Forward transaction checks full baseline policies/schema/permissions and designated identity, locks message table, and aborts on drift.
+Confirm private `hka_messaging` is excluded from Data API/GraphQL exposed schemas; absent database settings do not prove exclusion.
 
-SELECT is limited to active participants and authorised guardians overseeing a linked minor who actually participates. No global Founder access to other people's conversations; no access to another guardian's adult private messages. Guardian oversight is read-only and cannot impersonate the child or mark the recipient's messages read.
+Rollback freezes platform-wide Founder direct sends and directory grants while retaining rows, nullable adult history, strict participant/minor-Guardian privacy, recipient-only receipts, approved relationships, private helpers and public contact API including `founder_id`.
+It verifies exact installed definitions/owners/ACLs/policies and enabled immutable-message guard against owner-only snapshot; rejects drift, disabled/replica guards and repeat execution.
+Retain grant-aware frontend after rollback. Re-enable only through separately reviewed forward SQL.
 
-External Coach access to everyone except Founder retains authorised Coach purpose, saved student assignment and, for minors, approved/unrevoked Coach link plus Founder approval and guardian consent. Other ordinary users cannot browse the member directory. Founder directory entries expose only minimal identity/contact fields for active members; legitimate historical contacts can remain history-only.
+## Current evidence and unproven results
 
-## Rollback
+Production build, TypeScript and scoped ESLint passed; unit checks passed.
+[Actual-app browser results](../.elmony/message-hollie-evidence/results.json): **13 passing checks**, six synthetic accounts, two Admins, all remote traffic intercepted, realtime blocked.
+A history-only second Admin sorts before Hollie for adult owner. Entire outgoing object is asserted:
 
-Rollback freezes platform-wide Founder direct sends and directory grants. It preserves messages, nullable adult direct scopes, strict participant/minor-guardian privacy, recipient-only read receipts, public contact API, and approved relationship messaging. It deliberately does not restore unsafe global Admin reads or broad legacy UPDATE permissions.
+```json
+{
+  "student_id": null,
+  "sender_id": "10000000-0000-4000-8000-000000000005",
+  "recipient_id": "f7c3e52e-4f5e-47d0-8139-b28cb296d526",
+  "body": "Adult Horse Owner exact message to Hollie"
+}
+```
 
-Rollback verifies exact installed function definitions/owners/ACLs, policies and enabled trigger state against an owner-only installation snapshot. It aborts on drift or repeat execution. Retain the current grant-aware frontend; re-enabling direct messaging requires a reviewed forward change.
+Browser observes that exact text with unread thread badge in Founder Dashboard → Messages before opening owner thread, then asserts exact reply and refreshed owner receipt.
+Coach test follows dedicated Messages navigation and page-level Message Hollie entry, then asserts exact send to designated UUID.
+Controlled missing-RPC/denied-send cases deliberately return 404/403 and preserve draft/pending state; no unexpected browser exceptions occurred.
+Screenshots and exact routes/payloads are linked in [isolated plan](MESSAGE_HOLLIE_ISOLATED_TEST_PLAN.md).
 
-## Approval and acceptance sequence
+[SQL preparation evidence](message-hollie-suite-preparation.json): **129 assertions PREPARED_NOT_EXECUTED**, including second-Admin restrictions, owner NULL scope, exact unread receipt/reply, safeguarding, privacy, immutable writes and restrictive rollback.
+No SQL parser/database execution, hosted message delivery, live persistence or backend mutation has occurred for this revision.
+Intercepted browser state does not prove deployed RLS/JWT handling. Database send/reply/privacy/rollback results remain pending separate disposable approval; committed cross-connection persistence and hosted acceptance remain unproven.
 
-1. Review the exact forward and rollback scripts. Confirm `hka_messaging` is excluded from exposed Data API/GraphQL schemas; missing database settings are not evidence of exclusion.
-2. Approve an isolated matching-schema SQL run separately if desired. Prepared runner: `node supabase/tests/founder_messaging/run-message-hollie.cjs --prepare-only` only generates SQL/hashes and makes no database connection. Actual execution retains its explicit local-only approval and empty disposable-schema guards.
-3. Before live execution, obtain separate Founder approval naming this exact forward file and connected project; recheck metadata and hashes. Apply through the connected SQL tool only after approval.
-4. With designated authorised test sessions, send member-to-Founder through Message Hollie; confirm a saved unread row in Founder Dashboard → Messages before opening it, reply as Founder, refresh both accounts, and confirm recipient-only read status. Test Founder initiation for Student, Guardian, Coach and Horse Owner on free/basic/premium accounts.
-5. Switch authorised dashboards and reopen floating/full inboxes; require one pair and retained history/draft. Test desktop and 320px mobile layouts, Account Settings and public pages while signed in.
-6. Direct API denial cases: anonymous, suspended, unconfirmed, pending/revoked purposes, spoofed sender/scope, pre-read INSERT, body/participant UPDATE, DELETE, unrelated Coach/student, missing/revoked minor activation consent and missing/revoked external Coach consent.
-7. Verify participant privacy, linked-minor guardian oversight, no adult-child-scope leakage between guardians, no global Founder read, no cross-role directory for ordinary users, and immediate revocation on next send.
-8. Run rollback in isolated environment with existing adult/null-scope messages: no data loss, no new platform direct sends/directory, legitimate history and approved Coach messaging retained; reject altered/disabled guards and policy drift.
+## Separate approvals
 
-Local production build, TypeScript and scoped ESLint passed. Ten actual-app browser checks passed with intercepted Supabase traffic: all four member roles, unread Founder receipt/reply, Founder initiation from a linked inbox, dashboard switching with one thread and retained draft, 320px public entry/expanded inbox, missing-backend handling and denied-send draft retention. Controlled missing-RPC/denied-send cases intentionally returned 404/403; no unexpected browser exceptions occurred.
+**Approval requested now:** run only this exact reviewed revision in a fresh isolated local disposable database, as detailed in [isolated plan](MESSAGE_HOLLIE_ISOLATED_TEST_PLAN.md), and return send, reply, privacy and rollback evidence for Founder review.
 
-Evidence: [browser results](../.elmony/message-hollie-evidence/results.json), [fresh read-only metadata](message-hollie-readonly.json), [108 prepared SQL assertions and exact script hashes](message-hollie-suite-preparation.json). SQL suite was generated only; no SQL parser/database execution, live message delivery or backend mutation occurred. Local fixtures do not prove deployed RLS or live persistence. Hosted delivery remains pending separate Founder approval and authorised acceptance sessions.
+**Not authorised:** connected SQL, hosted messages, function deployment, or connected rollout.
+Keep connected project pending after local execution until Founder reviews those results and separately approves exact forward SQL/hash for `sqaydpbqycvaictieafk`.
+This prepared package and any previous local testing approval do not grant either approval.
