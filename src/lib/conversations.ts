@@ -21,7 +21,7 @@ export function buildConversations(messages: Row[], profiles: Row[], currentUser
     const isParticipant = participants.includes(currentUserId);
     const directContact = isParticipant ? options?.contacts.find(row => participants.includes(row.id) && row.id !== currentUserId && row.relationship === 'Founder direct message')
       ?? options?.contacts.find(row => participants.includes(row.id) && row.id !== currentUserId) : undefined;
-    const direct = options && (directContact?.relationship === 'Founder direct message' || participants.some(id => people.get(id)?.role === 'admin'));
+    const direct = options && (directContact?.relationship === 'Founder direct message' || options.contacts.some(row => participants.includes(String(row.founder_id ?? ''))));
     const studentId = direct && isParticipant ? String(directContact ? directContact.student_id ?? '' : participants.find(id => people.get(id)?.role === 'student') ?? '') : originalStudentId;
     // Direct identity survives purpose changes and dashboard switches; scope still
     // comes from the current server grant for every send.

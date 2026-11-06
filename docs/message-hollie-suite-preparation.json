@@ -1,8 +1,14 @@
 {
-  "date": "2026-11-06T12:48:45.298Z",
+  "date": "2026-11-06T13:37:57.818Z",
   "status": "PREPARED_NOT_EXECUTED",
-  "assertions": 108,
+  "assertions": 128,
   "scope": "SQL suite generated locally; no SQL parser or database execution",
-  "migration_sha256": "69131472b6c4ce0ed5d1a57b8c31a751ee7eb57d58721e0e8fee0416a0d0a8bd",
-  "rollback_sha256": "abfd01c54a0391a7f380a03f9ea3f0d36e92527da65df52d575468746f7b6e05"
+  "fixtureAccounts": 18,
+  "designatedFixtureFounder": "f1000000-0000-4000-8000-000000000001",
+  "proposalBinding": "PENDING_FOUNDER_AUTH_UUID",
+  "executableMigration_sha256": "3a4c30808c9bf13151d934bd8a4ad30fd001481efbb47ae4eda50a1a946e1be8",
+  "suite_sha256": "aa8f724105342b3143db6ef7eda2032fe9aa1d51f27e9d2f9c90d88bd490764e",
+  "schema_sha256": "cdd7ae4e3e90789c244047c6e16e3d7a5d7ff9cc46b0a2783a0880e5cf02b400",
+  "migration_sha256": "2c14d4261001660cf21fb771465adb7772e9b0d347f49d85da216ac763d6745b",
+  "rollback_sha256": "01595da6a85bab5845808034bb32e17592c7cdebd87c93197ddf540323b9f973"
 }

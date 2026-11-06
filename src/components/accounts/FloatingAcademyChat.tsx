@@ -4,6 +4,7 @@ import { MessageCircle } from 'lucide-react';
 import { useSession } from '@/contexts/SessionContext';
 import { useRows } from '@/hooks/use-academy';
 import { useMessageContacts } from '@/hooks/use-messaging';
+import { founderContact } from '@/lib/messaging';
 import { AcademyMessages } from '@/components/accounts/AcademyMessages';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -17,8 +18,8 @@ export function FloatingAcademyChat() {
   const messages = useRows('hka_messages');
   const ownRoles = (roles.data ?? []).filter(row => row.user_id === session?.user.id && row.status === 'authorized');
   if (loading || !profile || profile.id !== session?.user.id || profile.suspended || !session.user.email_confirmed_at || !ownRoles.length) return null;
-  const isFounder = ownRoles.some(row => row.purpose === 'admin');
-  const hollie = (contacts.data ?? []).find(row => row.role === 'admin' && row.relationship === 'Founder direct message');
+  const isFounder = (contacts.data ?? []).some(row => row.founder_id === profile.id);
+  const hollie = founderContact(contacts.data ?? []);
   const roots = { admin: '/dashboard/admin', student: '/dashboard/student', guardian: '/dashboard/parent', coach: '/dashboard/coach' };
   const root = roots[profile.role];
   const unread = (messages.data ?? []).filter(row => row.recipient_id === profile.id && !row.read_at && (isFounder || row.sender_id === hollie?.id)).length;
