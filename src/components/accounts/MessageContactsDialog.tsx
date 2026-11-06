@@ -17,8 +17,8 @@ export function MessageContactsDialog({ contacts, founderDirectory, disabled, on
   return <Dialog open={open} onOpenChange={value => { setOpen(value); if (value) { setSearch(''); selected.current = false; } }}>
     <DialogTrigger asChild><Button type='button' size='sm' variant='outline' disabled={disabled}>New Message</Button></DialogTrigger>
     <DialogContent className='max-h-[85dvh] max-w-xl overflow-hidden' onCloseAutoFocus={event => { if (selected.current) { event.preventDefault(); requestAnimationFrame(focusComposer); } }}>
-      <DialogHeader><DialogTitle>{founderDirectory ? 'Registered HKA users' : 'Authorised contacts'}</DialogTitle>
-        <DialogDescription>{founderDirectory ? 'Founder direct messages are independent of coaching assignments. Unavailable accounts cannot receive new messages.' :
+      <DialogHeader><DialogTitle>{founderDirectory ? 'Active HKA members' : 'Authorised contacts'}</DialogTitle>
+        <DialogDescription>{founderDirectory ? 'Message active HKA members on any plan. No coaching assignment, link code or separate chat approval is needed.' :
           'Contact Founder directly. External Coaches and family contacts appear only with an approved relationship and required consent.'}</DialogDescription></DialogHeader>
       <div className='relative'><Search className='pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground'/>
         <Input autoComplete='off' value={search} onChange={event => setSearch(event.target.value)} aria-label='Search messaging contacts' placeholder='Search name or role' className='pl-9'/></div>

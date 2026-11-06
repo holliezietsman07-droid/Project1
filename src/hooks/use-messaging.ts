@@ -5,6 +5,16 @@ import { useRows, useRefreshAcademy } from '@/hooks/use-academy';
 import { db, listRows, rpc, saveRow, type Row } from '@/lib/academy';
 import { canSendMessage, messageFailure, messagingSetupPending } from '@/lib/messaging';
 
+export function useMessageContacts() {
+  const { session, profile } = useSession();
+  return useQuery<Row[]>({
+    queryKey: ['academy', session?.user.id, 'message-contacts'],
+    queryFn: async () => (await rpc('hka_message_contacts', {})) ?? [],
+    enabled: Boolean(session && profile?.id === session.user.id && !profile.suspended),
+    retry: false, refetchInterval: 15000,
+  });
+}
+
 export function useMessaging() {
   const { session, profile } = useSession();
   const cache = useQueryClient(), refresh = useRefreshAcademy(), sending = useRef(false);
@@ -15,11 +25,7 @@ export function useMessaging() {
     refetchInterval: 15000, retry: 1,
   });
   const profiles = useRows('hka_profiles');
-  const contacts = useQuery<Row[]>({
-    queryKey: ['academy', session?.user.id, 'message-contacts'],
-    queryFn: async () => (await rpc('hka_message_contacts', {})) ?? [],
-    enabled: Boolean(session), retry: false, refetchInterval: 15000,
-  });
+  const contacts = useMessageContacts();
   const grants = contacts.data ?? [];
   // The RPC exposes names/roles only, including identities from authorised history.
   const people = [...new Map([...(profiles.data ?? []), ...grants].map(person => [person.id, person])).values()];

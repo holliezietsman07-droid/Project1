@@ -23,7 +23,9 @@ export function buildConversations(messages: Row[], profiles: Row[], currentUser
       ?? options?.contacts.find(row => participants.includes(row.id) && row.id !== currentUserId) : undefined;
     const direct = options && (directContact?.relationship === 'Founder direct message' || participants.some(id => people.get(id)?.role === 'admin'));
     const studentId = direct && isParticipant ? String(directContact ? directContact.student_id ?? '' : participants.find(id => people.get(id)?.role === 'student') ?? '') : originalStudentId;
-    const id = conversationKey(studentId, sender, recipient);
+    // Direct identity survives purpose changes and dashboard switches; scope still
+    // comes from the current server grant for every send.
+    const id = conversationKey(direct ? 'direct' : studentId, sender, recipient);
     if (!conversations.has(id)) {
       const participant = participants.includes(currentUserId);
       const peer = participants.find(person => person !== currentUserId) ?? '';
