@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-03T04:50:29.535Z",
+  "project": "sqaydpbqycvaictieafk",
+  "scope": "GET/HEAD metadata probes only; no RPC invocation or application rows",
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/rest/v1/hka_messages?select=id&limit=0",
+      "acceptProfile": "hka_preflight_nonexistent",
+      "status": 406,
+      "body": {
+        "code": "PGRST106",
+        "details": null,
+        "hint": "Only the following schemas are exposed: public, graphql_public",
+        "message": "Invalid schema: hka_preflight_nonexistent"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/hka_messages?select=id&limit=0",
+      "acceptProfile": "hka_messaging",
+      "status": 406,
+      "body": {
+        "code": "PGRST106",
+        "details": null,
+        "hint": "Only the following schemas are exposed: public, graphql_public",
+        "message": "Invalid schema: hka_messaging"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/rest/v1/rpc/hka_message_contacts",
+      "status": 404
+    }
+  ],
+  "postgrestExposedSchemas": "Only the following schemas are exposed: public, graphql_public",
+  "contactRpcPresent": false,
+  "status": "PASS",
+  "limit": "Confirms current PostgREST exposure and missing pre-migration RPC; no authenticated hosted messaging or future configuration guarantee."
+}

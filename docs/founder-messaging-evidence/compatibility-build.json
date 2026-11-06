@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-03T05:00:28.020Z",
+  "command": "npm.cmd run build -- --outDir .elmony/founder-messaging-compatibility-build",
+  "exitCode": 0,
+  "modules": 2642,
+  "durationSeconds": 14.81,
+  "warnings": [
+    "Existing Vite bundle size advisory",
+    "npm store-dir config advisory"
+  ],
+  "frontendSourceChanged": false
+}

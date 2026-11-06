@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-03T05:00:23.630Z",
+  "project": "sqaydpbqycvaictieafk",
+  "status": "PASS",
+  "policyResults": [
+    {
+      "name": "hka_messages_insert",
+      "roles": [
+        "authenticated"
+      ],
+      "command": "INSERT",
+      "permissive": "PERMISSIVE",
+      "exactExpressionsMatch": true
+    },
+    {
+      "name": "hka_messages_read",
+      "roles": [
+        "authenticated"
+      ],
+      "command": "SELECT",
+      "permissive": "PERMISSIVE",
+      "exactExpressionsMatch": true
+    },
+    {
+      "name": "hka_messages_update_read",
+      "roles": [
+        "authenticated"
+      ],
+      "command": "UPDATE",
+      "permissive": "PERMISSIVE",
+      "exactExpressionsMatch": true
+    }
+  ],
+  "proposalChanged": false,
+  "proposalHashes": {
+    "migration": "b0e363dc51e8eae1ec82dad37a6c49ced9d58dcefa9de0d8bfd3f6cc9f51905d",
+    "rollback": "30b4605ba65ac98fb797a8343a58538d8b2f39d14f61261cf49273a877e6c97d"
+  },
+  "migrationHistory": {
+    "recorded": 19,
+    "local": 19,
+    "missingLocalVersions": [],
+    "proposalRecorded": false
+  },
+  "fixtureComparison": {
+    "columnDifferences": [],
+    "newlyCapturedFunctions": [
+      "hka_coaches",
+      "hka_has_purpose"
+    ],
+    "changedPreviouslyCapturedFunctions": [],
+    "refreshedFunctions": [
+      "hka_active",
+      "hka_admin",
+      "hka_coaches",
+      "hka_has_purpose",
+      "hka_role",
+      "hka_signup_profile",
+      "hka_teach",
+      "hka_view_student"
+    ],
+    "constraints": 52,
+    "corrections": [
+      "Removed synthetic authenticated EXECUTE on hka_has_purpose; restored current service_role helper grants.",
+      "Use freshly captured constraints, policy role targets and helper definitions instead of source-only fallbacks.",
+      "Recreate SELECT participant IN expression before exact catalog comparison; reparsing deparsed OR text flattens PostgreSQL expression tree.",
+      "Reconstruct current message and account-role secondary indexes."
+    ],
+    "remainingDifferences": [
+      "Synthetic minimal auth.users and auth.uid() claim shim; no hosted JWT verification.",
+      "Only seven messaging-related public tables reconstructed; hka_files is a minimal policy dependency.",
+      "No hosted PostgREST, realtime, storage, auth service or full Supabase schema restore."
+    ]
+  },
+  "exposure": {
+    "postgrest": "Only the following schemas are exposed: public, graphql_public",
+    "privateSchemaExposed": false,
+    "graphqlExtensionInstalled": false,
+    "catalogSettings": {
+      "pgrst.db_schemas": null,
+      "pgrst.db_extra_search_path": null
+    }
+  },
+  "sqlAssertions": {
+    "passed": 183,
+    "failed": 0,
+    "runId": "1793681834711"
+  },
+  "frontendContracts": [
+    {
+      "status": "PASS",
+      "rolledBack": false,
+      "contactRows": 16,
+      "messageRows": 3,
+      "checks": [
+        "exact ten-column contact projection and runtime types",
+        "current canSendMessage consumes real SQL grants",
+        "nullable adult peer scope",
+        "persisted direct thread displayed",
+        "rollback history-only controls",
+        "missing hosted RPC pending state",
+        "self-send denied"
+      ]
+    },
+    {
+      "status": "PASS",
+      "rolledBack": true,
+      "contactRows": 3,
+      "messageRows": 3,
+      "checks": [
+        "exact ten-column contact projection and runtime types",
+        "current canSendMessage consumes real SQL grants",
+        "nullable adult peer scope",
+        "persisted direct thread displayed",
+        "rollback history-only controls",
+        "missing hosted RPC pending state",
+        "self-send denied"
+      ]
+    }
+  ],
+  "liveMutations": false,
+  "deployment": false
+}

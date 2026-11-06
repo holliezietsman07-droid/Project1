@@ -1,0 +1,8 @@
+{
+  "date": "2026-11-03T04:57:15.072Z",
+  "status": "PREPARED_NOT_EXECUTED",
+  "assertions": 108,
+  "scope": "SQL suite generated locally; no SQL parser or database execution",
+  "migration_sha256": "b0e363dc51e8eae1ec82dad37a6c49ced9d58dcefa9de0d8bfd3f6cc9f51905d",
+  "rollback_sha256": "30b4605ba65ac98fb797a8343a58538d8b2f39d14f61261cf49273a877e6c97d"
+}

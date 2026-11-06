@@ -1,0 +1,23 @@
+{
+  "query": "BEGIN TRANSACTION READ ONLY;\nSELECT jsonb_build_object(\n'captured_at',now(),'owner',current_user,\n'can_create_schema',has_database_privilege('postgres',current_database(),'CREATE'),\n'public_usage',has_schema_privilege('postgres','public','USAGE'),\n'public_create',has_schema_privilege('postgres','public','CREATE'),\n'auth_usage',has_schema_privilege('postgres','auth','USAGE'),\n'auth_id_select',has_column_privilege('postgres','auth.users','id','SELECT'),\n'auth_confirmation_select',has_column_privilege('postgres','auth.users','email_confirmed_at','SELECT'),\n'auth_uid_execute',has_function_privilege('postgres','auth.uid()','EXECUTE'),\n'session_replication_role',current_setting('session_replication_role')\n) AS privileges; COMMIT;",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"projectId\":\"sqaydpbqycvaictieafk\",\"alreadyApplied\":false,\"result\":{\"output\":\"[{\\\"privileges\\\":{\\\"owner\\\":\\\"postgres\\\",\\\"auth_usage\\\":true,\\\"captured_at\\\":\\\"2026-11-03T05:04:38.811897+00:00\\\",\\\"public_usage\\\":true,\\\"public_create\\\":true,\\\"auth_id_select\\\":true,\\\"auth_uid_execute\\\":true,\\\"can_create_schema\\\":true,\\\"auth_confirmation_select\\\":true,\\\"session_replication_role\\\":\\\"origin\\\"}}]\",\"truncated\":false}}"
+      }
+    ]
+  },
+  "privileges": {
+    "owner": "postgres",
+    "auth_usage": true,
+    "captured_at": "2026-11-03T05:04:38.811897+00:00",
+    "public_usage": true,
+    "public_create": true,
+    "auth_id_select": true,
+    "auth_uid_execute": true,
+    "can_create_schema": true,
+    "auth_confirmation_select": true,
+    "session_replication_role": "origin"
+  }
+}

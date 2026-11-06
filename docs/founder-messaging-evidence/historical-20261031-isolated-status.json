@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-31T14:14:05.139Z",
+  "status": "PASS",
+  "scope": "Authorised local SQL proposal correction and disposable PostgreSQL retesting only",
+  "sqlMutationsExecuted": true,
+  "sqlMutationDestination": "hka_messaging_security_1793456045139",
+  "livePermissionsChanged": false,
+  "liveSqlMutationsExecuted": false,
+  "liveProposalApplied": false,
+  "liveRollbackApplied": false,
+  "deployed": false,
+  "proposalAppliedLocally": true,
+  "rollbackAppliedLocally": true,
+  "syntheticAccounts": 17,
+  "executedAssertions": 173,
+  "passedAssertions": 173,
+  "failedAssertions": 0,
+  "formerFailuresRetested": 3,
+  "containerRemoved": true,
+  "finding": "Resolved locally: required trigger state O is checked independently of snapshot; exact definition and final catalog validation enforced. Disabled-trigger rollback rejected; normal rollback retains enabled/effective guard, immutable messages and receipts.",
+  "blockers": [
+    "Confirm Founder/minor consent scope with safeguarding owner.",
+    "Establish trusted missing-DOB adult evidence if an exception is required.",
+    "Confirm private schema API exposure and current complete schema compatibility.",
+    "Complete separately authorised hosted account/JWT/API/browser acceptance.",
+    "Obtain separate explicit Founder approval before any live database operation or deployment."
+  ],
+  "report": "docs/FOUNDER_MESSAGING_LOCAL_SECURITY_TEST_REPORT.md",
+  "canonicalRun": "isolated-run.json",
+  "runId": "1793456045139",
+  "migration_sha256": "b0e363dc51e8eae1ec82dad37a6c49ced9d58dcefa9de0d8bfd3f6cc9f51905d",
+  "rollback_sha256": "30b4605ba65ac98fb797a8343a58538d8b2f39d14f61261cf49273a877e6c97d"
+}
