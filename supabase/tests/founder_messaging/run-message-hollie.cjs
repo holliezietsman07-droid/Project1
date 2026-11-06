@@ -26,11 +26,6 @@ const read = name => fs.readFileSync(path.join(root, name), 'utf8');
 const migrationPath = 'supabase/proposals/202611060001_message_hollie.sql';
 const rollbackPath = 'supabase/proposals/202611060001_message_hollie.rollback.sql';
 const migration = read(migrationPath), rollback = read(rollbackPath);
-// Bind synthetic identity only in generated isolated SQL; never edit proposal.
-const founderToken = 'REPLACE_WITH_HOLLIE_AUTH_USER_UUID';
-const fixtureFounder = 'f1000000-0000-4000-8000-000000000001';
-if (migration.split(founderToken).length !== 2) throw new Error('Review Founder binding before generating suite.');
-const isolatedMigration = migration.replace(founderToken, fixtureFounder);
 const unwrap = text => text.replace(/^begin;\s*$/mi,'').replace(/^commit;\s*$/mi,'');
 const quote = value => "'" + value.replaceAll("'", "''") + "'";
 const uid = n => "hka_messaging_test.uid(" + n + ")";
@@ -43,11 +38,7 @@ const send = (sender,recipient,student,body='Isolated test') => 'insert into pub
 const preflight = migration.match(/do \$preflight\$[\s\S]*?\$preflight\$;/)[0];
 let sql = "begin;\nset local search_path=pg_catalog,public;\n";
 sql += "do $$ begin if current_database() !~ '^hka_messaging_security_[a-z0-9_]+$' or current_user<>'postgres' then raise exception 'Wrong isolated target'; end if; if exists(select 1 from public.hka_profiles) or exists(select 1 from auth.users) then raise exception 'Schema-only empty database required; never test on existing accounts'; end if; end $$;\n";
-// Add second Admin without modifying shared October fixtures.
-const fixtures = read('supabase/tests/founder_messaging/fixtures.sql');
-const lastFixture = "(17,'Pending Guardian',array['guardian'],'guardian',false,true)";
-if (fixtures.split(lastFixture).length !== 2) throw new Error('Fixture drift');
-sql += fixtures.replace(lastFixture, lastFixture + ",\n  (18,'Another Admin',array['admin','horse_owner'],'admin',false,true)");
+sql += read('supabase/tests/founder_messaging/fixtures.sql');
 // Same-name policy widening, role-target drift and added policies must all fail.
 for (const [alter,label] of [
  ["alter policy hka_messages_read on public.hka_messages using (true);","same-name SELECT expression drift"],
@@ -68,28 +59,11 @@ for (const [alter,label] of [
  assertions++;
  sql += 'select hka_messaging_test.rejects('+quote(preflight)+",'Live message policy definition drift',"+quote(label)+');\nrollback to savepoint drift;\n';
 }
-sql += unwrap(isolatedMigration);
+sql += unwrap(migration);
 sql += ok("hka_messaging_test.fingerprint()=(select value from hka_messaging_test.fingerprints where label='before_migration')",'migration preserves every public HKA application row');
 sql += ok("not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'hka_message_%' and p.prosecdef)",'new exposed API has no SECURITY DEFINER function');
 sql += ok("not has_function_privilege('anon','public.hka_message_contacts()','EXECUTE') and not has_function_privilege('authenticated','hka_messaging.has_role(uuid,text)','EXECUTE')",'anonymous API and arbitrary privileged role helper denied');
 sql += ok("not has_column_privilege('authenticated','public.hka_messages','body','UPDATE') and has_column_privilege('authenticated','public.hka_messages','read_at','UPDATE') and not has_table_privilege('authenticated','public.hka_messages','DELETE')",'only read receipt column updates granted');
-sql += ok("hka_messaging.founder_id()="+uid(1)+" and hka_messaging.founder("+uid(1)+") and not hka_messaging.founder("+uid(18)+")",'only designated identity is Founder with two Admins');
-sql += ok("not has_function_privilege('authenticated','hka_messaging.founder_id()','EXECUTE')",'identity helper remains owner-only');
-sql += user(18);
-sql += ok(scalar("select count(*)=1 and bool_and(id="+uid(1)+" and founder_id="+uid(1)+" and not directory_entry) from public.hka_message_contacts()"),'second Admin gets Hollie only without global directory');
-sql += deny(send(18,9,null),'second Admin cannot send to arbitrary adult');
-sql += deny(send(18,2,2),'second Admin cannot send to arbitrary Student');
-sql += ok('not exists(select 1 from public.hka_messages)','second Admin cannot read unrelated history');
-sql += send(18,1,null,'Second Admin contacts Hollie')+';\n';
-sql += user(9);
-sql += ok(scalar("select count(*)=1 and bool_and(id="+uid(1)+" and founder_id="+uid(1)+" and student_id is null) from public.hka_message_contacts()"),'adult Horse Owner gets exact Founder and NULL scope');
-sql += deny(send(9,18,null),'Horse Owner cannot route Hollie message to second Admin');
-sql += deny(send(9,1,9),'adult Horse Owner cannot invent Student scope');
-sql += send(9,1,null,'Adult Horse Owner exact message to Hollie')+';\n';
-sql += user(1);
-sql += ok("exists(select 1 from public.hka_messages where sender_id="+uid(9)+" and recipient_id="+uid(1)+" and student_id is null and body='Adult Horse Owner exact message to Hollie' and read_at is null)",'Founder receives exact Horse Owner message unread');
-sql += send(1,9,null,'Hollie exact Horse Owner reply')+';\n';
-sql += user(9)+ok("exists(select 1 from public.hka_messages where sender_id="+uid(1)+" and recipient_id="+uid(9)+" and student_id is null and body='Hollie exact Horse Owner reply' and read_at is null)",'Horse Owner receives exact reply unread');
 sql += user(1);
 sql += ok(scalar('select count(*)>=10 and bool_and(can_message) from public.hka_message_contacts() where directory_entry'),'Founder on Coach dashboard sees active member directory');
 sql += ok(scalar('select bool_and(can_message) from public.hka_message_contacts() where directory_entry'),'Founder directory flags independent of selected dashboard');
@@ -103,13 +77,6 @@ for (const [recipient,scope] of [[2,2],[3,3],[5,5],[6,null],[9,null],[7,7],[16,1
 for (const denied of [10,11,12,13,15]) sql += deny(send(1,denied,denied),'Founder cannot bypass suspension, verification, role approval or minor consent: '+denied);
 sql += deny(send(2,1,2),'Founder cannot spoof sender');
 sql += deny(send(1,2,null),'Founder cannot hide Student scope');
-sql += 'reset role; savepoint revoke_designated_founder; update public.hka_account_roles set status=\'revoked\' where user_id='+uid(1)+" and purpose='admin';\n";
-sql += user(9)+ok('not exists(select 1 from public.hka_message_contacts())','revoked designated Founder does not fall back to second Admin');
-sql += deny(send(9,18,null),'revoked designated Founder cannot redirect messages to second Admin');
-sql += deny(send(9,1,null),'revoked Founder cannot receive direct messages');
-sql += 'reset role; rollback to savepoint revoke_designated_founder; savepoint suspend_designated_founder; update public.hka_profiles set suspended=true where id='+uid(1)+';\n';
-sql += user(18)+ok('not exists(select 1 from public.hka_message_contacts())','suspended designated Founder does not promote second Admin');
-sql += 'reset role; rollback to savepoint suspend_designated_founder;\n';
 sql += user(3);
 sql += ok('not exists(select 1 from public.hka_message_contacts() where id in ('+uid(4)+','+uid(8)+','+uid(9)+'))','Coach lacks global directory and unrelated contacts');
 sql += send(3,2,2)+';\n'+send(3,7,7)+';\n'+send(3,5,7)+';\n';
@@ -185,9 +152,6 @@ const rollbackPreflight=rollback.match(/do \$preflight\$[\s\S]*?\$preflight\$;/)
 sql += "savepoint rollback_drift; alter policy hka_messages_read on public.hka_messages using(true);\n";
 assertions++;
 sql += 'select hka_messaging_test.rejects('+quote(rollbackPreflight)+",'Installed policies/helpers/triggers drifted',"+quote('rollback detects same-name policy drift')+');\nrollback to savepoint rollback_drift;\n';
-sql += "savepoint designation_drift; create or replace function hka_messaging.founder_id() returns uuid language sql immutable set search_path='' as $$ select 'f1000000-0000-4000-8000-000000000018'::uuid $$;\n";
-assertions++;
-sql += 'select hka_messaging_test.rejects('+quote(rollbackPreflight)+",'Installed policies/helpers/triggers drifted',"+quote('rollback rejects changed designated identity')+');\nrollback to savepoint designation_drift;\n';
 sql += unwrap(rollback);
 sql += ok("hka_messaging_test.fingerprint()=(select value from hka_messaging_test.fingerprints where label='before_rollback')",'rollback preserves every public HKA application row');
 sql += user(1)+deny(send(1,9,null),'rollback disables platform Founder direct sends');
@@ -195,26 +159,15 @@ sql += ok('not exists(select 1 from public.hka_message_contacts() where director
 sql += ok('exists(select 1 from public.hka_messages where sender_id='+uid(1)+' and recipient_id='+uid(9)+' and student_id is null)','rollback retains NULL-scope Founder history');
 sql += ok('not exists(select 1 from public.hka_messages where id='+uid(101)+')','rollback never restores global Founder private reads');
 sql += user(6)+ok('not exists(select 1 from public.hka_messages where id='+uid(101)+') and exists(select 1 from public.hka_messages where id='+uid(102)+')','rollback preserves cross-guardian isolation and child oversight');
-sql += user(18)+ok('not exists(select 1 from public.hka_message_contacts() where directory_entry)','rollback never promotes second Admin');
-sql += ok('not exists(select 1 from public.hka_messages where sender_id='+uid(9)+' and recipient_id='+uid(1)+')','rollback preserves Horse Owner Founder privacy from second Admin');
-sql += user(9)+ok("exists(select 1 from public.hka_messages where sender_id="+uid(9)+" and recipient_id="+uid(1)+" and student_id is null and body='Adult Horse Owner exact message to Hollie')",'rollback preserves exact adult Horse Owner NULL-scope history');
-sql += deny(send(9,1,null),'rollback disables new Horse Owner Founder direct sends');
 sql += user(3)+send(3,2,2)+';\n'+ok('true','assigned Coach messaging survives restrictive rollback');
 sql += 'reset role;\nrollback;\n';
 if (prepareOnly) {
- const schema = require('./local-schema.cjs').localSchema();
  const evidence = {date:new Date().toISOString(),status:'PREPARED_NOT_EXECUTED',assertions,
   scope:'SQL suite generated locally; no SQL parser or database execution',
-  fixtureAccounts:18, designatedFixtureFounder:fixtureFounder,
-  proposalBinding:'PENDING_FOUNDER_AUTH_UUID',
-  executableMigration_sha256:crypto.createHash('sha256').update(isolatedMigration).digest('hex'),
-  suite_sha256:crypto.createHash('sha256').update(sql).digest('hex'),
-  schema_sha256:crypto.createHash('sha256').update(schema).digest('hex'),
   migration_sha256:crypto.createHash('sha256').update(migration).digest('hex'),
   rollback_sha256:crypto.createHash('sha256').update(rollback).digest('hex')};
  fs.mkdirSync(path.join(root,'.elmony'),{recursive:true});
  fs.writeFileSync(path.join(root,'.elmony/message-hollie-security-suite.sql'),sql);
- fs.writeFileSync(path.join(root,'.elmony/message-hollie-local-schema.sql'),schema);
  fs.writeFileSync(path.join(root,'docs/message-hollie-suite-preparation.json'),JSON.stringify(evidence,null,2));
  console.log('PREPARED_NOT_EXECUTED',assertions,'assertions; no database connection');
  process.exit(0);

@@ -1,12 +1,5 @@
 import type { Row } from '@/lib/academy';
 
-export function founderContact(contacts: Row[]): Row | undefined {
-  const ids = new Set(contacts.map(row => row.founder_id).filter(id => typeof id === 'string' && id));
-  if (ids.size !== 1) return undefined;
-  const [id] = ids;
-  return contacts.find(row => row.id === id && row.relationship === 'Founder direct message');
-}
-
 export type MessageAccess = {
   userId: string; studentId: string; recipientId: string; contacts: Row[];
 };
@@ -20,7 +13,7 @@ export function canSendMessage({ userId, studentId, recipientId, contacts }: Mes
 
 export function messageRole(person?: Row): string {
   if (person?.role_label) return String(person.role_label);
-  const labels: Record<string, string> = { admin: 'Admin', coach: 'Coach', guardian: 'Parent / Guardian', student: 'Student', horse_owner: 'Horse Owner' };
+  const labels: Record<string, string> = { admin: 'Founder / Admin', coach: 'Coach', guardian: 'Parent / Guardian', student: 'Student', horse_owner: 'Horse Owner' };
   return labels[String(person?.role)] ?? 'Academy member';
 }
 
