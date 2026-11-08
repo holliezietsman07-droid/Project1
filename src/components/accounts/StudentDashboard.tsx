@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Award, CheckCircle2, Eye, ImageIcon, MessageCircle, Camera, RotateCcw, Trash2, Upload, UserRound, ZoomIn } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -131,8 +131,9 @@ function StudentOverview(){
 }
 
 export function StudentDashboard() {
-  const nav=useDashboardNavigation('student',['home','courses','coaching','horses','records','messages','profile'],'home');
+  const nav=useDashboardNavigation('student',['home','courses','coaching','horses','records','messages','profile','fitness'],'home');
   const titles:Record<string,string>={courses:'My Learning',coaching:'Coaching',horses:'Horses',records:'Achievements',messages:'Messages',profile:'Account Settings'};
+  if(nav.current==='fitness')return <Navigate to='/dashboard/fitness/rider' replace/>;
   const content=nav.current==='courses'?<CourseSection/>:nav.current==='coaching'?<CoachingSection/>:nav.current==='horses'?<HorseOrganizer Photo={PrivatePhoto} PhotoEditor={CircularPhotoEditor}/>:nav.current==='records'?<RecordsSection/>:nav.current==='messages'?<MessagesSection/>:nav.current==='profile'?<div className='space-y-6'><ProfileSection/><AccountRoleSettings/></div>:null;
   return <section className='dashboard-shell page-width py-8 lg:py-10'>{nav.current==='home'?<><DashboardHero label='Student dashboard' defaultSubtitle='Learning, coaching, horses and feedback — securely saved to your account.' actions={<HorseReminderBell/>}/><StudentHomeSummary/><StudentHome/></>:<><nav aria-label='Breadcrumb' className='mb-3 text-xs text-muted-foreground'><Link to='/dashboard/student' className='hover:underline'>Dashboard Home</Link><span aria-hidden='true'> / </span><span>{titles[nav.current]}</span></nav><div className='mb-7 flex flex-wrap items-center justify-between gap-3'><h1 className='font-serif text-3xl text-primary sm:text-4xl'>{titles[nav.current]}</h1><DashboardHistoryControls {...nav}/></div>{content}</>} </section>;
 }

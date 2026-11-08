@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import SiteLayout from "@/components/SiteLayout";
 import Index from "@/pages/Index";
+import FitnessProgrammes from "@/pages/FitnessProgrammes";
 import LearningPathways from "@/pages/LearningPathways";
 import PathwayDetail from '@/pages/PathwayDetail';
 import CoursePlayer from '@/pages/CoursePlayer';
@@ -134,7 +135,7 @@ const App = () => (
               <Route path="/password-reset" element={<AccountPage key="password-reset" mode="password-reset" />} />
               <Route path="/update-password" element={<AccountPage key="update-password" mode="update-password" />} />
               <Route path={'/learning-pathways/:pathwayId'} element={<PathwayDetail />} />
-              <Route element={<AccessGate />}>
+              <Route element={<AccessGate />}><Route path="/dashboard/fitness/rider/:studentId?" element={<FitnessProgrammes mode="rider" />} /><Route path="/dashboard/fitness/horse/:horseId?" element={<FitnessProgrammes mode="horse" />} /><Route path="/dashboard/fitness-preview" element={<FitnessProgrammes mode="preview" />} /><Route element={<AccessGate roles={["admin"]} />}><Route path="/dashboard/programmes" element={<FitnessProgrammes mode="manage" />} /></Route>
                 <Route path="/dashboard" element={<DashboardIndex />} /><Route path='/dashboard/account' element={<MemberAccountSettings/>}/>
                 <Route element={<AccessGate roles={["student"]} />}><Route path="/dashboard/student" element={<DashboardPage role="student" />} /></Route>
                 <Route element={<AccessGate roles={["guardian"]} />}><Route path="/dashboard/parent" element={<DashboardPage role="guardian" />} /></Route>
