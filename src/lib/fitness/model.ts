@@ -32,7 +32,7 @@ export function holdReason(kind: FitnessKind, intake: Intake): string {
     ? 'Template suggestions are held. Ask an appropriate health professional for guidance before exercise.'
     : 'Standard conditioning suggestions are held. Follow your vet’s instructions and discuss this programme with Hollie.';
   if (intake.age === null || intake.age < 0) return 'Confirm age before choosing an age-appropriate template.';
-  if (kind === 'horse' && (intake.age < 5 || intake.age >= 18 || intake.timeOff.trim() && intake.timeOff !== 'None')) return 'Ask Hollie for an individual review of age and time off before using standard conditioning.';
+  if (kind === 'horse' && (intake.age < 5 || intake.age >= 18 || intake.timeOff.trim() !== 'None')) return 'Ask Hollie for an individual review of age and time off before using standard conditioning.';
   return '';
 }
 export function validateSessions(sessions: SessionPlan[]) {
@@ -61,11 +61,11 @@ export function templateDraft(kind: FitnessKind, intake: Intake): SessionPlan[] 
   const duration = Math.min(intake.minutes, young ? 15 : kind === 'horse' ? 20 : 25);
   return days.map((day, i) => {
     const active = intake.days.includes(day);
-    const category = !active ? 'rest' : kind === 'horse' ? 'conditioning' : ['strength','balance','mobility','stamina'][i % 4];
+    const category = !active ? 'rest' : kind === 'horse' ? 'conditioning' : ['strength','mobility','stamina','balance'][intake.days.indexOf(day) % 4];
     const instruction = !active ? 'Rest day. Record any wellbeing observations; do not make up missed work by doubling the next session.'
       : kind === 'horse' ? 'Founder draft: easy walk on suitable level footing, including a quiet warm-up and cool-down. Keep effort comfortable; stop for unevenness or abnormal recovery. Review response before any increase; never increase duration and intensity together.'
       : young ? 'Founder draft for younger riders: with an appropriate adult, practise comfortable reaching, gentle marching and supported balance as a short game. No loaded training. Stop for pain or dizziness.'
-      : category === 'strength' ? 'Founder draft: warm up with easy walking. Practise slow sit-to-stand and supported wall pushes at comfortable effort, resting whenever needed. Finish with easy movement. Stop for pain.'
+      : category === 'strength' ? 'Founder draft: warm up with easy walking. Practise slow sit-to-stand, supported wall pushes and supported balance shifts at comfortable effort, resting whenever needed. Finish with easy movement. Stop for pain.'
       : category === 'balance' ? 'Founder draft: easy warm-up, then comfortable supported weight shifts beside a stable support. Keep breathing; avoid unstable equipment. Finish with gentle walking.'
       : category === 'mobility' ? 'Founder draft: gentle shoulder circles, comfortable hip movement and ankle mobility. Stay within a pain-free range and avoid forcing stretches.'
       : 'Founder draft: easy walking at a pace where conversation stays comfortable. Include a gradual warm-up and cool-down; stop if unwell.';

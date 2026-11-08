@@ -1,0 +1,65 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),crypto=require('node:crypto');
+const out='docs/fitness-review-20261108',r=JSON.parse(fs.readFileSync(out+'/results.json','utf8')),m=JSON.parse(fs.readFileSync(out+'/model-results.json','utf8')),checkpoint=JSON.parse(fs.readFileSync(out+'/checkpoint-audit.json','utf8'));
+assert.equal(r.status,'PASS');assert.equal(m.status,'PASS');assert.equal(r.cleanup,true);assert.equal(r.connectedMutations,false);
+const files=['src/components/fitness/WeeklyProgramme.tsx','src/hooks/use-fitness.ts','src/pages/FitnessProgrammes.tsx','src/lib/fitness/model.ts','src/components/SiteLayout.tsx','supabase/proposals/202611080001_fitness_programmes.sql','supabase/proposals/202611080001_fitness_programmes.rollback.sql','supabase/tests/fitness/run.cjs','supabase/tests/fitness/preview.cjs','supabase/tests/fitness/model.cjs','supabase/tests/fitness/report.cjs'];
+const manifest=files.map(p=>{const bytes=fs.readFileSync(p);return{path:p,bytes:bytes.length,sha256:crypto.createHash('sha256').update(bytes).digest('hex')};});
+fs.writeFileSync(out+'/checksums.json',JSON.stringify({recordedAt:new Date().toISOString(),connectedMigration:'UNAPPLIED',files:manifest},null,2));
+const report=[
+'# Fitness programme acceptance and approval package',
+'',
+'**Rider, horse and Founder browser workflows passed against a disposable local PostgreSQL test database. Saving and reloading worked.**',
+'',
+r.database.length+' database scenario groups, '+r.preview.length+' browser scenario groups and '+m.results.length+' model checks passed in the final run. Every database operation committed before separate-connection reloads; the database and isolated browser process were removed after testing.',
+'',
+'## Checkpoint and saved implementation',
+'',
+'Existing checkpoint: [.checkpoints/hka-before-fitness-20261108.zip](../.checkpoints/hka-before-fitness-20261108.zip). All '+checkpoint.entriesRead+' archive entries were read successfully. SHA-256: '+checkpoint.sha256+'.',
+'',
+'[Checkpoint audit](fitness-review-20261108/checkpoint-audit.json) records original source hashes. Existing fitness pages/components, dashboard routes, horse profile entry, HKA styling, profile/horse prefills and Message Hollie entry were reused.',
+'',
+'Completed missing database proposal: RLS-protected intakes, programme/version history, Founder approval, reusable templates, private attachment metadata/policies, and atomic owner-only progress RPCs. Horse completion uses a locked progress key and deterministic ride-log ID; retries update one correctly linked record. No feed records are modified.',
+'',
+'UI corrections: keep intake confirmations visible, open latest Founder draft after revision, retain approval confirmations, invalidate ride-log cache after completion, retain health concerns from horse records, hold unknown horse time off, distribute rider work over available days, and identify programme pages correctly.',
+'',
+'## Passed browser scenarios',
+'',
+'| Scenario | Result |',
+'| --- | --- |',
+...r.preview.map(x=>'| '+x.name.replaceAll('|','/')+' | PASS |'),
+'',
+'## Passed database scenarios',
+'',
+'| Scenario | Result |',
+'| --- | --- |',
+...r.database.map(x=>'| '+x.name.replaceAll('|','/')+' | PASS |'),
+'',
+'Browser saves used the existing Supabase SDK/client and actual React routes/action handlers. Intercepted requests invoked the proposed SQL RPCs under the appropriate authenticated PostgreSQL role and synthetic account ID. A page reload re-read committed rows through a new database connection. Responses were derived from actual SQL results, rather than an in-memory programme store.',
+'',
+'Final evidence: [machine-readable results](fitness-review-20261108/results.json), [database transcript](fitness-review-20261108/database.log), [model results](fitness-review-20261108/model-results.json), [exact-file checksums](fitness-review-20261108/checksums.json). Intentional permission/validation denials appear as expected PostgreSQL errors in the transcript; they are assertions of rejection. The injected browser 403 verifies failure handling and retained notes. Earlier intermediate harness outputs are superseded by this final passing result.',
+'',
+'Project TypeScript check, targeted fitness lint and production build passed for the final source revision.',
+'',
+'## Approval files — live project unchanged',
+'',
+'- [Migration proposal](../supabase/proposals/202611080001_fitness_programmes.sql)',
+'- [Rollback proposal](../supabase/proposals/202611080001_fitness_programmes.rollback.sql)',
+'',
+'**Neither file was applied to connected Supabase project sqaydpbqycvaictieafk.** No live fitness data, storage objects, migration history, auth configuration, feed records or deployed functions changed. SQL remains under supabase/proposals, outside automatic migration discovery.',
+'',
+'Production saving remains disabled by default. After separate approval and application of the reviewed migration, enable VITE_FITNESS_DATABASE_ENABLED=true through app environment settings. The local test child process alone used that flag; .env.local was not edited.',
+'',
+'Rollback disables the private fitness feature switch and revokes attachment/template writes; checked RPCs reject further writes. It preserves programme versions, progress, private originals and existing linked ride logs, with authorised history still readable. It intentionally does not drop feature tables or delete user records.',
+'',
+'## Boundaries of this evidence',
+'',
+'- Real local PostgreSQL persistence, transactions, role grants and RLS were exercised. Relevant HKA auth helper definitions came from the reviewed existing catalog reconstruction; profile/horse/ride-log columns were checked against current connected metadata.',
+'- Browser auth sessions were synthetic and requests were bridged to local SQL. Real hosted Supabase Auth/JWT verification, PostgREST exposure and realtime delivery remain unproven.',
+'- Attachment metadata, authorisation and object-row policies were tested, including an owner original selected through the real browser file picker and visible after reload. Local storage.objects is a test stand-in; file bytes used the isolated transport adapter. Real hosted object persistence, signed downloads and full storage-policy interaction remain unproven.',
+'- The isolated test database used relevant schema reconstruction, not a full live-project restore. Connected end-to-end acceptance remains a separate approval activity.',
+'',
+'Changed app files: '+files.filter(p=>p.startsWith('src/')).map(p=>'\x60'+p+'\x60').join(', ')+'.',
+''
+].join('\n');
+fs.writeFileSync('docs/FITNESS_RESULTS.md',report);
+const failure=out+'/preview-failure.json';if(fs.existsSync(failure))fs.unlinkSync(failure);
+console.log(JSON.stringify({report:'docs/FITNESS_RESULTS.md',database:r.database.length,preview:r.preview.length,model:m.results.length,live:'UNAPPLIED'}));

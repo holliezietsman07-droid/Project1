@@ -1,0 +1,460 @@
+{
+  "startedAt": "2026-11-08T17:57:19.400Z",
+  "connectedMutations": false,
+  "liveMigration": "UNAPPLIED",
+  "database": [
+    {
+      "name": "All fitness tables enforce RLS; anon has no table/RPC access",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner saves intake; new connection reloads exact disciplines/goals",
+      "status": "PASS"
+    },
+    {
+      "name": "Founder saves draft; rider cannot see unapproved programme/version",
+      "status": "PASS"
+    },
+    {
+      "name": "Only Founder approves; one current programme; approved version persists",
+      "status": "PASS"
+    },
+    {
+      "name": "Rider completes and skips; repeat save updates one row across connections",
+      "status": "PASS"
+    },
+    {
+      "name": "Coach/guardian read approved work; unrelated account cannot read or write",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner manual programme runs independently; correct horse ride log is idempotent",
+      "status": "PASS"
+    },
+    {
+      "name": "Second horse separated; cross-horse programme reassignment denied",
+      "status": "PASS"
+    },
+    {
+      "name": "Revision retains approved history and work; stale approval rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "Health holds block standard assignment; professional instructions can be tracked",
+      "status": "PASS"
+    },
+    {
+      "name": "Private attachment metadata and storage use authorised version; unrelated reader denied",
+      "status": "PASS"
+    },
+    {
+      "name": "Approved coach without minor guardian coaching consent cannot see fitness",
+      "status": "PASS"
+    },
+    {
+      "name": "Direct version/progress/assignment writes denied; invalid sessions rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "Rollback freezes writes while preserving versions, history and ride logs",
+      "status": "PASS"
+    }
+  ],
+  "preview": [
+    {
+      "name": "Rider visible navigation and profile-prefilled intake save/reload use real database",
+      "status": "PASS"
+    },
+    {
+      "name": "Rider completes and updates notes; browser reload keeps exact progress",
+      "status": "PASS"
+    },
+    {
+      "name": "Founder creates age-appropriate HKA draft, reviews and approves with save/reload",
+      "status": "PASS"
+    },
+    {
+      "name": "Founder revision displays newest draft; approval preserves prior versions",
+      "status": "PASS"
+    },
+    {
+      "name": "Rider skips a scheduled session; skipped status survives browser reload",
+      "status": "PASS"
+    },
+    {
+      "name": "Horse profile route prefills records; manual owner programme saves/reloads independently",
+      "status": "PASS"
+    },
+    {
+      "name": "Horse completion retry makes one ride log with correct horse; notes survive reload",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner original attachment metadata and permitted object survive reload",
+      "status": "PASS"
+    },
+    {
+      "name": "Rejected save retains entered notes and reports failure without success",
+      "status": "PASS"
+    },
+    {
+      "name": "Second horse route is separate; Message Hollie entry remains reachable; mobile fits",
+      "status": "PASS"
+    },
+    {
+      "name": "Founder reusable template is persisted and available after reload",
+      "status": "PASS"
+    },
+    {
+      "name": "Founder health flag holds template suggestions; coach/guardian views stay read-only",
+      "status": "PASS"
+    },
+    {
+      "name": "Unrelated rider cannot open another member fitness; non-Founder management denied",
+      "status": "PASS"
+    }
+  ],
+  "target": {
+    "container": "hka-fitness-review-1794160639400",
+    "database": "hka_fitness_test",
+    "image": "public.ecr.aws/supabase/postgres:17.11.0.003",
+    "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+    "imageId": "sha256:7374d196da7e301512cc5329e18040e0f7bb856287b323777cdadecccbc6c7e4",
+    "containerId": "f141e61d230eab69dececfab9d790cfabc7c8a27fa05ca5c1b3d675fdadafc3f"
+  },
+  "cleanup": true,
+  "previewTransport": "Actual React routes, Supabase SDK and UI handlers; intercepted transport executes real local PostgreSQL RPCs and RLS reads in independent connections. Synthetic auth, no hosted API/JWT or real Supabase object storage.",
+  "previewRequests": [
+    {
+      "name": "hka_fitness_save_intake",
+      "actor": "f2000000-0000-4000-8000-000000000002",
+      "body": {
+        "target_student": "f2000000-0000-4000-8000-000000000002",
+        "target_horse": null,
+        "new_payload": {
+          "disciplines": [
+            "Dressage",
+            "Show jumping"
+          ],
+          "goals": "Preview rider goal persisted",
+          "condition": "Comfortable easy work",
+          "days": [
+            "Monday",
+            "Wednesday",
+            "Friday"
+          ],
+          "minutes": 20,
+          "equipment": "Chair",
+          "age": 28,
+          "recentWork": "",
+          "timeOff": "None",
+          "health": [],
+          "professionalInstructions": ""
+        }
+      }
+    },
+    {
+      "name": "hka_fitness_record",
+      "actor": "f2000000-0000-4000-8000-000000000002",
+      "body": {
+        "target_version": "7c0879a5-a608-456d-83b8-e80ea0b4e52b",
+        "target_key": "monday",
+        "work_date": "2026-10-26",
+        "new_status": "complete",
+        "actual_minutes": 15,
+        "recovery_notes": "Preview completed rider notes"
+      }
+    },
+    {
+      "name": "hka_fitness_save_programme",
+      "actor": "f2000000-0000-4000-8000-000000000001",
+      "body": {
+        "target_programme": null,
+        "target_student": "f2000000-0000-4000-8000-000000000002",
+        "target_horse": null,
+        "new_kind": "rider",
+        "new_source": "hka",
+        "new_title": "Preview Founder rider programme",
+        "new_intake": {
+          "disciplines": [
+            "Dressage",
+            "Show jumping"
+          ],
+          "goals": "Preview rider goal persisted",
+          "condition": "Comfortable easy work",
+          "days": [
+            "Monday",
+            "Wednesday",
+            "Friday"
+          ],
+          "minutes": 20,
+          "equipment": "Chair",
+          "age": 28,
+          "recentWork": "",
+          "timeOff": "None",
+          "health": [],
+          "professionalInstructions": ""
+        },
+        "new_sessions": [
+          {
+            "key": "day-0",
+            "day": 0,
+            "title": "Strength foundations",
+            "category": "strength",
+            "minutes": 20,
+            "instructions": "Founder draft: warm up with easy walking. Practise slow sit-to-stand, supported wall pushes and supported balance shifts at comfortable effort, resting whenever needed. Finish with easy movement. Stop for pain."
+          },
+          {
+            "key": "day-1",
+            "day": 1,
+            "title": "Rest & recover",
+            "category": "rest",
+            "minutes": 0,
+            "instructions": "Rest day. Record any wellbeing observations; do not make up missed work by doubling the next session."
+          },
+          {
+            "key": "day-2",
+            "day": 2,
+            "title": "Mobility foundations",
+            "category": "mobility",
+            "minutes": 20,
+            "instructions": "Founder draft: gentle shoulder circles, comfortable hip movement and ankle mobility. Stay within a pain-free range and avoid forcing stretches."
+          },
+          {
+            "key": "day-3",
+            "day": 3,
+            "title": "Rest & recover",
+            "category": "rest",
+            "minutes": 0,
+            "instructions": "Rest day. Record any wellbeing observations; do not make up missed work by doubling the next session."
+          },
+          {
+            "key": "day-4",
+            "day": 4,
+            "title": "Stamina foundations",
+            "category": "stamina",
+            "minutes": 20,
+            "instructions": "Founder draft: easy walking at a pace where conversation stays comfortable. Include a gradual warm-up and cool-down; stop if unwell."
+          },
+          {
+            "key": "day-5",
+            "day": 5,
+            "title": "Rest & recover",
+            "category": "rest",
+            "minutes": 0,
+            "instructions": "Rest day. Record any wellbeing observations; do not make up missed work by doubling the next session."
+          },
+          {
+            "key": "day-6",
+            "day": 6,
+            "title": "Rest & recover",
+            "category": "rest",
+            "minutes": 0,
+            "instructions": "Rest day. Record any wellbeing observations; do not make up missed work by doubling the next session."
+          }
+        ]
+      }
+    },
+    {
+      "name": "hka_fitness_assign",
+      "actor": "f2000000-0000-4000-8000-000000000001",
+      "body": {
+        "target_programme": "96dcf96a-1c51-453a-9bac-9ab61d5c4d10",
+        "expected_draft": "4ab0be93-84c4-4a00-9b2d-1735889f0c6b"
+      }
+    },
+    {
+      "name": "hka_fitness_save_programme",
+      "actor": "f2000000-0000-4000-8000-000000000001",
+      "body": {
+        "target_programme": "96dcf96a-1c51-453a-9bac-9ab61d5c4d10",
+        "target_student": "f2000000-0000-4000-8000-000000000002",
+        "target_horse": null,
+        "new_kind": "rider",
+        "new_source": "hka",
+        "new_title": "Preview Founder revised programme",
+        "new_intake": {
+          "age": 28,
+          "days": [
+            "Monday",
+            "Wednesday",
+            "Friday"
+          ],
+          "goals": "Preview rider goal persisted",
+          "health": [],
+          "minutes": 20,
+          "timeOff": "None",
+          "condition": "Comfortable easy work",
+          "equipment": "Chair",
+          "recentWork": "",
+          "disciplines": [
+            "Dressage",
+            "Show jumping"
+          ],
+          "professionalInstructions": ""
+        },
+        "new_sessions": [
+          {
+            "day": 0,
+            "key": "day-0",
+            "title": "Strength foundations",
+            "minutes": 20,
+            "category": "strength",
+            "instructions": "Founder draft: warm up with easy walking. Practise slow sit-to-stand, supported wall pushes and supported balance shifts at comfortable effort, resting whenever needed. Finish with easy movement. Stop for pain."
+          },
+          {
+            "day": 1,
+            "key": "day-1",
+            "title": "Rest & recover",
+            "minutes": 0,
+            "category": "rest",
+            "instructions": "Rest day. Record any wellbeing observations; do not make up missed work by doubling the next session."
+          },
+          {
+            "day": 2,
+            "key": "day-2",
+            "title": "Mobility foundations",
+            "minutes": 20,
+            "category": "mobility",
+            "instructions": "Founder draft: gentle shoulder circles, comfortable hip movement and ankle mobility. Stay within a pain-free range and avoid forcing stretches."
+          },
+          {
+            "day": 3,
+            "key": "day-3",
+            "title": "Rest & recover",
+            "minutes": 0,
+            "category": "rest",
+            "instructions": "Rest day. Record any wellbeing observations; do not make up missed work by doubling the next session."
+          },
+          {
+            "day": 4,
+            "key": "day-4",
+            "title": "Stamina foundations",
+            "minutes": 20,
+            "category": "stamina",
+            "instructions": "Founder draft: easy walking at a pace where conversation stays comfortable. Include a gradual warm-up and cool-down; stop if unwell."
+          },
+          {
+            "day": 5,
+            "key": "day-5",
+            "title": "Rest & recover",
+            "minutes": 0,
+            "category": "rest",
+            "instructions": "Rest day. Record any wellbeing observations; do not make up missed work by doubling the next session."
+          },
+          {
+            "day": 6,
+            "key": "day-6",
+            "title": "Rest & recover",
+            "minutes": 0,
+            "category": "rest",
+            "instructions": "Rest day. Record any wellbeing observations; do not make up missed work by doubling the next session."
+          }
+        ]
+      }
+    },
+    {
+      "name": "hka_fitness_assign",
+      "actor": "f2000000-0000-4000-8000-000000000001",
+      "body": {
+        "target_programme": "96dcf96a-1c51-453a-9bac-9ab61d5c4d10",
+        "expected_draft": "f7705e64-e662-4015-8515-b19081b1c60d"
+      }
+    },
+    {
+      "name": "hka_fitness_record",
+      "actor": "f2000000-0000-4000-8000-000000000002",
+      "body": {
+        "target_version": "f7705e64-e662-4015-8515-b19081b1c60d",
+        "target_key": "day-0",
+        "work_date": "2026-10-26",
+        "new_status": "skipped",
+        "actual_minutes": 20,
+        "recovery_notes": ""
+      }
+    },
+    {
+      "name": "hka_fitness_save_programme",
+      "actor": "f2000000-0000-4000-8000-000000000002",
+      "body": {
+        "target_programme": null,
+        "target_student": "f2000000-0000-4000-8000-000000000002",
+        "target_horse": "f2000000-0000-4000-8000-000000000101",
+        "new_kind": "horse",
+        "new_source": "owner",
+        "new_title": "Preview Willow manual plan",
+        "new_intake": {
+          "disciplines": [
+            "Dressage"
+          ],
+          "goals": "Owner goal stays separate",
+          "condition": "",
+          "days": [
+            "Monday",
+            "Wednesday",
+            "Friday"
+          ],
+          "minutes": 20,
+          "equipment": "",
+          "age": 9,
+          "recentWork": "2026-10-26 · Fitness: Comfortable balance · 18 minutes. Horse recovered well",
+          "timeOff": "",
+          "health": [],
+          "professionalInstructions": ""
+        },
+        "new_sessions": [
+          {
+            "key": "0d08c552-3a88-410a-8997-f90dca769eb7",
+            "day": 0,
+            "title": "Hand walk original programme",
+            "category": "professional",
+            "minutes": 20,
+            "instructions": "Walk quietly with warm-up and cool-down as directed."
+          }
+        ]
+      }
+    },
+    {
+      "name": "hka_fitness_record",
+      "actor": "f2000000-0000-4000-8000-000000000002",
+      "body": {
+        "target_version": "82e3259d-491b-4b6c-b5e4-48faea7427bf",
+        "target_key": "0d08c552-3a88-410a-8997-f90dca769eb7",
+        "work_date": "2026-10-26",
+        "new_status": "complete",
+        "actual_minutes": 20,
+        "recovery_notes": "Preview horse recovery notes"
+      }
+    },
+    {
+      "name": "hka_fitness_record",
+      "actor": "f2000000-0000-4000-8000-000000000002",
+      "body": {
+        "target_version": "82e3259d-491b-4b6c-b5e4-48faea7427bf",
+        "target_key": "0d08c552-3a88-410a-8997-f90dca769eb7",
+        "work_date": "2026-10-26",
+        "new_status": "complete",
+        "actual_minutes": 20,
+        "recovery_notes": "Preview horse recovery notes"
+      }
+    },
+    {
+      "name": "hka_fitness_record",
+      "actor": "f2000000-0000-4000-8000-000000000002",
+      "body": {
+        "target_version": "82e3259d-491b-4b6c-b5e4-48faea7427bf",
+        "target_key": "0d08c552-3a88-410a-8997-f90dca769eb7",
+        "work_date": "2026-10-26",
+        "new_status": "complete",
+        "actual_minutes": 20,
+        "recovery_notes": "Keep notes after database failure"
+      }
+    }
+  ],
+  "expectedFailureCases": [
+    403
+  ],
+  "previewScreenshots": "C:\\Users\\Hollie\\elmony-apps\\Project1\\.elmony\\fitness-review\\browser",
+  "status": "PASS",
+  "finishedAt": "2026-11-08T18:05:22.378Z"
+}

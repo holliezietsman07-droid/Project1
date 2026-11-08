@@ -22,6 +22,9 @@ const navigation = [
   { to: "/about", label: "About" },
 ];
 const titles: Record<string, string> = {
+  '/dashboard/programmes': 'Programme Management',
+  '/dashboard/fitness/rider': 'Rider Fitness & Mobility',
+  '/dashboard/fitness-preview': 'Programme preview',
   "/": "Online Academy",
   "/learning-pathways": "Learning Pathways",
   "/memberships": "Memberships",
@@ -60,7 +63,7 @@ const authDialogRef=useRef<HTMLDivElement>(null);
   }, [signInOpen, authMode]);
 
   useEffect(() => {
-    document.title = (titles[location.pathname] ?? (/^\/learning-pathways\/[^/]+$/.test(location.pathname) ? "Learning pathway" : /^\/academy\/courses\/[^/]+$/.test(location.pathname) ? "Course" : /^\/dashboard\/students\/[^/]+$/.test(location.pathname) ? "Student management profile" : "Page not found")) + " | HKA Equestrian";
+    document.title = (titles[location.pathname] ?? (location.pathname.startsWith('/dashboard/fitness/horse') ? 'Fitness & Conditioning' : location.pathname.startsWith('/dashboard/fitness/rider') ? 'Rider Fitness & Mobility' : null) ?? (/^\/learning-pathways\/[^/]+$/.test(location.pathname) ? "Learning pathway" : /^\/academy\/courses\/[^/]+$/.test(location.pathname) ? "Course" : /^\/dashboard\/students\/[^/]+$/.test(location.pathname) ? "Student management profile" : "Page not found")) + " | HKA Equestrian";
     setMenuOpen(false);
     const frame = requestAnimationFrame(() => {
       if (location.hash) {

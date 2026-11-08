@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "results": [
+    {
+      "name": "Available weekday sequence includes strength/balance, mobility and stamina",
+      "status": "PASS"
+    },
+    {
+      "name": "Health concerns hold rider and horse templates",
+      "status": "PASS"
+    },
+    {
+      "name": "Unknown time off, older or young horse hold standard conditioning",
+      "status": "PASS"
+    },
+    {
+      "name": "Younger rider draft is short, supervised and unloaded",
+      "status": "PASS"
+    },
+    {
+      "name": "Programme copies keep separate goals and original intake",
+      "status": "PASS"
+    },
+    {
+      "name": "Week boundaries use member timezone across year rollover",
+      "status": "PASS"
+    },
+    {
+      "name": "Duplicate session keys and invalid duration are rejected",
+      "status": "PASS"
+    }
+  ]
+}

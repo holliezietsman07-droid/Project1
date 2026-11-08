@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/contexts/SessionContext';
 import { useRows } from '@/hooks/use-academy';
 import { db, rpc, type Row } from '@/lib/academy';
@@ -12,6 +12,7 @@ import { createSampleData, sampleAssign, sampleRecord, sampleSave, sampleVisible
 export const fitnessDatabaseEnabled = import.meta.env.VITE_FITNESS_DATABASE_ENABLED === 'true';
 export function useFitness(sample: boolean) {
   const { profile } = useSession();
+  const cache = useQueryClient();
   const [sampleRole, setSampleRole] = useState<SampleRole>('rider');
   const [revision, setRevision] = useState(0);
   const fixture = useRef(createSampleData());
@@ -42,7 +43,7 @@ export function useFitness(sample: boolean) {
     });
     return [...riders,...animals].map(subject=>{
       const saved=remote.data?.intakes.find(i=>i.student_id===subject.student_id&&(subject.kind==='rider'?i.horse_id===null:i.horse_id===subject.id));
-      return saved?{...subject,intake:{...subject.intake,...saved.payload}}:subject;
+      return saved?{...subject,intake:{...subject.intake,...saved.payload,health:[...new Set([...subject.intake.health,...saved.payload.health])]}}:subject;
     });
   },[profiles.data,horses.data,roles.data,rides.data,healthRecords.data,remote.data]);
   const sampleData=sampleVisible(fixture.current,sampleRole);
@@ -73,7 +74,10 @@ export function useFitness(sample: boolean) {
   async function record(versionId:string,key:string,date:string,status:'complete'|'skipped',minutes:number,notes:string){
     requireSaving();
     if(sample)sampleRecord(fixture.current,sampleRole,versionId,key,date,status,minutes,notes);
-    else await rpc('hka_fitness_record',{target_version:versionId,target_key:key,work_date:date,new_status:status,actual_minutes:minutes,recovery_notes:notes});
+    else {
+      await rpc('hka_fitness_record',{target_version:versionId,target_key:key,work_date:date,new_status:status,actual_minutes:minutes,recovery_notes:notes});
+      await cache.invalidateQueries({queryKey:['academy',profile?.id,'hka_training_records']});
+    }
     await refresh();
   }
   async function saveTemplate(kind:FitnessKind,title:string,ageGroup:string,sessions:SessionPlan[]){

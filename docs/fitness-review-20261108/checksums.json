@@ -1,0 +1,61 @@
+{
+  "recordedAt": "2026-11-08T18:06:25.767Z",
+  "connectedMigration": "UNAPPLIED",
+  "files": [
+    {
+      "path": "src/components/fitness/WeeklyProgramme.tsx",
+      "bytes": 12175,
+      "sha256": "ba9e32b0456341f37d48785c81b68c5689a2f5ada506e617bb7e9aff94b43415"
+    },
+    {
+      "path": "src/hooks/use-fitness.ts",
+      "bytes": 9569,
+      "sha256": "436b90f7143a96604a1f2fc1e268bfb291893c27cd346e45070a280a7803cc44"
+    },
+    {
+      "path": "src/pages/FitnessProgrammes.tsx",
+      "bytes": 6485,
+      "sha256": "d4fe2910622cd22e5141cc8ebcbaaa245c91e8726b4fe6e8c506064463acb540"
+    },
+    {
+      "path": "src/lib/fitness/model.ts",
+      "bytes": 6713,
+      "sha256": "37ef981ea67fb55a9889c588159b3ecdce11443884561e647f47eefc089d2382"
+    },
+    {
+      "path": "src/components/SiteLayout.tsx",
+      "bytes": 18234,
+      "sha256": "bcca2ca5611175d784f7a8013a2fc3b577672686159048d47d52296427bc7895"
+    },
+    {
+      "path": "supabase/proposals/202611080001_fitness_programmes.sql",
+      "bytes": 22646,
+      "sha256": "87072c9298b45176f318ce4fd959f54abdd2a13911b9b46d8438d5ae66c95da2"
+    },
+    {
+      "path": "supabase/proposals/202611080001_fitness_programmes.rollback.sql",
+      "bytes": 564,
+      "sha256": "8d4ea1732f8e8c91ec14ff665e51e8cbe7952bdefb8ac142dc00ccc18d6923fd"
+    },
+    {
+      "path": "supabase/tests/fitness/run.cjs",
+      "bytes": 16300,
+      "sha256": "e4b8ae3088630a23292903091f6ccf48bf96ad603d1a4a0a5a089cc9cc2edb17"
+    },
+    {
+      "path": "supabase/tests/fitness/preview.cjs",
+      "bytes": 21582,
+      "sha256": "de0dce91f668a82406677a7a6615bfa95c9870c6dd391a99f39b287127751c54"
+    },
+    {
+      "path": "supabase/tests/fitness/model.cjs",
+      "bytes": 2513,
+      "sha256": "0f2467850e58fbde3a5cc9e67673600c774e235b956baed6f91a09a15238b39c"
+    },
+    {
+      "path": "supabase/tests/fitness/report.cjs",
+      "bytes": 6920,
+      "sha256": "aa290c21d511ce67cae0cd565012be4ade450ec863f046aea1227d7510c505df"
+    }
+  ]
+}

@@ -1,0 +1,582 @@
+{
+    "checkpoint":  ".checkpoints/hka-before-fitness-20261108.zip",
+    "sha256":  "d2c9127df4796fe56edf9485441bb5d6fe7e627b676f47b6b0b5592b744624f3",
+    "entriesRead":  192,
+    "sourceComparison":  [
+                             {
+                                 "path":  "src\\App.css",
+                                 "checkpointSHA256":  "a0715e0a09edbd0fbde65816a75e0fa0fc8b314c5260c0768c19bf3aac22621a",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\App.tsx",
+                                 "checkpointSHA256":  "fd64b45ed3cb7d2eea808e5f78671d424966a58ddd2c7f59d8a387729bd25647",
+                                 "sameAsCheckpoint":  false
+                             },
+                             {
+                                 "path":  "src\\globals.css",
+                                 "checkpointSHA256":  "8af7531fccb29947b704b60f7e2e93febc3feddf60cb604daa456dc571bfd0e2",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\main.tsx",
+                                 "checkpointSHA256":  "d171c2101bcc45ef2ecadd3b3212ca17f1528d0ca5ceb64317c1b23d789d407a",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\vite-env.d.ts",
+                                 "checkpointSHA256":  "11df7ac533c407737aa565f633dffcccb33aa429f8e3fd5010ce224a4803743b",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\made-with-elmony.tsx",
+                                 "checkpointSHA256":  "57df9d67bd1dbb00929fb88e13222b2f67bd88030435965bd32148ea1daf80b9",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\PhotoPlaceholder.tsx",
+                                 "checkpointSHA256":  "332be5553aa86b72a56411af1d620bf0ead304a01ebe4ab863b68c7568b0a4f9",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\SiteLayout.tsx",
+                                 "checkpointSHA256":  "1a0aeb4f8ea54cea69fc42e007534fa5d951851892e28d0c789ceb8c0ddc93b8",
+                                 "sameAsCheckpoint":  false
+                             },
+                             {
+                                 "path":  "src\\components\\Wordmark.tsx",
+                                 "checkpointSHA256":  "966de0c5e04a9971114af3fd9d4fe32026ced379bb2cc7e0da3b89da3e321355",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\AcademyMessages.tsx",
+                                 "checkpointSHA256":  "b707bf41bf607bdaa672521d5342aab801c7c0f1d4a26b607558b3027b5cca1a",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\AccessGate.tsx",
+                                 "checkpointSHA256":  "153e3efb20e750e98124b0a9f4f99a33f7ad329d169f0523a9fef68641292f6b",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\AccountRoles.tsx",
+                                 "checkpointSHA256":  "1c4c234fe4ae9e943284a45582ba3bf24a4e8d9870fbc4ee60258dca7cdedd85",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\CoachingCalendar.tsx",
+                                 "checkpointSHA256":  "d8102ffe155c6ef718d2192d5d803f0fda21106be81c7b913a4433f8241c5b2a",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\CoachingWorkspace.tsx",
+                                 "checkpointSHA256":  "a33b592fca1aaab6ab5fe5a77199cc5164013ced4deb74a881d6ed20d7fc5b6d",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\ConversationWorkspace.tsx",
+                                 "checkpointSHA256":  "e1b5b5ae264c5aa53ab330c8bfd3909212e9f0b325987fd55a85429fa271e20a",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\CourseContentEditor.tsx",
+                                 "checkpointSHA256":  "97256ecc6c817929c3e655b9ee4d7f8443d2cd822d02fc642eb297a287f8ca7e",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\FloatingAcademyChat.tsx",
+                                 "checkpointSHA256":  "30321dc0c95f4d017df3e30d081f2fd0ed8bed2c7cfb7466c38ad6311543c1f8",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\FocusedForm.tsx",
+                                 "checkpointSHA256":  "7f9ab4cfe53cf5903e15e001e70721c376b78c0a9e5740106645461d4732fe69",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\FounderDailyWorkspace.tsx",
+                                 "checkpointSHA256":  "ae422241c8d60dd0f8ad64c90a0bcbc9e35bd4b6b36a18de2b3da06bba739054",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\HorseOrganizer.tsx",
+                                 "checkpointSHA256":  "f728f712ab76453f760d4dfecddab67a8d81f4d541dcea7e0d73521d5818e975",
+                                 "sameAsCheckpoint":  false
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\LessonWorkflow.tsx",
+                                 "checkpointSHA256":  "4cb015caea797ba0407b495967957ebe4b6bf46e5db47efe0b023fecb6f29e0f",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\MemberNavigation.tsx",
+                                 "checkpointSHA256":  "b75e84bdc370939eb7724ec6b06c0e13b85da95272ef75e87d29529a5c482443",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\MessageContactsDialog.tsx",
+                                 "checkpointSHA256":  "93af7b5471dbb5f3e1bd1a66c6b682f0712c918d06fb6f7a90a582314bcf18c8",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\OwnerDashboard.tsx",
+                                 "checkpointSHA256":  "bafb0966f87d2066266a58fc79276977be1e3652f1ca32c5099d7a618c29dada",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\PrivateFileButton.tsx",
+                                 "checkpointSHA256":  "13cd1647eff90f80d615e8a3eed342a65f924d45debecfd8988c98fa22411e31",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\RiderPreferencesEditor.tsx",
+                                 "checkpointSHA256":  "6f44dbb54f9736f560f895c8a9bf60a830b3a96e82631c987bf14759944047fc",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\SignInForm.tsx",
+                                 "checkpointSHA256":  "d82b3b12056c621031485e3053367023b7e78576757a430913464269baa9da1e",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\StudentDashboard.tsx",
+                                 "checkpointSHA256":  "563b2850f56bc904c2361be66628b8c952e4f490d7c7c7aea717790aec732eb8",
+                                 "sameAsCheckpoint":  false
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\StudentHome.tsx",
+                                 "checkpointSHA256":  "66a513ff93100e8619dc77277d0c40c8cd8af34d0c282874f507ca4095885b4e",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\StudentHomeSummary.tsx",
+                                 "checkpointSHA256":  "1f9fae754edf5f308730fd60093b36a879e13a21603d9a7ee3a0ae380d1e18c3",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\accounts\\WorkflowDialog.tsx",
+                                 "checkpointSHA256":  "3089e59884bd4688dc67eb4530ef7fb2827ba8a370e992dccfcf3e9e647e4f24",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\payments\\PaymentDialog.tsx",
+                                 "checkpointSHA256":  "cd8cac868dbed2ead0d2ffa184d04bd70c9be8eb23f2a45bf46b0a0c1174a09b",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\payments\\PaymentForm.tsx",
+                                 "checkpointSHA256":  "e6ab1b8df59d405d302e31bb6909bf5931d78d518751ec11a21f44600e6cdd98",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\payments\\PaymentStarterCard.tsx",
+                                 "checkpointSHA256":  "cccaf54e3f72d9b68314df4c5a4e665b246905b6c0afb2b089db2b7e94c96b7a",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\accordion.tsx",
+                                 "checkpointSHA256":  "b728b30af5d9f770a34d5b4ae85ea720c90664fa55d83ad3d9835f48f20f5846",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\alert-dialog.tsx",
+                                 "checkpointSHA256":  "6f5d2b743e097cc0f38a8201fc9472bbcffa7ef80653eb09ac1733f470dd675c",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\alert.tsx",
+                                 "checkpointSHA256":  "050c08a3ec850a8fae8579b2bdbb4c9b8aa64744b580f07e2b26f7e6fc17dac0",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\aspect-ratio.tsx",
+                                 "checkpointSHA256":  "d72c73d629e37995a0a71647d851d68d6fdcd7ec120797f36ab83a8ee89f2cab",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\avatar.tsx",
+                                 "checkpointSHA256":  "3f1e0c4584f57768a80e3d37bc45046f8773bb87bb8cecd5994007bbe6dfdc8b",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\badge.tsx",
+                                 "checkpointSHA256":  "108023710ad568bd6275889eee268c096e77e74ace173cfec1b5f231b792df06",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\breadcrumb.tsx",
+                                 "checkpointSHA256":  "ab1107eca1e4a95589f67b96ac5c58ed72f4e90789bdd796da4789e05756cadc",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\button.tsx",
+                                 "checkpointSHA256":  "f06a8f0a27cd6d0cb59d55c8adc82bb27061bc1efb520a47d74c51db5854aef0",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\calendar.tsx",
+                                 "checkpointSHA256":  "487ec5021cb7cfa4dfd65a068a5e79e5681e1f6e3f4761e81451539e97eb8940",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\card.tsx",
+                                 "checkpointSHA256":  "53d0983fd47917355ab26c73690c27657f76ed990d421c776e1c758822e016f2",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\carousel.tsx",
+                                 "checkpointSHA256":  "668007dd3c85202cd10bdd5f54882c9d69f5037a1e0d9fe67d03be7a2bd3a387",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\chart.tsx",
+                                 "checkpointSHA256":  "c1a545f9616ac3127a9877a9b6709e2c9ca756785d2cd2e138d2e77947877512",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\checkbox.tsx",
+                                 "checkpointSHA256":  "2b80d1d1f7871c1321a58d8846675f4183cd499ccb7b45d343c83362c0ca6551",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\collapsible.tsx",
+                                 "checkpointSHA256":  "fbe07841b794e0d7d08e87ddaaafadf1dc0c63ecc8389cd2c5b4a0a3f5500df1",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\command.tsx",
+                                 "checkpointSHA256":  "45af1f9ccc89a8ec086c755693cc9ab5e2d58502cf0cbf59e06e0b08ef869c25",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\context-menu.tsx",
+                                 "checkpointSHA256":  "3f4ebfd3c4b9529ef88edc6ae95de3b247f9f7d7ce5b3e9878dc6b313cadc7f1",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\dialog.tsx",
+                                 "checkpointSHA256":  "8644fc7b6b073ff879e5243a2c68ef7b76ada387cdd643708b1abfc111dbbfeb",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\drawer.tsx",
+                                 "checkpointSHA256":  "4aa0c46d31a16691240ff23b412219b7834bd95ccc8ffa918d9a00f36847b3fc",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\dropdown-menu.tsx",
+                                 "checkpointSHA256":  "74db29dbb246dd23d22f9b93c36f49e14ff41f5e1616ebb761033590139c99e6",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\form.tsx",
+                                 "checkpointSHA256":  "349eada8b53e7444ae6d6cd19b4edff45f4f87fc7489572ac97844cbd9fd0616",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\hover-card.tsx",
+                                 "checkpointSHA256":  "8d606e166ef5f9bc4fc3efb1f6ce2f4bb376177a2c6fef16f67f87ad2d13d005",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\input-otp.tsx",
+                                 "checkpointSHA256":  "2afd0fb58ed8ca796dbaaa4a7f2a4c50602df01e5f74e0ace3a3201ff09adc91",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\input.tsx",
+                                 "checkpointSHA256":  "aacef8933fe99ab553e12a82c874a23c97e2b5602eb6f00018454fa0a8d4f7f2",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\label.tsx",
+                                 "checkpointSHA256":  "4d790d260bf73221b05e3918a7fe5f86cb36b10d70955df7fdfcea23a2f10a44",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\menubar.tsx",
+                                 "checkpointSHA256":  "7d9931a721eae883364ff5892f3e9bbdb686f04a11d72dc22abf635ed47e00bd",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\navigation-menu.tsx",
+                                 "checkpointSHA256":  "b3f93b46642320fcaefbf70a478e3441229a3bd2c364d4e2e4c8352d497faf3c",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\pagination.tsx",
+                                 "checkpointSHA256":  "aefb79477d56ec4f36a3b5503d11766503dd5148b365bb93d972f1c869df9868",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\popover.tsx",
+                                 "checkpointSHA256":  "ee5f78ece57c9e8eb5f9b4186e2bb9ebe46b69b52f03f1edd9a601883bc64772",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\progress.tsx",
+                                 "checkpointSHA256":  "d1eed76fb201e43490fc7809f8ce64016a80954c20491f941a10751873d933d5",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\radio-group.tsx",
+                                 "checkpointSHA256":  "d8a176b5ef21def2ab06a7724445f58ee17350b2178eea6b302bc3079a009c5c",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\resizable.tsx",
+                                 "checkpointSHA256":  "18f6398bf83de5bd5d109abd7fa5e02d68f4daec30d9f8772be75f5aa7aa189b",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\scroll-area.tsx",
+                                 "checkpointSHA256":  "55190fb3d0243c6108ff57b5235c29e86ffb1a0879a74c872a91d568ee441671",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\select.tsx",
+                                 "checkpointSHA256":  "456e9bd42dc4460fbccce37cf22b999e20a7afbc76ac233f1abd7abbae882712",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\separator.tsx",
+                                 "checkpointSHA256":  "687c8b7e2f53672eb3aca4389916a03bbe2c95441719e6c46e7c5143713fc41d",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\sheet.tsx",
+                                 "checkpointSHA256":  "42293ffdb0d5160a11332d763002f83cce49b67a4ff61704b147f9b01aeca65c",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\sidebar.tsx",
+                                 "checkpointSHA256":  "0e3ba43b0359700f247903ab9c455aa0c2792abbd81e7447066d32530c4abfbe",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\skeleton.tsx",
+                                 "checkpointSHA256":  "8913724bc2d578e429c2adf993f24bd132696e2c561d80d352706a947bc551d2",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\slider.tsx",
+                                 "checkpointSHA256":  "b93ed37b5a78b2d7628abe8e738521a8ed1d19d2a670eb674e11a03069cf4766",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\sonner.tsx",
+                                 "checkpointSHA256":  "dd6d83b7a084015b0f673ff9fc4b63071a40ef62bffd56bc261bdf5f58654d89",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\switch.tsx",
+                                 "checkpointSHA256":  "45f67ad2d40d1c43f78d96589b08336a05fa1f1a7f0f36b80d7d5c42d922f567",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\table.tsx",
+                                 "checkpointSHA256":  "f45be6aaffb5c73ad55d7e80e65167028a1ceedf9cafd181ad57f135180edbc2",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\tabs.tsx",
+                                 "checkpointSHA256":  "b73b137c819c8f11bc38f09182a9ac275af88145d03eb84738d866e50d2ca2e9",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\textarea.tsx",
+                                 "checkpointSHA256":  "cb2ceddd94824f4449bf30c30768c2b9e365f7d8a3860afda5eddb5516a544b3",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\toast.tsx",
+                                 "checkpointSHA256":  "020edff7e045a127e6f2f5cc18fb27fd08bbbf4d5d7958aa5825a601f80463b0",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\toaster.tsx",
+                                 "checkpointSHA256":  "a6df21d77b586ca1468e38052bd58e44c056721a40a48c8a0cc8fb5edbd39f65",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\toggle-group.tsx",
+                                 "checkpointSHA256":  "33d4f795fd736c599fcdb18acd29a7c954520e2e1773d5e3daf298dad5906aaa",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\toggle.tsx",
+                                 "checkpointSHA256":  "62aa0dc621e296e3904cbc025d596b6d95321ffeac6c7aec244eba6598860445",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\tooltip.tsx",
+                                 "checkpointSHA256":  "bd9361649477cf9496f4b48415a2eafb9ae1ebca81af58a29b61b1516adc88c1",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\components\\ui\\use-toast.ts",
+                                 "checkpointSHA256":  "d48c4c490e5101aa42ceed9b8ca49642d66152ba11daf7ee6c29bee0f5172c37",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\contexts\\SessionContext.tsx",
+                                 "checkpointSHA256":  "c5678e8df2d6da21bd437bb09853e88b5fde031187300bd778e34b590046fa0f",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\hooks\\use-academy.ts",
+                                 "checkpointSHA256":  "ebfaafbb8c102007e0825235ab1dbdda7da3bf6c5f171ab276561f56ce526bfd",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\hooks\\use-messaging.ts",
+                                 "checkpointSHA256":  "bc1d98ae8c7d6cfa4436f440c17b36f4e44b78adc193b7dcfb303f00745021c5",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\hooks\\use-mobile.tsx",
+                                 "checkpointSHA256":  "738d8e4520edeca7caa2ca56a4923839e30be14a00fc32b5a770f5d5b451a63e",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\hooks\\use-toast.ts",
+                                 "checkpointSHA256":  "4b70ac2ad6f1c640249bb43667f86d8447985c49be8bd0335897ad0ae7c70694",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\hooks\\use-unsaved-work.ts",
+                                 "checkpointSHA256":  "ed24bf74d40caab605eda88354e0ae941a18ba35b719ef88f73d38f722566a2d",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\integrations\\supabase\\client.ts",
+                                 "checkpointSHA256":  "75030465ae8ee38e50b56fdb0d7fd93d0c6a1c2526a07949fa66dacdaa148728",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\academy.ts",
+                                 "checkpointSHA256":  "ea60f945384c9bcdebb32eddecbe5dbaeb2b267f241ca4ca2f18532d61aec548",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\auth-storage.ts",
+                                 "checkpointSHA256":  "b8d798715f053d30b6fbb0c249764d7edaf0da7b0a8771b68180f49d3ceb89d6",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\coaching.ts",
+                                 "checkpointSHA256":  "ad1dcc72fd48f1f50f94a5ee89241a6459306f71b739fc956f2f9957f3001154",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\conversations.ts",
+                                 "checkpointSHA256":  "678d5d337a940f14db1a790bf7bd4b9979d3d81ca1bf6311801f24c93096ada5",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\dashboard-workspace.ts",
+                                 "checkpointSHA256":  "8c3dd3f5e5dc69927fb14da0038123d3e35c2c002a94493896ec05506583d725",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\elmony_preview_probe.ts",
+                                 "checkpointSHA256":  "76a78d5dc4c996018e924cebfcec41cac9bd4e7265c423aaf7dc8ba6a0686c2b",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\hka-content.ts",
+                                 "checkpointSHA256":  "357c2f700625bb9c7c95fa076aafffd396608d4bca0e0e22b3f8d7a783513e97",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\messaging.ts",
+                                 "checkpointSHA256":  "9bbb459e1b4953543c3f9bda7e3a429fcaca9104247653ffaf8c5363bec71994",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\utils.ts",
+                                 "checkpointSHA256":  "d1f1e0d62cb8d8d1e04c26e14de842d8a151f75812d81b046c65b5d1fe8e4b27",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\payments\\config.ts",
+                                 "checkpointSHA256":  "4c3b30b23b2df0d0b8065482602dbc49c4b8174429849fe509116260395b89da",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\lib\\payments\\create-payment-intent.ts",
+                                 "checkpointSHA256":  "aa6bfb42edab0145127f57de6a986bd22950d37db4ae8b5334e75187a5bf23d8",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\About.tsx",
+                                 "checkpointSHA256":  "93e5a62f62b7af6f61b0984656d402485337f2d494347c8e0c6ff7a0e099fa66",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\AcademyWorkspace.tsx",
+                                 "checkpointSHA256":  "da7f6495a57e0e6c4591f047d773c39d9d01f3c49e76b69d5e8deabca94b81ab",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\AccountPage.tsx",
+                                 "checkpointSHA256":  "8c9c5490fd2a198418fda8b0eea5af3db6cf8bad1eb7d89bdc22d2fa0815b807",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\CoursePlayer.tsx",
+                                 "checkpointSHA256":  "f45d73381b4ca0ffddeaa67ff13042db05c8b5a5cde7828f4f3296a6f807b2a0",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\Dashboard.tsx",
+                                 "checkpointSHA256":  "3ae3bb80a7b770cc253da19b57f5bdfceb25eba66a7db6b8c883128f092c6fce",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\Index.tsx",
+                                 "checkpointSHA256":  "a8c3304d94369954c5bdf564667d83f224a421d5f4bc583c8f5d04fcb3ea753a",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\LearningPathways.tsx",
+                                 "checkpointSHA256":  "d69f8e3de702dcd63ffa526a5e3745f9e29dbb1dfcf6700e7b73bb155790d94a",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\MemberAccountSettings.tsx",
+                                 "checkpointSHA256":  "661298652066a3d4f22720b9ea590fc87789f21e5eff7d0fe628c48141e2c959",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\Memberships.tsx",
+                                 "checkpointSHA256":  "90ed2cf405d79222fd5a0aebb16da4ce9d0e89cc4c8dd321aabf8c29bdf3f3b0",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\NotFound.tsx",
+                                 "checkpointSHA256":  "24f7d8abca9201c11632edbdb2d1662d03a6599a87be0fb66098967e16b30816",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\PathwayDetail.tsx",
+                                 "checkpointSHA256":  "be8036b4e15f19922ae99803a240f12bf126d9b12b6010866823f2aa16930759",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\PaymentSuccess.tsx",
+                                 "checkpointSHA256":  "5cb9a7ab4a8abed13ec61bdeabd704e43b0eb2437f1af8aa69287a7e316a7459",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\pages\\UserManagementProfile.tsx",
+                                 "checkpointSHA256":  "89e0f757a75fe6bb1024f3f300d0848e4e38966f7aaf4e6d5bbab9f6548f1501",
+                                 "sameAsCheckpoint":  true
+                             },
+                             {
+                                 "path":  "src\\utils\\toast.ts",
+                                 "checkpointSHA256":  "328f94e9c711410b23188484a0a2f38886d7732d5c375cefcba442ab6195783f",
+                                 "sameAsCheckpoint":  true
+                             }
+                         ]
+}
