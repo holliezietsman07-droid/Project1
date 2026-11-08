@@ -1,0 +1,1 @@
+do $$ begin if exists(select 1 from public.hka_profiles) or exists(select 1 from auth.users) or exists(select 1 from public.hka_messages) or to_regnamespace('hka_messaging') is not null or to_regnamespace('hka_messaging_test') is not null then raise exception 'Test transaction cleanup failed'; end if; end $$;

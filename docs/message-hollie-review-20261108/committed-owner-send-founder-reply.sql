@@ -1,0 +1,12 @@
+select hka_messaging_test.ok(hka_messaging_test.fingerprint()=(select value from hka_messaging_test.fingerprints where label='before_migration'),'committed forward preserves all application rows');
+reset role; select set_config('request.jwt.claim.sub',hka_messaging_test.uid(9)::text,false); set role authenticated;
+select hka_messaging_test.denied('insert into public.hka_messages(sender_id,recipient_id,student_id,body) values(hka_messaging_test.uid(9),hka_messaging_test.uid(18),null,''Adult Horse Owner exact message to Hollie'')','Horse Owner cannot divert Message Hollie to second Admin');
+insert into public.hka_messages(sender_id,recipient_id,student_id,body) values(hka_messaging_test.uid(9),hka_messaging_test.uid(1),null,'Adult Horse Owner exact message to Hollie');
+reset role; select set_config('request.jwt.claim.sub',hka_messaging_test.uid(18)::text,false); set role authenticated;
+select hka_messaging_test.ok(not exists(select 1 from public.hka_messages where body='Adult Horse Owner exact message to Hollie'),'second Admin cannot receive or read committed owner message');
+do $$ declare changed integer; begin update public.hka_messages set read_at=now() where body='Adult Horse Owner exact message to Hollie'; get diagnostics changed=row_count; if changed<>0 then raise exception 'Second Admin changed private read receipt'; end if; end $$;
+reset role; select set_config('request.jwt.claim.sub',hka_messaging_test.uid(1)::text,false); set role authenticated;
+select hka_messaging_test.ok((select count(*)=1 and bool_and(read_at is null) from public.hka_messages where sender_id=hka_messaging_test.uid(9) and recipient_id=hka_messaging_test.uid(1) and student_id is null and body='Adult Horse Owner exact message to Hollie'),'committed exact Horse Owner message arrives unread in Founder inbox');
+select row_to_json(m) from public.hka_messages m where sender_id=hka_messaging_test.uid(9) and recipient_id=hka_messaging_test.uid(1) and student_id is null and body='Adult Horse Owner exact message to Hollie';
+update public.hka_messages set read_at=now() where sender_id=hka_messaging_test.uid(9) and recipient_id=hka_messaging_test.uid(1) and student_id is null and body='Adult Horse Owner exact message to Hollie';
+insert into public.hka_messages(sender_id,recipient_id,student_id,body) values(hka_messaging_test.uid(1),hka_messaging_test.uid(9),null,'Hollie exact Horse Owner reply');

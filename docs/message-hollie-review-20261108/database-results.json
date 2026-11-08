@@ -1,0 +1,543 @@
+{
+  "startedAt": "2026-11-08T08:39:34.038Z",
+  "status": "PASS",
+  "authorization": "Founder current request: forward/rollback in empty disposable local database with synthetic accounts",
+  "scope": "Relevant HKA schema reconstructed from reviewed catalog; real PostgreSQL roles/RLS, synthetic auth shim; no live API/JWT verification",
+  "connectedProject": "sqaydpbqycvaictieafk",
+  "connectedStatus": "PENDING_SEPARATE_FOUNDER_APPROVAL",
+  "connectedMutations": false,
+  "deployments": false,
+  "runId": "1794127174038",
+  "target": {
+    "container": "hka-message-hollie-review-1794127174038",
+    "database": "hka_messaging_security_20261106_designated_founder",
+    "image": "public.ecr.aws/supabase/postgres:17.11.0.003",
+    "dockerEndpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+    "imageId": "sha256:7374d196da7e301512cc5329e18040e0f7bb856287b323777cdadecccbc6c7e4",
+    "imageDigests": [
+      "public.ecr.aws/supabase/postgres@sha256:7374d196da7e301512cc5329e18040e0f7bb856287b323777cdadecccbc6c7e4"
+    ],
+    "containerId": "9d034a0e57a9077d8902ad5145c7bf0eb78e2b1e3b3636fea2c1834db523deac",
+    "isolationVerifiedAt": "2026-11-08T08:39:35.685Z",
+    "network": "none",
+    "publishedPorts": [],
+    "hostBindMounts": [],
+    "storage": "tmpfs /tmp only; read-only root filesystem"
+  },
+  "inputManifest": {
+    "path": "docs/message-hollie-checksums.json",
+    "sha256": "783a285d20d0cd6fcd40437562f0ebcffb52811163438eb4232b2bca90ba95a1"
+  },
+  "hashChecks": [
+    {
+      "path": "src/lib/messaging.ts",
+      "expected": "9bbb459e1b4953543c3f9bda7e3a429fcaca9104247653ffaf8c5363bec71994",
+      "actual": "9bbb459e1b4953543c3f9bda7e3a429fcaca9104247653ffaf8c5363bec71994",
+      "bytes": 2754,
+      "matches": true
+    },
+    {
+      "path": "src/lib/conversations.ts",
+      "expected": "678d5d337a940f14db1a790bf7bd4b9979d3d81ca1bf6311801f24c93096ada5",
+      "actual": "678d5d337a940f14db1a790bf7bd4b9979d3d81ca1bf6311801f24c93096ada5",
+      "bytes": 5238,
+      "matches": true
+    },
+    {
+      "path": "src/components/accounts/FloatingAcademyChat.tsx",
+      "expected": "30321dc0c95f4d017df3e30d081f2fd0ed8bed2c7cfb7466c38ad6311543c1f8",
+      "actual": "30321dc0c95f4d017df3e30d081f2fd0ed8bed2c7cfb7466c38ad6311543c1f8",
+      "bytes": 3316,
+      "matches": true
+    },
+    {
+      "path": "src/components/accounts/AcademyMessages.tsx",
+      "expected": "b707bf41bf607bdaa672521d5342aab801c7c0f1d4a26b607558b3027b5cca1a",
+      "actual": "b707bf41bf607bdaa672521d5342aab801c7c0f1d4a26b607558b3027b5cca1a",
+      "bytes": 3179,
+      "matches": true
+    },
+    {
+      "path": "supabase/proposals/202611060001_message_hollie.sql",
+      "expected": "44e987828a138e6c784761e684e8f18c24fb855ee8222d7eb678e33d92e47173",
+      "actual": "44e987828a138e6c784761e684e8f18c24fb855ee8222d7eb678e33d92e47173",
+      "bytes": 22323,
+      "matches": true
+    },
+    {
+      "path": "supabase/proposals/202611060001_message_hollie.rollback.sql",
+      "expected": "194f577577150ded4795f64246659d394e693279df5fa3b3d3d74718747e68a0",
+      "actual": "194f577577150ded4795f64246659d394e693279df5fa3b3d3d74718747e68a0",
+      "bytes": 6406,
+      "matches": true
+    },
+    {
+      "path": "supabase/tests/founder_messaging/fixtures.sql",
+      "expected": "f499e92fef6a43a3871d471de1e5be2d49275fd4727fed585d6ba9b813d6d382",
+      "actual": "f499e92fef6a43a3871d471de1e5be2d49275fd4727fed585d6ba9b813d6d382",
+      "bytes": 7207,
+      "matches": true
+    },
+    {
+      "path": "supabase/tests/founder_messaging/run-message-hollie.cjs",
+      "expected": "c4ad794a01bf4d8e0d46272bccc64b8434e0c35b1c8e5262cab9ff5be7f2ad6c",
+      "actual": "c4ad794a01bf4d8e0d46272bccc64b8434e0c35b1c8e5262cab9ff5be7f2ad6c",
+      "bytes": 23687,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-unit.cjs",
+      "expected": "8c87c1f1d1e308ab6c8b47e0d7ff6a81790d7ef1b4b1fec9535f96c8fc9c9d51",
+      "actual": "8c87c1f1d1e308ab6c8b47e0d7ff6a81790d7ef1b4b1fec9535f96c8fc9c9d51",
+      "bytes": 5087,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-browser.cjs",
+      "expected": "159a948a4b4ee9d6c173b1a9eaab94dd2a1a09c698465800784da9da0e195f26",
+      "actual": "159a948a4b4ee9d6c173b1a9eaab94dd2a1a09c698465800784da9da0e195f26",
+      "bytes": 16330,
+      "matches": true
+    },
+    {
+      "path": ".elmony/release-cdp.cjs",
+      "expected": "efd181db261bba7c759b14249aecb0d712ee1fa5784fbc71604d747abd9e62bd",
+      "actual": "efd181db261bba7c759b14249aecb0d712ee1fa5784fbc71604d747abd9e62bd",
+      "bytes": 4571,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-security-suite.sql",
+      "expected": "6e2512266ed63cd205ba4e91e176eddde0de3fdc0eb31bfb9bee12f6d51e8064",
+      "actual": "6e2512266ed63cd205ba4e91e176eddde0de3fdc0eb31bfb9bee12f6d51e8064",
+      "bytes": 158363,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-local-schema.sql",
+      "expected": "cdd7ae4e3e90789c244047c6e16e3d7a5d7ff9cc46b0a2783a0880e5cf02b400",
+      "actual": "cdd7ae4e3e90789c244047c6e16e3d7a5d7ff9cc46b0a2783a0880e5cf02b400",
+      "bytes": 64416,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-evidence/results.json",
+      "expected": "adb1d2291f592afab1a184ae5c8978ee6d0926e88a9ee0c2fec71577432ce871",
+      "actual": "adb1d2291f592afab1a184ae5c8978ee6d0926e88a9ee0c2fec71577432ce871",
+      "bytes": 5064,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-evidence/founder-horse-owner-unread.png",
+      "expected": "36f5a3cb62002bf6a9b42e596430e61532478ec0f4d4e95f2b53effd7a68d8a8",
+      "actual": "36f5a3cb62002bf6a9b42e596430e61532478ec0f4d4e95f2b53effd7a68d8a8",
+      "bytes": 160794,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-evidence/coach-dedicated-message-hollie.png",
+      "expected": "126aa543b46f366c50f542910f71c32a8304d75743345537d5a2576747cd5f15",
+      "actual": "126aa543b46f366c50f542910f71c32a8304d75743345537d5a2576747cd5f15",
+      "bytes": 151498,
+      "matches": true
+    },
+    {
+      "path": "docs/MESSAGE_HOLLIE_APPROVAL.md",
+      "expected": "ac3c34ae20be38c52407967144e1be1173478f154df8ac8238814e35af521b5c",
+      "actual": "ac3c34ae20be38c52407967144e1be1173478f154df8ac8238814e35af521b5c",
+      "bytes": 7931,
+      "matches": true
+    },
+    {
+      "path": "docs/MESSAGE_HOLLIE_ISOLATED_TEST_PLAN.md",
+      "expected": "68dde5c1477d44a00ad851f4a61527d512ae90c15c714e59870e6cf7187fc1f5",
+      "actual": "68dde5c1477d44a00ad851f4a61527d512ae90c15c714e59870e6cf7187fc1f5",
+      "bytes": 8266,
+      "matches": true
+    },
+    {
+      "path": "docs/message-hollie-suite-preparation.json",
+      "expected": "665f8614b3e81895b14151a7480b215f449818a786d31e626d7971498d0bad77",
+      "actual": "665f8614b3e81895b14151a7480b215f449818a786d31e626d7971498d0bad77",
+      "bytes": 1129,
+      "matches": true
+    },
+    {
+      "path": "docs/message-hollie-checks.json",
+      "expected": "625d9cbedef3ebf095bf9506cc4d51f367feaf3dfdb7aa1463daf08765994c0e",
+      "actual": "625d9cbedef3ebf095bf9506cc4d51f367feaf3dfdb7aa1463daf08765994c0e",
+      "bytes": 1959,
+      "matches": true
+    },
+    {
+      "path": "supabase/activation/202610220001_founder_role.sql",
+      "expected": "5ae2bc2688e49198c4e6c2136c7fcfb031925ca649708518973eab0a82445817",
+      "actual": "5ae2bc2688e49198c4e6c2136c7fcfb031925ca649708518973eab0a82445817",
+      "bytes": 2188,
+      "matches": true
+    },
+    {
+      "path": "supabase/tests/founder_messaging/local-schema.cjs",
+      "expected": "80cfa333384ba263db523f3d3b737f668bde1fc0f4665120538c71cdbaeb1529",
+      "actual": "80cfa333384ba263db523f3d3b737f668bde1fc0f4665120538c71cdbaeb1529",
+      "bytes": 6482,
+      "matches": true
+    },
+    {
+      "path": "supabase/tests/founder_messaging/hosted-schema-input.cjs",
+      "expected": "5d7565461f781488ecd15d7f632aac6918666324ec34d94e7d41e1ab70eb2b7c",
+      "actual": "5d7565461f781488ecd15d7f632aac6918666324ec34d94e7d41e1ab70eb2b7c",
+      "bytes": 3978,
+      "matches": true
+    },
+    {
+      "path": "docs/founder-messaging-evidence/hosted-compatibility-snapshot.json",
+      "expected": "079bda8491b11bb6161189795a4004ffacb6a511430a1c47a7464a7b62fcce05",
+      "actual": "079bda8491b11bb6161189795a4004ffacb6a511430a1c47a7464a7b62fcce05",
+      "bytes": 54693,
+      "matches": true
+    }
+  ],
+  "phases": [
+    {
+      "name": "empty-target",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 0,
+      "expectedAssertions": 0,
+      "passes": [],
+      "errors": [],
+      "sqlSHA256": "145a81885150951d42651b420f48c0625fdd24727b09ff7cf08cbda9151d1717",
+      "log": "docs/message-hollie-review-20261108/empty-target.log"
+    },
+    {
+      "name": "schema-parity",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 0,
+      "expectedAssertions": 0,
+      "passes": [],
+      "errors": [],
+      "sqlSHA256": "ed0a2cadbbdcadc612d12266dcd65c42a9586f6ad72a9d95f8e2ee56bb93c8b3",
+      "log": "docs/message-hollie-review-20261108/schema-parity.log"
+    },
+    {
+      "name": "empty-baseline",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 0,
+      "expectedAssertions": 0,
+      "passes": [],
+      "errors": [],
+      "sqlSHA256": "f4e45aae77274d81012cb670d4fb30fb225aa579d66a6f8a399ab5fdd51af9f3",
+      "log": "docs/message-hollie-review-20261108/empty-baseline.log"
+    },
+    {
+      "name": "reviewed-forward-rollback-suite",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 129,
+      "expectedAssertions": 129,
+      "passes": [
+        "same-name SELECT expression drift",
+        "same-name INSERT expression drift",
+        "policy role-target drift",
+        "INSERT PUBLIC role-target drift",
+        "UPDATE PUBLIC role-target drift",
+        "anonymous role-target drift",
+        "role-target superset drift",
+        "UPDATE USING expression drift",
+        "UPDATE WITH CHECK expression drift",
+        "missing baseline policy",
+        "same-count policy name drift",
+        "policy command drift",
+        "policy permissiveness drift",
+        "extra permissive policy",
+        "migration preserves every public HKA application row",
+        "new exposed API has no SECURITY DEFINER function",
+        "anonymous API and arbitrary privileged role helper denied",
+        "only read receipt column updates granted",
+        "only designated Hollie is Founder despite two authorised Admins",
+        "identity helper is owner-only",
+        "Founder on Coach dashboard sees active member directory",
+        "Founder directory flags independent of selected dashboard",
+        "Founder cannot read unrelated private conversations",
+        "Founder sends to 2 without assignment",
+        "recipient 2 replies to Founder",
+        "Founder sends to 3 without assignment",
+        "recipient 3 replies to Founder",
+        "Founder sends to 5 without assignment",
+        "recipient 5 replies to Founder",
+        "Founder sends to 6 without assignment",
+        "recipient 6 replies to Founder",
+        "Founder sends to 9 without assignment",
+        "recipient 9 replies to Founder",
+        "Founder sends to 7 without assignment",
+        "recipient 7 replies to Founder",
+        "Founder sends to 16 without assignment",
+        "recipient 16 replies to Founder",
+        "Founder sends to 18 without assignment",
+        "recipient 18 replies to Founder",
+        "adult Horse Owner receives NULL direct scope and designated Founder UUID",
+        "member cannot discover second Admin or global directory",
+        "adult-only Horse Owner cannot invent a Student scope",
+        "second Admin has no Founder directory",
+        "second Admin cannot discover unrelated Horse Owner",
+        "second Admin cannot read private Horse Owner to Hollie message",
+        "second Admin cannot initiate unrelated member direct message",
+        "exact Horse Owner message arrives unread for designated Founder only",
+        "Founder opening exact Horse Owner message records recipient read receipt",
+        "exact Founder reply arrives unread for Horse Owner",
+        "Founder cannot bypass suspension, verification, role approval or minor consent: 10",
+        "Founder cannot bypass suspension, verification, role approval or minor consent: 11",
+        "Founder cannot bypass suspension, verification, role approval or minor consent: 12",
+        "Founder cannot bypass suspension, verification, role approval or minor consent: 13",
+        "Founder cannot bypass suspension, verification, role approval or minor consent: 15",
+        "Founder cannot spoof sender",
+        "Founder cannot hide Student scope",
+        "Coach lacks global directory and unrelated contacts",
+        "Coach cannot message unrelated Student",
+        "Coach cannot bypass missing minor consent despite assignment",
+        "Coach cannot spoof another Student scope",
+        "Coach cannot read another Coach conversation",
+        "Student cannot message unrelated Student",
+        "Horse Owner cannot message arbitrary Student",
+        "Guardian reads own Coach DM and child conversation",
+        "Guardian cannot read another guardian Founder DM with child scope",
+        "second Guardian cannot read first Guardian private Coach DM",
+        "second Guardian retains child/Coach and child/Founder oversight",
+        "actual recipient can mark message read",
+        "recipient cannot rewrite body",
+        "recipient cannot clear read receipt",
+        "inactive or unapproved actor 10 receives no contacts",
+        "inactive or unapproved actor 10 cannot initiate Founder message",
+        "inactive or unapproved actor 11 receives no contacts",
+        "inactive or unapproved actor 11 cannot initiate Founder message",
+        "inactive or unapproved actor 12 receives no contacts",
+        "inactive or unapproved actor 12 cannot initiate Founder message",
+        "inactive or unapproved actor 15 receives no contacts",
+        "inactive or unapproved actor 15 cannot initiate Founder message",
+        "second approved Guardian can privately message assigned Coach",
+        "unrelated Coach cannot contact another child Guardian",
+        "recipient cannot delete message history",
+        "recipient cannot change sender_id",
+        "recipient cannot change recipient_id",
+        "recipient cannot change student_id",
+        "recipient cannot change created_at",
+        "recipient cannot change id",
+        "sender cannot insert a forged read receipt",
+        "pending Guardian cannot read child or private guardian history",
+        "multi-role 1 sends from admin dashboard",
+        "multi-role 1 sends from student dashboard",
+        "multi-role 1 sends from guardian dashboard",
+        "multi-role 1 sends from coach dashboard",
+        "multi-role 1 sends from horse_owner dashboard",
+        "multi-role 3 sends from coach dashboard",
+        "multi-role 3 sends from student dashboard",
+        "multi-role 3 sends from guardian dashboard",
+        "multi-role 3 sends from horse_owner dashboard",
+        "multi-role 5 sends from guardian dashboard",
+        "multi-role 5 sends from student dashboard",
+        "multi-role 5 sends from coach dashboard",
+        "multi-role 5 sends from horse_owner dashboard",
+        "revoked designated Founder cannot receive new direct sends",
+        "second Admin cannot replace revoked Founder",
+        "adult with stored DOB can message assigned Coach without birth date in auth metadata",
+        "claimed adult DOB in auth metadata cannot bypass actual minor consent",
+        "missing DOB is unknown age; approved Student role alone cannot bypass consent",
+        "missing DOB cannot bypass Founder safeguarding",
+        "unknown-age Coach messaging still requires specific Coach consent",
+        "unknown-age Student allowed only after both activation and specific Coach consent",
+        "assignment revocation blocks new sends",
+        "participant history survives assignment revocation",
+        "revoked Coach consent blocks new minor messages",
+        "Founder cannot bypass revoked account activation consent",
+        "revoked Guardian loses child oversight",
+        "anonymous contact API denied",
+        "anonymous table reads denied",
+        "rollback detects same-name policy drift",
+        "rollback rejects disable guard",
+        "rollback rejects enable replica guard",
+        "rollback preserves every public HKA application row",
+        "rollback retains designated identity without promoting second Admin",
+        "rollback disables platform Founder direct sends",
+        "rollback removes global Founder directory grants",
+        "rollback retains NULL-scope Founder history",
+        "rollback never restores global Founder private reads",
+        "rollback preserves cross-guardian isolation and child oversight",
+        "assigned Coach messaging survives restrictive rollback",
+        "restrictive rollback retains enabled immutable-message guard",
+        "recipient cannot clear receipt after rollback"
+      ],
+      "errors": [],
+      "sqlSHA256": "6e2512266ed63cd205ba4e91e176eddde0de3fdc0eb31bfb9bee12f6d51e8064",
+      "log": "docs/message-hollie-review-20261108/reviewed-forward-rollback-suite.log"
+    },
+    {
+      "name": "transaction-cleanup",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 0,
+      "expectedAssertions": 0,
+      "passes": [],
+      "errors": [],
+      "sqlSHA256": "0912b99b0a5ad52873d366aa0892c7732502134f1d797093db9aaaf69ae955cc",
+      "log": "docs/message-hollie-review-20261108/transaction-cleanup.log"
+    },
+    {
+      "name": "committed-fixtures",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 0,
+      "expectedAssertions": 0,
+      "passes": [],
+      "errors": [],
+      "sqlSHA256": "28e72825aa48e090a4aac8ff0f4af9d0658a8660bd1e0a55396048662d980e1f",
+      "log": "docs/message-hollie-review-20261108/committed-fixtures.log"
+    },
+    {
+      "name": "committed-forward-exact",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 0,
+      "expectedAssertions": 0,
+      "passes": [],
+      "errors": [],
+      "sqlSHA256": "44e987828a138e6c784761e684e8f18c24fb855ee8222d7eb678e33d92e47173",
+      "log": "docs/message-hollie-review-20261108/committed-forward-exact.log"
+    },
+    {
+      "name": "committed-owner-send-founder-reply",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 4,
+      "expectedAssertions": 4,
+      "passes": [
+        "committed forward preserves all application rows",
+        "Horse Owner cannot divert Message Hollie to second Admin",
+        "second Admin cannot receive or read committed owner message",
+        "committed exact Horse Owner message arrives unread in Founder inbox"
+      ],
+      "errors": [],
+      "sqlSHA256": "c553aae0abb86fe00e4168d45b94f221bca430d1bdf6b6aa0fc1027d1b5fece8",
+      "log": "docs/message-hollie-review-20261108/committed-owner-send-founder-reply.log"
+    },
+    {
+      "name": "committed-reply-receipt",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 2,
+      "expectedAssertions": 2,
+      "passes": [
+        "exact Founder reply persists unread for Horse Owner across connections",
+        "second Admin cannot read either side of committed private conversation"
+      ],
+      "errors": [],
+      "sqlSHA256": "5367ede82ea915610d709cc6cd4508df491e2f02b25385e5f695b58daf17cd78",
+      "log": "docs/message-hollie-review-20261108/committed-reply-receipt.log"
+    },
+    {
+      "name": "committed-rollback-exact",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 0,
+      "expectedAssertions": 0,
+      "passes": [],
+      "errors": [],
+      "sqlSHA256": "194f577577150ded4795f64246659d394e693279df5fa3b3d3d74718747e68a0",
+      "log": "docs/message-hollie-review-20261108/committed-rollback-exact.log"
+    },
+    {
+      "name": "committed-rollback-history-privacy",
+      "status": "PASS",
+      "exitCode": 0,
+      "assertionsPassed": 7,
+      "expectedAssertions": 7,
+      "passes": [
+        "committed rollback preserves every application row including private content and read receipts",
+        "Founder retains exact owner history and reply state after committed rollback",
+        "rollback freezes new Founder direct sends",
+        "rollback removes Founder directory",
+        "Horse Owner retains both private messages after rollback",
+        "second Admin still cannot read private history after rollback",
+        "second Admin cannot send unrelated messages after rollback"
+      ],
+      "errors": [],
+      "sqlSHA256": "bebcc9298023366e1ef1540cddf3f7fa597dcf3ef9f3c92b9a2f49b3d5397074",
+      "log": "docs/message-hollie-review-20261108/committed-rollback-history-privacy.log"
+    }
+  ],
+  "cleanup": true,
+  "hashGate": "PASS",
+  "runnerSHA256": "f87296a8754a4303037ae1bc941194dbd6d45544a8033e340c126ee86080091e",
+  "dockerVersion": {
+    "Client": {
+      "Version": "29.9.2",
+      "ApiVersion": "1.56",
+      "DefaultAPIVersion": "1.56",
+      "GitCommit": "a82e528",
+      "GoVersion": "go1.26.10",
+      "Os": "windows",
+      "Arch": "amd64",
+      "BuildTime": "Tue Oct 20 19:44:07 2026",
+      "Context": "desktop-linux"
+    },
+    "Server": {
+      "Platform": {
+        "Name": "Docker Desktop 4.97.0 (244584)"
+      },
+      "Version": "29.9.2",
+      "ApiVersion": "1.56",
+      "MinAPIVersion": "1.40",
+      "Os": "linux",
+      "Arch": "amd64",
+      "Components": [
+        {
+          "Name": "Engine",
+          "Version": "29.9.2",
+          "Details": {
+            "ApiVersion": "1.56",
+            "Arch": "amd64",
+            "BuildTime": "Tue Oct 20 18:45:02 2026",
+            "Experimental": "false",
+            "GitCommit": "0367cbe",
+            "GoVersion": "go1.26.10",
+            "KernelVersion": "6.18.54.1-microsoft-standard-WSL2",
+            "MinAPIVersion": "1.40",
+            "Module": "github.com/moby/moby/v2",
+            "ModuleVersion": "v2.0.0+unknown",
+            "Os": "linux"
+          }
+        },
+        {
+          "Name": "containerd",
+          "Version": "v2.4.2",
+          "Details": {
+            "GitCommit": "b7a25261e029d68978bbf290df0a62fc819b3c51"
+          }
+        },
+        {
+          "Name": "runc",
+          "Version": "1.5.2",
+          "Details": {
+            "GitCommit": "v1.5.2-0-g29dd3dc2"
+          }
+        },
+        {
+          "Name": "docker-init",
+          "Version": "0.19.0",
+          "Details": {
+            "GitCommit": "de40ad0"
+          }
+        }
+      ],
+      "GitCommit": "0367cbe",
+      "GoVersion": "go1.26.10",
+      "KernelVersion": "6.18.54.1-microsoft-standard-WSL2",
+      "BuildTime": "2026-10-20T18:45:02.000000000+00:00"
+    }
+  },
+  "finishedAt": "2026-11-08T08:39:43.948Z",
+  "assertionsPassed": 142,
+  "failedPhases": 0
+}

@@ -1,0 +1,6 @@
+reset role; select set_config('request.jwt.claim.sub',hka_messaging_test.uid(9)::text,false); set role authenticated;
+select hka_messaging_test.ok((select count(*)=1 and bool_and(read_at is null) from public.hka_messages where sender_id=hka_messaging_test.uid(1) and recipient_id=hka_messaging_test.uid(9) and student_id is null and body='Hollie exact Horse Owner reply'),'exact Founder reply persists unread for Horse Owner across connections');
+select row_to_json(m) from public.hka_messages m where sender_id=hka_messaging_test.uid(1) and recipient_id=hka_messaging_test.uid(9) and student_id is null and body='Hollie exact Horse Owner reply';
+reset role; select set_config('request.jwt.claim.sub',hka_messaging_test.uid(18)::text,false); set role authenticated;
+select hka_messaging_test.ok(not exists(select 1 from public.hka_messages where body in ('Adult Horse Owner exact message to Hollie','Hollie exact Horse Owner reply')),'second Admin cannot read either side of committed private conversation');
+reset role; insert into hka_messaging_test.fingerprints values('committed_before_rollback',hka_messaging_test.fingerprint()); select label,value from hka_messaging_test.fingerprints where label='committed_before_rollback';

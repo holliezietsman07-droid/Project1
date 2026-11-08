@@ -1,0 +1,198 @@
+{
+  "generatedAt": "2026-11-08T08:42:26.116Z",
+  "algorithm": "SHA-256 over exact bytes; excludes this manifest and transient browser profile/log",
+  "originalApprovalManifestSHA256": "783a285d20d0cd6fcd40437562f0ebcffb52811163438eb4232b2bca90ba95a1",
+  "connectedStatus": "PENDING_SEPARATE_FOUNDER_APPROVAL",
+  "files": [
+    {
+      "path": ".elmony/finalize-message-hollie-review.cjs",
+      "sha256": "ad8df67ba3044e7f83e92bc1193d14e20da8b3aa032cd434fc0d4568376d8876",
+      "bytes": 12177
+    },
+    {
+      "path": ".elmony/message-hollie-review-20261108/browser/coach-dedicated-message-hollie.png",
+      "sha256": "4539a82101ec11d4cd45e65e375027b25983f3be72d3991af6c2f3cab39c9a83",
+      "bytes": 151723
+    },
+    {
+      "path": ".elmony/message-hollie-review-20261108/browser/founder-horse-owner-unread.png",
+      "sha256": "ac4c533362cc17ffa0dc52f8920912e3713c2282010e0cb507554584b8af88df",
+      "bytes": 160888
+    },
+    {
+      "path": ".elmony/message-hollie-review-20261108/browser/results.json",
+      "sha256": "c58e1868c23d32f1d3baedefffcb052a283ca2dc0a4feb579cde8baad03e2ba2",
+      "bytes": 5064
+    },
+    {
+      "path": ".elmony/run-message-hollie-review-browser.cjs",
+      "sha256": "b87d0eabfef3e3a52e427606a5c1e2083ab9bd2c0af759e80500379f3d2d1347",
+      "bytes": 768
+    },
+    {
+      "path": "docs/MESSAGE_HOLLIE_LOCAL_RESULTS.md",
+      "sha256": "561fb66f74c335bac51c9e43fc9e67616f17693338bffb1fa111cd7309c4fd57",
+      "bytes": 8188
+    },
+    {
+      "path": "docs/message-hollie-checksums.json",
+      "sha256": "783a285d20d0cd6fcd40437562f0ebcffb52811163438eb4232b2bca90ba95a1",
+      "bytes": 6785
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-fixtures.log",
+      "sha256": "f39e6195339e0cb26ca26d78105e2d9155c3f208d906dd1c86604d147c8aa359",
+      "bytes": 159
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-fixtures.sql",
+      "sha256": "28e72825aa48e090a4aac8ff0f4af9d0658a8660bd1e0a55396048662d980e1f",
+      "bytes": 7222
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-forward-exact.log",
+      "sha256": "a955eccee88526e4f1be92ddeead341e81c381a2f1df643a9667dae3e4d6d533",
+      "bytes": 520
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-forward-exact.sql",
+      "sha256": "44e987828a138e6c784761e684e8f18c24fb855ee8222d7eb678e33d92e47173",
+      "bytes": 22323
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-owner-send-founder-reply.log",
+      "sha256": "7ed0c92cb8fed9273155cf25ff9ec0ceba0a33d464062300e7d916378b672297",
+      "bytes": 716
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-owner-send-founder-reply.sql",
+      "sha256": "c553aae0abb86fe00e4168d45b94f221bca430d1bdf6b6aa0fc1027d1b5fece8",
+      "bytes": 2404
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-reply-receipt.log",
+      "sha256": "29a67f59bd1635b6a0f8fd4d0aac6c383c8bcd89d3183dfdbcf70aa65fd0d06e",
+      "bytes": 1054
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-reply-receipt.sql",
+      "sha256": "5367ede82ea915610d709cc6cd4508df491e2f02b25385e5f695b58daf17cd78",
+      "bytes": 1232
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-rollback-exact.log",
+      "sha256": "9b6155c524128325f505c58e08706032255d6e5f9076aec84457e2da5153986d",
+      "bytes": 98
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-rollback-exact.sql",
+      "sha256": "194f577577150ded4795f64246659d394e693279df5fa3b3d3d74718747e68a0",
+      "bytes": 6406
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-rollback-history-privacy.log",
+      "sha256": "c81ce806a22aacc34eb690dbec1690f71eb598b9713a283322263e6b297d1299",
+      "bytes": 1116
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/committed-rollback-history-privacy.sql",
+      "sha256": "bebcc9298023366e1ef1540cddf3f7fa597dcf3ef9f3c92b9a2f49b3d5397074",
+      "bytes": 2624
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/container-inspection.json",
+      "sha256": "9fb2cb509555dea00c80c8bd768083bb547cfc0b50ab2603378a92d5372ee9eb",
+      "bytes": 6307
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/database-results.json",
+      "sha256": "d8dbe876c2c16f566ed59feae195240838180b460b9e75d5886acb3ef5be538e",
+      "bytes": 22943
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/empty-baseline.log",
+      "sha256": "c14aee5b62ffd744902b84a24398e930998597dda300e71334862f0ef148e50a",
+      "bytes": 3
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/empty-baseline.sql",
+      "sha256": "f4e45aae77274d81012cb670d4fb30fb225aa579d66a6f8a399ab5fdd51af9f3",
+      "bytes": 206
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/empty-target.log",
+      "sha256": "716e426ae6026c09c29e2abd872bf450ea6f818076c58ff0d261ac3e89a8f395",
+      "bytes": 151
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/empty-target.sql",
+      "sha256": "145a81885150951d42651b420f48c0625fdd24727b09ff7cf08cbda9151d1717",
+      "bytes": 355
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/pre-execution-gates.json",
+      "sha256": "06da7a47b497c02ef3d2933c2a57c11ab658d79aa1ec47a723fcce3e3ab1746c",
+      "bytes": 7822
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/results.json",
+      "sha256": "8f478ef4b2abe20332dc72fcdbba5584ada4fd54dc58e5bbb891109ea5688854",
+      "bytes": 11142
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/reviewed-forward-rollback-suite.log",
+      "sha256": "c66dd8e9fad21115c9889cc7c9a70ff34f3e3d2f7dae0ff88857cfcae2b3c607",
+      "bytes": 12441
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/reviewed-forward-rollback-suite.sql",
+      "sha256": "6e2512266ed63cd205ba4e91e176eddde0de3fdc0eb31bfb9bee12f6d51e8064",
+      "bytes": 158363
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/schema-parity.log",
+      "sha256": "05fd36f8411d92d65c7297c6160adeee77a1d19b44bf8d6799aa76da38da2f77",
+      "bytes": 1683
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/schema-parity.sql",
+      "sha256": "ed0a2cadbbdcadc612d12266dcd65c42a9586f6ad72a9d95f8e2ee56bb93c8b3",
+      "bytes": 64431
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/startup-attempt.json",
+      "sha256": "70b2379c6697faa085281e2aa12f4078f2b088bc4eea16e92b9ff7d83bec7787",
+      "bytes": 10571
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/startup-container-inspection.json",
+      "sha256": "dfbfda01dece3db9468fc4ac49a8dd78cb3efcc93e3615ca65914c9da8856727",
+      "bytes": 6243
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/transaction-cleanup.log",
+      "sha256": "c14aee5b62ffd744902b84a24398e930998597dda300e71334862f0ef148e50a",
+      "bytes": 3
+    },
+    {
+      "path": "docs/message-hollie-review-20261108/transaction-cleanup.sql",
+      "sha256": "0912b99b0a5ad52873d366aa0892c7732502134f1d797093db9aaaf69ae955cc",
+      "bytes": 310
+    },
+    {
+      "path": "supabase/proposals/202611060001_message_hollie.rollback.sql",
+      "sha256": "194f577577150ded4795f64246659d394e693279df5fa3b3d3d74718747e68a0",
+      "bytes": 6406
+    },
+    {
+      "path": "supabase/proposals/202611060001_message_hollie.sql",
+      "sha256": "44e987828a138e6c784761e684e8f18c24fb855ee8222d7eb678e33d92e47173",
+      "bytes": 22323
+    },
+    {
+      "path": "supabase/tests/founder_messaging/run-message-hollie-review-docker.cjs",
+      "sha256": "f87296a8754a4303037ae1bc941194dbd6d45544a8033e340c126ee86080091e",
+      "bytes": 13013
+    }
+  ]
+}

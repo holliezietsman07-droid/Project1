@@ -1,0 +1,1 @@
+do $$ begin if exists(select 1 from auth.users) or exists(select 1 from public.hka_profiles) or exists(select 1 from public.hka_messages) then raise exception 'STOP: baseline contains data'; end if; end $$;

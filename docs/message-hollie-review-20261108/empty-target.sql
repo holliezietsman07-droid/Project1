@@ -1,0 +1,1 @@
+select version(),current_database(),current_user,inet_server_addr(); do $$ begin if current_database()<>'hka_messaging_security_20261106_designated_founder' or current_user<>'postgres' or exists(select 1 from pg_tables where schemaname='public') or to_regnamespace('auth') is not null then raise exception 'STOP: wrong or nonempty target'; end if; end $$;

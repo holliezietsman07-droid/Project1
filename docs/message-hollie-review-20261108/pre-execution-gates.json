@@ -1,0 +1,191 @@
+{
+  "recordedAt": "2026-11-08T08:39:35.687Z",
+  "hashGate": "PASS",
+  "hashChecks": [
+    {
+      "path": "src/lib/messaging.ts",
+      "expected": "9bbb459e1b4953543c3f9bda7e3a429fcaca9104247653ffaf8c5363bec71994",
+      "actual": "9bbb459e1b4953543c3f9bda7e3a429fcaca9104247653ffaf8c5363bec71994",
+      "bytes": 2754,
+      "matches": true
+    },
+    {
+      "path": "src/lib/conversations.ts",
+      "expected": "678d5d337a940f14db1a790bf7bd4b9979d3d81ca1bf6311801f24c93096ada5",
+      "actual": "678d5d337a940f14db1a790bf7bd4b9979d3d81ca1bf6311801f24c93096ada5",
+      "bytes": 5238,
+      "matches": true
+    },
+    {
+      "path": "src/components/accounts/FloatingAcademyChat.tsx",
+      "expected": "30321dc0c95f4d017df3e30d081f2fd0ed8bed2c7cfb7466c38ad6311543c1f8",
+      "actual": "30321dc0c95f4d017df3e30d081f2fd0ed8bed2c7cfb7466c38ad6311543c1f8",
+      "bytes": 3316,
+      "matches": true
+    },
+    {
+      "path": "src/components/accounts/AcademyMessages.tsx",
+      "expected": "b707bf41bf607bdaa672521d5342aab801c7c0f1d4a26b607558b3027b5cca1a",
+      "actual": "b707bf41bf607bdaa672521d5342aab801c7c0f1d4a26b607558b3027b5cca1a",
+      "bytes": 3179,
+      "matches": true
+    },
+    {
+      "path": "supabase/proposals/202611060001_message_hollie.sql",
+      "expected": "44e987828a138e6c784761e684e8f18c24fb855ee8222d7eb678e33d92e47173",
+      "actual": "44e987828a138e6c784761e684e8f18c24fb855ee8222d7eb678e33d92e47173",
+      "bytes": 22323,
+      "matches": true
+    },
+    {
+      "path": "supabase/proposals/202611060001_message_hollie.rollback.sql",
+      "expected": "194f577577150ded4795f64246659d394e693279df5fa3b3d3d74718747e68a0",
+      "actual": "194f577577150ded4795f64246659d394e693279df5fa3b3d3d74718747e68a0",
+      "bytes": 6406,
+      "matches": true
+    },
+    {
+      "path": "supabase/tests/founder_messaging/fixtures.sql",
+      "expected": "f499e92fef6a43a3871d471de1e5be2d49275fd4727fed585d6ba9b813d6d382",
+      "actual": "f499e92fef6a43a3871d471de1e5be2d49275fd4727fed585d6ba9b813d6d382",
+      "bytes": 7207,
+      "matches": true
+    },
+    {
+      "path": "supabase/tests/founder_messaging/run-message-hollie.cjs",
+      "expected": "c4ad794a01bf4d8e0d46272bccc64b8434e0c35b1c8e5262cab9ff5be7f2ad6c",
+      "actual": "c4ad794a01bf4d8e0d46272bccc64b8434e0c35b1c8e5262cab9ff5be7f2ad6c",
+      "bytes": 23687,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-unit.cjs",
+      "expected": "8c87c1f1d1e308ab6c8b47e0d7ff6a81790d7ef1b4b1fec9535f96c8fc9c9d51",
+      "actual": "8c87c1f1d1e308ab6c8b47e0d7ff6a81790d7ef1b4b1fec9535f96c8fc9c9d51",
+      "bytes": 5087,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-browser.cjs",
+      "expected": "159a948a4b4ee9d6c173b1a9eaab94dd2a1a09c698465800784da9da0e195f26",
+      "actual": "159a948a4b4ee9d6c173b1a9eaab94dd2a1a09c698465800784da9da0e195f26",
+      "bytes": 16330,
+      "matches": true
+    },
+    {
+      "path": ".elmony/release-cdp.cjs",
+      "expected": "efd181db261bba7c759b14249aecb0d712ee1fa5784fbc71604d747abd9e62bd",
+      "actual": "efd181db261bba7c759b14249aecb0d712ee1fa5784fbc71604d747abd9e62bd",
+      "bytes": 4571,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-security-suite.sql",
+      "expected": "6e2512266ed63cd205ba4e91e176eddde0de3fdc0eb31bfb9bee12f6d51e8064",
+      "actual": "6e2512266ed63cd205ba4e91e176eddde0de3fdc0eb31bfb9bee12f6d51e8064",
+      "bytes": 158363,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-local-schema.sql",
+      "expected": "cdd7ae4e3e90789c244047c6e16e3d7a5d7ff9cc46b0a2783a0880e5cf02b400",
+      "actual": "cdd7ae4e3e90789c244047c6e16e3d7a5d7ff9cc46b0a2783a0880e5cf02b400",
+      "bytes": 64416,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-evidence/results.json",
+      "expected": "adb1d2291f592afab1a184ae5c8978ee6d0926e88a9ee0c2fec71577432ce871",
+      "actual": "adb1d2291f592afab1a184ae5c8978ee6d0926e88a9ee0c2fec71577432ce871",
+      "bytes": 5064,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-evidence/founder-horse-owner-unread.png",
+      "expected": "36f5a3cb62002bf6a9b42e596430e61532478ec0f4d4e95f2b53effd7a68d8a8",
+      "actual": "36f5a3cb62002bf6a9b42e596430e61532478ec0f4d4e95f2b53effd7a68d8a8",
+      "bytes": 160794,
+      "matches": true
+    },
+    {
+      "path": ".elmony/message-hollie-evidence/coach-dedicated-message-hollie.png",
+      "expected": "126aa543b46f366c50f542910f71c32a8304d75743345537d5a2576747cd5f15",
+      "actual": "126aa543b46f366c50f542910f71c32a8304d75743345537d5a2576747cd5f15",
+      "bytes": 151498,
+      "matches": true
+    },
+    {
+      "path": "docs/MESSAGE_HOLLIE_APPROVAL.md",
+      "expected": "ac3c34ae20be38c52407967144e1be1173478f154df8ac8238814e35af521b5c",
+      "actual": "ac3c34ae20be38c52407967144e1be1173478f154df8ac8238814e35af521b5c",
+      "bytes": 7931,
+      "matches": true
+    },
+    {
+      "path": "docs/MESSAGE_HOLLIE_ISOLATED_TEST_PLAN.md",
+      "expected": "68dde5c1477d44a00ad851f4a61527d512ae90c15c714e59870e6cf7187fc1f5",
+      "actual": "68dde5c1477d44a00ad851f4a61527d512ae90c15c714e59870e6cf7187fc1f5",
+      "bytes": 8266,
+      "matches": true
+    },
+    {
+      "path": "docs/message-hollie-suite-preparation.json",
+      "expected": "665f8614b3e81895b14151a7480b215f449818a786d31e626d7971498d0bad77",
+      "actual": "665f8614b3e81895b14151a7480b215f449818a786d31e626d7971498d0bad77",
+      "bytes": 1129,
+      "matches": true
+    },
+    {
+      "path": "docs/message-hollie-checks.json",
+      "expected": "625d9cbedef3ebf095bf9506cc4d51f367feaf3dfdb7aa1463daf08765994c0e",
+      "actual": "625d9cbedef3ebf095bf9506cc4d51f367feaf3dfdb7aa1463daf08765994c0e",
+      "bytes": 1959,
+      "matches": true
+    },
+    {
+      "path": "supabase/activation/202610220001_founder_role.sql",
+      "expected": "5ae2bc2688e49198c4e6c2136c7fcfb031925ca649708518973eab0a82445817",
+      "actual": "5ae2bc2688e49198c4e6c2136c7fcfb031925ca649708518973eab0a82445817",
+      "bytes": 2188,
+      "matches": true
+    },
+    {
+      "path": "supabase/tests/founder_messaging/local-schema.cjs",
+      "expected": "80cfa333384ba263db523f3d3b737f668bde1fc0f4665120538c71cdbaeb1529",
+      "actual": "80cfa333384ba263db523f3d3b737f668bde1fc0f4665120538c71cdbaeb1529",
+      "bytes": 6482,
+      "matches": true
+    },
+    {
+      "path": "supabase/tests/founder_messaging/hosted-schema-input.cjs",
+      "expected": "5d7565461f781488ecd15d7f632aac6918666324ec34d94e7d41e1ab70eb2b7c",
+      "actual": "5d7565461f781488ecd15d7f632aac6918666324ec34d94e7d41e1ab70eb2b7c",
+      "bytes": 3978,
+      "matches": true
+    },
+    {
+      "path": "docs/founder-messaging-evidence/hosted-compatibility-snapshot.json",
+      "expected": "079bda8491b11bb6161189795a4004ffacb6a511430a1c47a7464a7b62fcce05",
+      "actual": "079bda8491b11bb6161189795a4004ffacb6a511430a1c47a7464a7b62fcce05",
+      "bytes": 54693,
+      "matches": true
+    }
+  ],
+  "target": {
+    "container": "hka-message-hollie-review-1794127174038",
+    "database": "hka_messaging_security_20261106_designated_founder",
+    "image": "public.ecr.aws/supabase/postgres:17.11.0.003",
+    "dockerEndpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+    "imageId": "sha256:7374d196da7e301512cc5329e18040e0f7bb856287b323777cdadecccbc6c7e4",
+    "imageDigests": [
+      "public.ecr.aws/supabase/postgres@sha256:7374d196da7e301512cc5329e18040e0f7bb856287b323777cdadecccbc6c7e4"
+    ],
+    "containerId": "9d034a0e57a9077d8902ad5145c7bf0eb78e2b1e3b3636fea2c1834db523deac",
+    "isolationVerifiedAt": "2026-11-08T08:39:35.685Z",
+    "network": "none",
+    "publishedPorts": [],
+    "hostBindMounts": [],
+    "storage": "tmpfs /tmp only; read-only root filesystem"
+  },
+  "connectedMutations": false
+}

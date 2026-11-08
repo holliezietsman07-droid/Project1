@@ -1,0 +1,227 @@
+{
+  "Id": "cd8102a1d337969ba4d7fcad2172d71f9741e4af5c6a754fd557a2f794eaffd1",
+  "Created": "2026-11-08T08:38:01.797577128Z",
+  "Path": "/bin/bash",
+  "Args": [
+    "-c",
+    "initdb -D /tmp/hka-pg -A trust --no-locale > /tmp/init.log && exec postgres -D /tmp/hka-pg -c listen_addresses=127.0.0.1 -c shared_preload_libraries="
+  ],
+  "State": {
+    "Status": "running",
+    "Running": true,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 482,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-11-08T08:38:02.014546059Z",
+    "FinishedAt": "0001-01-01T00:00:00Z",
+    "Health": {
+      "Status": "starting",
+      "FailingStreak": 0,
+      "Log": []
+    }
+  },
+  "Image": "sha256:7374d196da7e301512cc5329e18040e0f7bb856287b323777cdadecccbc6c7e4",
+  "ResolvConfPath": "/var/lib/docker/containers/cd8102a1d337969ba4d7fcad2172d71f9741e4af5c6a754fd557a2f794eaffd1/resolv.conf",
+  "HostnamePath": "/var/lib/docker/containers/cd8102a1d337969ba4d7fcad2172d71f9741e4af5c6a754fd557a2f794eaffd1/hostname",
+  "HostsPath": "/var/lib/docker/containers/cd8102a1d337969ba4d7fcad2172d71f9741e4af5c6a754fd557a2f794eaffd1/hosts",
+  "LogPath": "",
+  "Name": "/hka-message-hollie-review-1794127080619",
+  "RestartCount": 0,
+  "Driver": "overlayfs",
+  "Platform": "linux",
+  "MountLabel": "",
+  "ProcessLabel": "",
+  "AppArmorProfile": "",
+  "ExecIDs": null,
+  "HostConfig": {
+    "Binds": null,
+    "ContainerIDFile": "",
+    "LogConfig": {
+      "Type": "local",
+      "Config": {}
+    },
+    "NetworkMode": "none",
+    "PortBindings": {},
+    "RestartPolicy": {
+      "Name": "no",
+      "MaximumRetryCount": 0
+    },
+    "AutoRemove": false,
+    "VolumeDriver": "",
+    "VolumesFrom": null,
+    "ConsoleSize": [
+      0,
+      0
+    ],
+    "CapAdd": null,
+    "CapDrop": null,
+    "CgroupnsMode": "private",
+    "Dns": null,
+    "DnsOptions": [],
+    "DnsSearch": [],
+    "ExtraHosts": null,
+    "GroupAdd": null,
+    "IpcMode": "private",
+    "Cgroup": "",
+    "Links": null,
+    "OomScoreAdj": 0,
+    "PidMode": "",
+    "Privileged": false,
+    "PublishAllPorts": false,
+    "ReadonlyRootfs": true,
+    "SecurityOpt": null,
+    "Tmpfs": {
+      "/tmp": "rw,nosuid,nodev,size=512m"
+    },
+    "UTSMode": "",
+    "UsernsMode": "",
+    "ShmSize": 67108864,
+    "Runtime": "runc",
+    "Isolation": "",
+    "CpuShares": 0,
+    "Memory": 0,
+    "NanoCpus": 0,
+    "CgroupParent": "",
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": [],
+    "BlkioDeviceReadBps": [],
+    "BlkioDeviceWriteBps": [],
+    "BlkioDeviceReadIOps": [],
+    "BlkioDeviceWriteIOps": [],
+    "CpuPeriod": 0,
+    "CpuQuota": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "CpusetCpus": "",
+    "CpusetMems": "",
+    "Devices": [],
+    "DeviceCgroupRules": null,
+    "DeviceRequests": null,
+    "MemoryReservation": 0,
+    "MemorySwap": 0,
+    "MemorySwappiness": null,
+    "OomKillDisable": null,
+    "PidsLimit": null,
+    "Ulimits": null,
+    "CpuCount": 0,
+    "CpuPercent": 0,
+    "IOMaximumIOps": 0,
+    "IOMaximumBandwidth": 0,
+    "MaskedPaths": [
+      "/proc/acpi",
+      "/proc/asound",
+      "/proc/interrupts",
+      "/proc/kcore",
+      "/proc/keys",
+      "/proc/latency_stats",
+      "/proc/sched_debug",
+      "/proc/scsi",
+      "/proc/timer_list",
+      "/proc/timer_stats",
+      "/sys/devices/virtual/powercap",
+      "/sys/firmware"
+    ],
+    "ReadonlyPaths": [
+      "/proc/bus",
+      "/proc/fs",
+      "/proc/irq",
+      "/proc/sys",
+      "/proc/sysrq-trigger"
+    ]
+  },
+  "Storage": {
+    "RootFS": {
+      "Snapshot": {
+        "Name": "overlayfs"
+      }
+    }
+  },
+  "Mounts": [],
+  "Config": {
+    "Hostname": "cd8102a1d337",
+    "Domainname": "",
+    "User": "postgres",
+    "AttachStdin": false,
+    "AttachStdout": false,
+    "AttachStderr": false,
+    "ExposedPorts": {
+      "5432/tcp": {}
+    },
+    "Tty": false,
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "Env": [
+      "PATH=/nix/var/nix/profiles/default/bin:/usr/lib/postgresql/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "PGDATA=/var/lib/postgresql/data",
+      "POSTGRES_HOST=/var/run/postgresql",
+      "POSTGRES_USER=supabase_admin",
+      "POSTGRES_DB=postgres",
+      "POSTGRES_INITDB_ARGS=--allow-group-access --locale-provider=icu --encoding=UTF-8 --icu-locale=en_US.UTF-8",
+      "LANG=en_US.UTF-8",
+      "LANGUAGE=en_US:en",
+      "LC_ALL=en_US.UTF-8",
+      "GRN_PLUGINS_DIR=/usr/lib/groonga/plugins",
+      "LOCALE_ARCHIVE=/nix/var/nix/profiles/default/lib/locale/locale-archive"
+    ],
+    "Cmd": [
+      "-c",
+      "initdb -D /tmp/hka-pg -A trust --no-locale > /tmp/init.log && exec postgres -D /tmp/hka-pg -c listen_addresses=127.0.0.1 -c shared_preload_libraries="
+    ],
+    "Healthcheck": {
+      "Test": [
+        "CMD-SHELL",
+        "pg_isready -U postgres -h localhost"
+      ],
+      "Interval": 2000000000,
+      "Timeout": 2000000000,
+      "Retries": 10
+    },
+    "Image": "public.ecr.aws/supabase/postgres:17.11.0.003",
+    "Volumes": null,
+    "WorkingDir": "/",
+    "Entrypoint": [
+      "/bin/bash"
+    ],
+    "Labels": {
+      "hka.message-hollie-review": "1794127080619"
+    },
+    "StopSignal": "SIGINT"
+  },
+  "NetworkSettings": {
+    "SandboxID": "1ef5e347153cf3ba05f7f5413df03d6c799e693c19bc56acb204a4f3f738a0e7",
+    "SandboxKey": "/var/run/docker/netns/1ef5e347153c",
+    "Ports": {},
+    "Networks": {
+      "none": {
+        "IPAMConfig": null,
+        "Links": null,
+        "Aliases": null,
+        "DriverOpts": null,
+        "GwPriority": 0,
+        "NetworkID": "d9062f1d7de5a73c1b4ab349577873c3f663a96d69d1a59379ab769b74ec41e3",
+        "EndpointID": "b221763095f9d0f35a35143e46c6e6c6039d3a5609209d677abd03f107f38782",
+        "Gateway": "",
+        "IPAddress": "",
+        "MacAddress": "",
+        "IPPrefixLen": 0,
+        "IPv6Gateway": "",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "DNSNames": null
+      }
+    }
+  },
+  "ImageManifestDescriptor": {
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "digest": "sha256:d6844e71062a3c8e2f8021d644802850760ef970a45ac163ec8c9f0171075bda",
+    "size": 5775,
+    "platform": {
+      "architecture": "amd64",
+      "os": "linux"
+    }
+  }
+}
