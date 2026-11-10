@@ -1,3 +1,4 @@
+import { showSuccess } from '@/utils/toast';
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { WorkflowDialog } from '@/components/accounts/WorkflowDialog';
@@ -58,10 +59,10 @@ export function FitnessProfileWizard({c,subject,sampleLink,onClose}:{
       if(sendRequest){
         requestId.current??=crypto.randomUUID();
         await c.sendRequest(requestId.current,subject,intake);
-        onClose(c.sample?'Sample programme request sent.':'Programme request sent to Hollie.');
+        onClose(showSuccess(c.sample?'Sample programme request sent.':'Programme request sent to Hollie.'));
       }else{
         await c.saveIntake(subject,intake);
-        onClose('Fitness profile saved.');
+        onClose(showSuccess('Fitness profile saved.'));
       }
     }catch(failure){
       setError(errorText(failure));
@@ -111,4 +112,3 @@ export function FitnessProfileWizard({c,subject,sampleLink,onClose}:{
     </form>
   </WorkflowDialog>;
 }
-

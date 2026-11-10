@@ -1,3 +1,4 @@
+import { showSuccess } from '@/utils/toast';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSession } from '@/contexts/SessionContext';
@@ -56,26 +57,26 @@ export function CoachingWorkspace() {
     if(action.mode==='available'||action.mode==='unavailable'){
       if(action.mode==='unavailable'&&currentAppointments.some(row=>row.coach_id===profile.id&&row.status==='scheduled'&&Date.parse(String(row.starts_at))<Date.parse(data.end)&&Date.parse(String(row.starts_at))+Number(row.duration_minutes)*60000>Date.parse(data.start)))throw new Error('A confirmed lesson overlaps this block.');
       await saveRow('hka_owner_availability',{coach_id:profile.id,starts_at:data.start,ends_at:data.end,availability_type:action.mode,note:data.note});
-      setMessage(action.mode==='available'?'Teaching window saved.':'Blocked time saved.');
+      setMessage(showSuccess(action.mode==='available'?'Teaching window saved.':'Blocked time saved.'));
     }else{
       const conflict=coachingConflict(data.start,data.duration,currentAppointments,currentWindows,admin?String(action.appointment?.coach_id||profile.id):undefined,admin?data.student:profile.id,String(action.request?.appointment_id||''));
       if(conflict)throw new Error(conflict);
       if(action.mode==='request'){
         await saveRow('hka_coaching_requests',{student_id:profile.id,service_id:data.service||null,lesson_format:data.format,preferred_starts_at:data.start,alternate_starts_at:data.alternate,duration_minutes:data.duration,learning_goals:data.goals,location:data.location,status:'pending'});
-        setMessage('Lesson request sent · pending Founder confirmation. This is not a confirmed booking.');
+        setMessage(showSuccess('Lesson request sent · pending Founder confirmation. This is not a confirmed booking.'));
       }else if(action.mode==='reschedule'&&action.appointment){
         await saveRow('hka_appointments',{starts_at:data.start,duration_minutes:data.duration,location:data.location,title:data.title},action.appointment.id);
-        setMessage('Confirmed lesson rescheduled.');
+        setMessage(showSuccess('Confirmed lesson rescheduled.'));
       }else if(action.mode==='schedule'){
         if(!authorisedStudents.some(row=>row.id===data.student))throw new Error('Choose an authorised student.');
         await saveRow('hka_appointments',{student_id:data.student,coach_id:profile.id,title:data.title,starts_at:data.start,duration_minutes:data.duration,location:data.location,status:'scheduled'});
-        setMessage('Lesson saved and confirmed.');
+        setMessage(showSuccess('Lesson saved and confirmed.'));
       }else if(action.mode==='approve'&&action.request){
         await rpc('hka_approve_coaching_request',{target_request:action.request.id,approved_start:data.start,assigned_coach:profile.id});
-        setMessage('Lesson approved and added to calendar.');
+        setMessage(showSuccess('Lesson approved and added to calendar.'));
       }else if(action.mode==='alternative'&&action.request){
         await saveRow('hka_coaching_requests',{status:'alternative_proposed',preferred_starts_at:data.start,owner_message:data.note+'\nProposed time: '+formatCoachingTime(data.start,timezone),updated_at:new Date().toISOString()},action.request.id);
-        setMessage('Alternative proposed. Confirmation remains pending.');
+        setMessage(showSuccess('Alternative proposed. Confirmation remains pending.'));
       }else throw new Error('Choose a supported scheduling action.');
     }
     await refresh();setFailure('');
@@ -86,7 +87,7 @@ export function CoachingWorkspace() {
     try{const linked=visibleRequests.find(row=>row.appointment_id===cancelAppointment.id);
       if(linked){if(linked.status!=='cancellation_requested')await saveRow('hka_coaching_requests',{status:'cancellation_requested'},linked.id);await rpc('hka_review_coaching_cancellation',{target_request:linked.id,approve:true});}
       else await saveRow('hka_appointments',{status:'cancelled'},cancelAppointment.id);
-      await refresh();setCancelAppointment(null);setMessage('Lesson cancellation confirmed.');
+      await refresh();setCancelAppointment(null);setMessage(showSuccess('Lesson cancellation confirmed.'));
     }catch(error){setFailure(errorText(error));}finally{setBusy(false);lock.current=false;}
   }
   async function transition(row:Row,kind:'reschedule'|'cancel'|'decline'|'keep'|'cancel-approve'|'cancel-decline',close?:()=>void){
@@ -98,12 +99,12 @@ export function CoachingWorkspace() {
         const status=kind==='reschedule'?'reschedule_requested':row.status==='approved'?'cancellation_requested':'cancelled';
         if(kind!=='reschedule'&&kind!=='cancel')throw new Error('Founder approval required.');
         await saveRow('hka_coaching_requests',{status,updated_at:new Date().toISOString()},row.id);
-        setMessage(status==='cancelled'?'Request cancelled.':'Request sent for Founder review. Confirmed lesson stays unchanged until approved.');
+        setMessage(showSuccess(status==='cancelled'?'Request cancelled.':'Request sent for Founder review. Confirmed lesson stays unchanged until approved.'));
       }else if(admin){
         if(kind==='cancel-approve'||kind==='cancel-decline')await rpc('hka_review_coaching_cancellation',{target_request:row.id,approve:kind==='cancel-approve'});
         else if(kind==='decline'||kind==='keep')await saveRow('hka_coaching_requests',{status:row.appointment_id?'approved':'declined',updated_at:new Date().toISOString()},row.id);
         else throw new Error('Choose a permitted Founder action.');
-        setMessage('Founder decision saved.');
+        setMessage(showSuccess('Founder decision saved.'));
       }else throw new Error('Founder approval required.');
       await refresh();setDetail(null);close?.();
     }catch(error){setFailure(errorText(error));}finally{setBusy(false);lock.current=false;}

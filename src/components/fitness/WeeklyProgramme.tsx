@@ -1,3 +1,4 @@
+import { showSuccess } from '@/utils/toast';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowRight, Check, FileText, Play, Plus, ShieldCheck } from 'lucide-react';
 import quoteGraphic from '@/assets/HKA-Rider-Fitness-Quote.png';
@@ -14,7 +15,7 @@ import { FitnessProfileWizard } from './FitnessProfileWizard';
 export function Materials({c,versionId,templateId,editable=false}:{c:FitnessController;versionId?:string;templateId?:string;editable?:boolean}){
  const [message,setMessage]=useState(''),[busy,setBusy]=useState(false);
  const files=c.data.files.filter(f=>versionId?f.version_id===versionId:f.template_id===templateId);
- async function upload(e:React.ChangeEvent<HTMLInputElement>){const file=e.target.files?.[0];e.target.value='';if(!file)return;setBusy(true);setMessage('');try{await c.upload(file,versionId??null,templateId??null);setMessage(c.sample?'Sample attachment held in memory for this preview session.':'Private attachment saved.');}catch(e){setMessage(errorText(e));}finally{setBusy(false);}}
+ async function upload(e:React.ChangeEvent<HTMLInputElement>){const file=e.target.files?.[0];e.target.value='';if(!file)return;setBusy(true);setMessage('');try{await c.upload(file,versionId??null,templateId??null);setMessage(showSuccess(c.sample?'Sample attachment held in memory for this preview session.':'Private attachment saved.'));}catch(e){setMessage(errorText(e));}finally{setBusy(false);}}
  async function open(file:typeof files[number]){const tab=window.open('','_blank');if(tab)tab.opener=null;try{if(!tab)throw new Error('Allow a new tab to open your attachment.');const url=await c.fileUrl(file);tab.location.replace(url);if(c.sample)window.setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(e){tab?.close();setMessage(errorText(e));}}
  return <div className='space-y-3 border-t border-primary/10 pt-4'><p className='flex items-center gap-2 text-sm font-medium'><ShieldCheck className='size-4 text-[#826e45]'/>Private programme materials</p>{files.map(f=><Button key={f.id} type='button' variant='outline' className='h-auto min-h-11 max-w-full whitespace-normal break-all text-left' onClick={()=>void open(f)}><FileText className='mr-2 size-4 shrink-0'/>{f.original_name}</Button>)}{!files.length&&<p className='text-xs text-muted-foreground'>No original or supporting materials attached.</p>}{editable&&<Field label='Attach original programme or ChatGPT material · PDF, PNG, JPEG · 10 MB maximum'><Input type='file' accept='.pdf,.png,.jpg,.jpeg' disabled={busy||!c.writable} onChange={upload}/></Field>}{message&&<p role='status' className='text-sm'>{message}</p>}</div>;
 }
@@ -22,7 +23,7 @@ function SessionCard({c,p,v,s,date,editable}:{c:FitnessController;p:Programme;v:
  const progress=c.data.progress.find(r=>r.version_id===v.id&&r.session_key===s.key&&r.session_date===date);
  const [notes,setNotes]=useState(progress?.notes??''),[minutes,setMinutes]=useState(progress?.minutes??s.minutes),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),lock=useRef(false);
  const future=date>programmeDate(c.profile?.timezone||'Africa/Johannesburg');
- async function save(status:'complete'|'skipped'){if(lock.current)return;lock.current=true;setBusy(true);setMessage('');try{await c.record(v.id,s.key,date,status,minutes,notes);setMessage(c.sample?'Sample progress updated; no database write.':'Progress saved.');}catch(e){setMessage(errorText(e));}finally{lock.current=false;setBusy(false);}}
+ async function save(status:'complete'|'skipped'){if(lock.current)return;lock.current=true;setBusy(true);setMessage('');try{await c.record(v.id,s.key,date,status,minutes,notes);setMessage(showSuccess(c.sample?'Sample progress updated; no database write.':'Progress saved.'));}catch(e){setMessage(errorText(e));}finally{lock.current=false;setBusy(false);}}
  const [logging,setLogging]=useState(false);
  const rest=s.category==='rest';
  const video=demonstrationLink(s.demonstrationUrl);
@@ -78,10 +79,10 @@ export function WeeklyPlan({c,subject,p,requestId,historyOnly=false}:{c:FitnessC
   try{
    if(requestId){
     await c.sendRequestedProgramme(requestId,v.id);
-    setMessage(c.sample?'Programme assigned and sent in the sample chat.':'Programme assigned and sent in chat.');
+    setMessage(showSuccess(c.sample?'Programme assigned and sent in the sample chat.':'Programme assigned and sent in chat.'));
    }else{
     await c.assign(p.id);
-    setMessage(c.sample?'Sample HKA programme assigned.':'HKA programme approved and assigned.');
+    setMessage(showSuccess(c.sample?'Sample HKA programme assigned.':'HKA programme approved and assigned.'));
    }
    setSelected('');
   }catch(e){setMessage(errorText(e));}finally{setBusy(false);}
@@ -289,4 +290,3 @@ export function MemberProgrammes({subject,c,panel='today',onPanelChange,manageme
     </div>}
   </div>;
 }
-

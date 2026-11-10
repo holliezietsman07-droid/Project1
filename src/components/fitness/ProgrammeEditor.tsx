@@ -1,3 +1,4 @@
+import { showSuccess } from '@/utils/toast';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -126,7 +127,7 @@ export function IntakePanel({subject,c}:{subject:Subject;c:FitnessController}){
     setMessage('');
     try {
       await c.saveIntake(subject,intake);
-      setMessage(c.sample ? 'Sample fitness profile saved for this preview.' : 'Fitness profile saved.');
+      setMessage(showSuccess(c.sample ? 'Sample fitness profile saved for this preview.' : 'Fitness profile saved.'));
     } catch (error) {
       setMessage(errorText(error));
     } finally {
@@ -155,10 +156,9 @@ export function PlanEditor({subject,c,programme,version,close,requestId}:{subjec
  const [title,setTitle]=useState(version?.title??(subject.name+' · '+(c.isFounder?'HKA programme':'my own programme')));
  const [intake,setIntake]=useState(version?.intake??subject.intake),[source,setSource]=useState<ProgrammeSource>(programme?.source??(c.isFounder?'hka':'owner'));
  const [sessions,setSessions]=useState<SessionPlan[]>(version?.sessions??[]),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
- async function save(e:FormEvent){e.preventDefault();if(busy)return;setBusy(true);setMessage('');try{validateSessions(sessions);await c.saveProgramme(subject,source,title,intake,sessions,programme?.id,requestId);close();}catch(e){setMessage(errorText(e));}finally{setBusy(false);}}
+ async function save(e:FormEvent){e.preventDefault();if(busy)return;setBusy(true);setMessage('');try{validateSessions(sessions);await c.saveProgramme(subject,source,title,intake,sessions,programme?.id,requestId);showSuccess(c.sample?'Sample programme saved.':'Programme saved.');close();}catch(e){setMessage(errorText(e));}finally{setBusy(false);}}
  const reason=holdReason(subject.kind,intake);
  return <form onSubmit={save} className='paper-card grid gap-5 p-5 sm:p-7'><div><p className='eyebrow text-[#826e45]'>{c.isFounder?'Founder draft':'Your own horse programme'}</p><h3 className='mt-2 font-serif text-2xl'>{version?'Revise as a new version':'Create programme'}</h3><p className='mt-2 text-sm text-muted-foreground'>Previous versions and completed work stay in history. HKA drafts require Founder approval. Save the draft to attach a programme file.</p></div><fieldset disabled={busy} className='grid gap-5'><Field label='Programme title'><Input value={title} required maxLength={160} onChange={e=>setTitle(e.target.value)}/></Field>{!c.isFounder&&!programme&&<Field label='Programme source'><select className={selectClass} value={source} onChange={e=>setSource(e.target.value as ProgrammeSource)}><option value='owner'>My existing programme</option><option value='vet'>Instructions supplied by my vet</option></select></Field>}<IntakeFields value={intake} onChange={setIntake} kind={subject.kind}/>
   {c.isFounder&&<div className='grid gap-3 rounded-lg bg-primary/5 p-4'><p className='text-sm font-medium'>Choose an editable starting point</p>{reason&&<p role='status' className='text-sm text-amber-800'>{reason}</p>}<select className={selectClass} aria-label='Reusable template' defaultValue='' disabled={Boolean(reason)} onChange={e=>{const t=c.data.templates.find(t=>t.id===e.target.value);if(t)setSessions(structuredClone(t.sessions));}}><option value=''>Choose matching reusable template</option>{c.data.templates.filter(t=>t.kind===subject.kind&&(subject.kind==='horse'||t.age_group===(intake.age!==null&&intake.age<18?'young':'adult'))).map(t=><option key={t.id} value={t.id}>{t.title}</option>)}</select><Button type='button' variant='outline' disabled={Boolean(reason)} onClick={()=>{try{setSessions(templateDraft(subject.kind,intake));setMessage('Starting point prepared. Review every session before assigning.');}catch(e){setMessage(errorText(e));}}}>Prepare age-appropriate draft</Button><p className='text-xs text-muted-foreground'>Horse drafts keep effort gradual. Review recovery before increasing workload.</p></div>}
   <SessionEditor sessions={sessions} onChange={setSessions}/>{!sessions.length&&!c.isFounder&&<p className='text-sm text-muted-foreground'>Enter existing instructions, or add a session directing you to your private original attachment.</p>}<div className='flex flex-wrap gap-3'><Button type='submit' disabled={!c.writable||!sessions.length}>{busy?'Saving…':c.isFounder?'Save HKA draft':'Save & follow my programme'}</Button><Button type='button' variant='ghost' onClick={close}>Cancel</Button></div></fieldset>{message&&<p role='status' className='text-sm'>{message}</p>}</form>;
 }
-

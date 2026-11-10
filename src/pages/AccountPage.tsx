@@ -1,3 +1,4 @@
+import { showSuccess } from '@/utils/toast';
 import { useRef, useState, type FormEvent } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
@@ -70,7 +71,7 @@ export default function AccountPage({ mode, embedded = false }: { mode: AccountM
       const { error } = await db().auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + '/dashboard', data: details } });
       if (error) throw error;
       setRegistrationComplete(true);
-      setMessage('Registration received. Check your inbox for the verification email before signing in.');
+      setMessage(showSuccess('Registration received. Check your inbox for the verification email before signing in.'));
     } catch (error) {
       if (isEmailRateLimitError(error)) {
         setRegistrationCooldown(true);
@@ -88,7 +89,7 @@ export default function AccountPage({ mode, embedded = false }: { mode: AccountM
     try {
       const { error } = await db().auth.resend({ type: "signup", email, options: { emailRedirectTo: window.location.origin + "/dashboard" } });
       if (error) throw error;
-      setMessage("If verification is available for this address, check your inbox.");
+      setMessage(showSuccess("If verification is available for this address, check your inbox."));
     } catch (error) { setMessage(errorText(error)); } finally { setBusy(false); }
   }
   return <section className={embedded ? "min-w-0" : "page-width grid gap-10 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:py-20"}>

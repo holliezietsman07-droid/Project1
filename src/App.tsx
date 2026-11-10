@@ -120,7 +120,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
+      <Sonner position="top-right" closeButton richColors />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path='/dashboard/fitness-preview' element={import.meta.env.VITE_HKA_PUBLIC_SITE==='true' ? <Navigate to='/' replace/> : <FitnessPreviewSessionProvider>
