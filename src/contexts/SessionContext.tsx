@@ -86,6 +86,16 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
 
   return <SessionContext.Provider value={{ session, profile, loading, error, recovery, signingOut, welcomeUserId, beginSignIn, refreshProfile, signOut }}>{children}</SessionContext.Provider>;
 }
+export function FitnessPreviewSessionProvider({ children }: { children: ReactNode }) {
+  // No hosted auth subscription or account is created for fictional fitness data.
+  const value: SessionState = {
+    session: null, profile: null, loading: false, error: '', recovery: false,
+    signingOut: false, welcomeUserId: null, beginSignIn: () => {},
+    refreshProfile: async () => {}, signOut: async () => {},
+  };
+  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
+}
+
 export function useSession() {
   const context = useContext(SessionContext);
   if (!context) throw new Error("SessionContextProvider is required.");

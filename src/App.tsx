@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import SiteLayout from "@/components/SiteLayout";
 import Index from "@/pages/Index";
 import FitnessProgrammes from "@/pages/FitnessProgrammes";
@@ -21,7 +21,7 @@ import { AccessGate } from "@/components/accounts/AccessGate";
 import { Button } from '@/components/ui/button';
 import { brandLogo } from '@/lib/hka-content';
 import type { Profile, Role } from '@/lib/academy';
-import { SessionContextProvider, useSession } from "@/contexts/SessionContext";
+import { FitnessPreviewSessionProvider, SessionContextProvider, useSession } from "@/contexts/SessionContext";
 
 import { StudentManagementProfile, StudentPreview } from '@/components/accounts/OwnerDashboard';
 import UserManagementProfile from '@/pages/UserManagementProfile';
@@ -122,7 +122,17 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <SessionContextProvider>
+        <Routes>
+          <Route path='/dashboard/fitness-preview' element={<FitnessPreviewSessionProvider>
+            <div className='min-h-screen bg-background'>
+              <header className='border-b border-primary/15 bg-[#F6F1E7]'><div className='page-width flex flex-wrap items-center justify-between gap-4 py-4'>
+                <Link to='/' aria-label='HKA home'><img src={brandLogo.src} alt={brandLogo.alt} className='h-auto w-36' /></Link>
+                <div className='text-right'><p className='eyebrow text-[#826e45]'>Fitness preview</p><p className='mt-1 text-xs text-muted-foreground'>Sample data only · migration & activation pending approval</p></div>
+              </div></header>
+              <main id='main-content'><FitnessProgrammes mode='preview' /></main>
+            </div>
+          </FitnessPreviewSessionProvider>} />
+          <Route path='*' element={<SessionContextProvider>
           <WelcomeExperience />
           <Routes>
             <Route element={<SiteLayout />}>
@@ -135,7 +145,7 @@ const App = () => (
               <Route path="/password-reset" element={<AccountPage key="password-reset" mode="password-reset" />} />
               <Route path="/update-password" element={<AccountPage key="update-password" mode="update-password" />} />
               <Route path={'/learning-pathways/:pathwayId'} element={<PathwayDetail />} />
-              <Route element={<AccessGate />}><Route path="/dashboard/fitness/rider/:studentId?" element={<FitnessProgrammes mode="rider" />} /><Route path="/dashboard/fitness/horse/:horseId?" element={<FitnessProgrammes mode="horse" />} /><Route path="/dashboard/fitness-preview" element={<FitnessProgrammes mode="preview" />} /><Route element={<AccessGate roles={["admin"]} />}><Route path="/dashboard/programmes" element={<FitnessProgrammes mode="manage" />} /></Route>
+              <Route element={<AccessGate />}><Route path="/dashboard/fitness/rider/:studentId?" element={<FitnessProgrammes mode="rider" />} /><Route path="/dashboard/fitness/horse/:horseId?" element={<FitnessProgrammes mode="horse" />} /><Route element={<AccessGate roles={["admin"]} />}><Route path="/dashboard/programmes" element={<FitnessProgrammes mode="manage" />} /></Route>
                 <Route path="/dashboard" element={<DashboardIndex />} /><Route path='/dashboard/account' element={<MemberAccountSettings/>}/>
                 <Route element={<AccessGate roles={["student"]} />}><Route path="/dashboard/student" element={<DashboardPage role="student" />} /></Route>
                 <Route element={<AccessGate roles={["guardian"]} />}><Route path="/dashboard/parent" element={<DashboardPage role="guardian" />} /></Route>
@@ -151,7 +161,8 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
-        </SessionContextProvider>
+        </SessionContextProvider>} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

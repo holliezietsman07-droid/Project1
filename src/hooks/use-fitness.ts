@@ -10,10 +10,10 @@ import { createSampleData, sampleAssign, sampleRecord, sampleSave, sampleVisible
 // Founder enables this only after separately approving and applying the prepared schema.
 // Default preview cannot write fitness data, files, or ride logs to the connected live project.
 export const fitnessDatabaseEnabled = import.meta.env.VITE_FITNESS_DATABASE_ENABLED === 'true';
-export function useFitness(sample: boolean) {
+export function useFitness(sample: boolean, initialSampleRole: SampleRole = 'rider') {
   const { profile } = useSession();
   const cache = useQueryClient();
-  const [sampleRole, setSampleRole] = useState<SampleRole>('rider');
+  const [sampleRole, setSampleRole] = useState<SampleRole>(initialSampleRole);
   const [revision, setRevision] = useState(0);
   const fixture = useRef(createSampleData());
   const sampleFiles = useRef(new Map<string, File>());

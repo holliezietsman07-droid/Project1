@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-10T07:50:39.041Z",
+  "scope": "Actual React preview-copy routes with in-memory fixtures. All Supabase requests blocked and counted. No migration or activation.",
+  "results": [
+    {
+      "name": "Rider route opens without sign-in with sample programme",
+      "status": "PASS"
+    },
+    {
+      "name": "Rider completion is in memory and resets on reload",
+      "status": "PASS"
+    },
+    {
+      "name": "Horse view keeps Willow and Atlas separate",
+      "status": "PASS"
+    },
+    {
+      "name": "Founder view opens assignments and reusable templates",
+      "status": "PASS"
+    },
+    {
+      "name": "Founder creates, reviews and assigns fictional draft",
+      "status": "PASS"
+    },
+    {
+      "name": "Founder deep link reload and fixture permission denial",
+      "status": "PASS"
+    },
+    {
+      "name": "Rider, horse and Founder mobile layouts fit viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "Homepage and live member routes preserve normal access gate",
+      "status": "PASS"
+    },
+    {
+      "name": "Zero live Supabase requests and runtime errors",
+      "status": "PASS"
+    }
+  ],
+  "supabaseRequests": [],
+  "browserErrors": [],
+  "consoleErrors": []
+}
