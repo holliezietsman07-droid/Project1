@@ -1,26 +1,31 @@
 -- PROPOSAL ONLY. Do not apply to connected Supabase without separate Founder approval.
--- Existing HKA auth, horses, ride logs and hka-private bucket are prerequisites.
+-- Existing HKA auth, trusted Message Hollie Founder check, horses, ride logs and private bucket are prerequisites.
 -- Private schema must remain outside exposed Data API schemas.
 begin;
 do $$ begin
  if to_regclass('public.hka_fitness_programmes') is not null then
   raise exception 'Fitness already exists; review schema before applying this proposal.';
  end if;
- if not exists(select 1 from storage.buckets where id='hka-private' and not public) then
-  raise exception 'Existing private HKA storage bucket required.';
+ if to_regprocedure('hka_messaging.founder(uuid)') is null then
+  raise exception 'The reviewed HKA Founder identity check is required.';
+ end if;
+ if not exists(select 1 from storage.buckets where id='hka-private' and not public
+  and (file_size_limit is null or file_size_limit>=10485760)
+  and (allowed_mime_types is null or allowed_mime_types @> array['application/pdf','image/png','image/jpeg'])) then
+  raise exception 'The private HKA bucket must support PDF, PNG and JPEG files up to 10 MB.';
  end if;
 end $$;
 create schema hka_fitness;
-revoke all on schema hka_fitness from public,anon;
+revoke all on schema hka_fitness from public,anon,authenticated,service_role;
 grant usage on schema hka_fitness to authenticated;
 create table hka_fitness.settings(id boolean primary key default true check(id),enabled boolean not null);
 alter table hka_fitness.settings enable row level security;
-insert into hka_fitness.settings values(true,true);
+insert into hka_fitness.settings values(true,false);
 create function hka_fitness.enabled() returns boolean language sql stable security definer set search_path='' as $$
  select coalesce((select enabled from hka_fitness.settings where id),false)
 $$;
 create function hka_fitness.founder() returns boolean language sql stable security definer set search_path='' as $$
- select auth.uid() is not null and public.hka_admin() and public.hka_active()
+ select public.hka_admin() and public.hka_active() and coalesce(hka_messaging.founder(auth.uid()),false)
 $$;
 create function hka_fitness.can_view(person uuid) returns boolean language sql stable security definer set search_path='' as $$
  select auth.uid() is not null and (
@@ -69,15 +74,22 @@ exception when others then return false;
 end $$;
 create table public.hka_fitness_intakes(
  id uuid primary key default gen_random_uuid(),student_id uuid not null references public.hka_profiles(id),
- horse_id uuid references public.hka_horses(id),payload jsonb not null check(hka_fitness.valid_intake(payload)),
+ horse_id uuid references public.hka_horses(id) on delete cascade,payload jsonb not null check(hka_fitness.valid_intake(payload)),
  updated_at timestamptz not null default now(),unique nulls not distinct(student_id,horse_id));
 create table public.hka_fitness_programmes(
  id uuid primary key default gen_random_uuid(),student_id uuid not null references public.hka_profiles(id),
  horse_id uuid references public.hka_horses(id),kind text not null check(kind in ('rider','horse')),
+ archived_horse_id uuid,archived_horse_name text,
  source text not null check(source in ('hka','owner','vet')),title text not null check(length(btrim(title)) between 1 and 160),
  status text not null default 'draft' check(status in ('draft','assigned','archived')),
  current_version_id uuid,draft_version_id uuid,created_at timestamptz not null default now(),
- check((kind='rider' and horse_id is null and source='hka') or (kind='horse' and horse_id is not null)));
+ check(
+  (kind='rider' and horse_id is null and source='hka' and archived_horse_id is null and archived_horse_name is null)
+  or (kind='horse' and (
+   (horse_id is not null and archived_horse_id is null and archived_horse_name is null)
+   or (horse_id is null and archived_horse_id is not null and archived_horse_name is not null and status='archived')
+  ))
+ ));
 create unique index hka_fitness_current on public.hka_fitness_programmes(student_id,coalesce(horse_id,'00000000-0000-0000-0000-000000000000'::uuid),source) where status='assigned';
 create table public.hka_fitness_versions(
  id uuid primary key default gen_random_uuid(),programme_id uuid not null references public.hka_fitness_programmes(id),
@@ -90,7 +102,7 @@ create table public.hka_fitness_progress(
  id uuid primary key default gen_random_uuid(),version_id uuid not null references public.hka_fitness_versions(id),
  session_key text not null,session_date date not null,status text not null check(status in ('complete','skipped')),
  minutes integer not null check(minutes between 0 and 240),notes text not null default '' check(length(notes)<=5000),
- training_record_id uuid unique references public.hka_training_records(id),
+ training_record_id uuid unique references public.hka_training_records(id) on delete set null,
  unique(version_id,session_key,session_date));
 create table public.hka_fitness_templates(
  id uuid primary key default gen_random_uuid(),kind text not null check(kind in ('rider','horse')),
@@ -100,7 +112,7 @@ create table public.hka_fitness_templates(
 create table public.hka_fitness_files(
  id uuid primary key,version_id uuid references public.hka_fitness_versions(id),template_id uuid references public.hka_fitness_templates(id),
  uploaded_by uuid not null references public.hka_profiles(id),original_name text not null check(length(original_name) between 1 and 255),
- path text not null unique check(path='fitness/'||id::text),mime_type text not null check(mime_type in ('application/pdf','text/plain','image/png','image/jpeg')),
+ path text not null unique check(path='fitness/'||id::text),mime_type text not null check(mime_type in ('application/pdf','image/png','image/jpeg')),
  size_bytes integer not null check(size_bytes between 1 and 10485760),created_at timestamptz not null default now(),
  check(num_nonnulls(version_id,template_id)=1));
 create index fitness_versions_programme on public.hka_fitness_versions(programme_id);
@@ -108,6 +120,19 @@ create index fitness_progress_version on public.hka_fitness_progress(version_id)
 create index fitness_files_version on public.hka_fitness_files(version_id);
 create index fitness_files_template on public.hka_fitness_files(template_id);
 create index fitness_programmes_horse on public.hka_fitness_programmes(horse_id);
+create index fitness_intakes_horse on public.hka_fitness_intakes(horse_id) where horse_id is not null;
+
+-- Normal horse removal keeps programme snapshots, completed sessions and private originals readable.
+create function hka_fitness.archive_removed_horse() returns trigger
+language plpgsql security definer set search_path='' as $$
+begin
+ update public.hka_fitness_programmes
+ set status='archived',archived_horse_id=old.id,archived_horse_name=old.name,horse_id=null
+ where horse_id=old.id and student_id=old.student_id;
+ return old;
+end $$;
+create trigger hka_fitness_archive_removed_horse before delete on public.hka_horses
+ for each row execute function hka_fitness.archive_removed_horse();
 create function hka_fitness.version_visible(target uuid) returns boolean language sql stable security definer set search_path='' as $$
  select exists(select 1 from public.hka_fitness_versions v join public.hka_fitness_programmes p on p.id=v.programme_id
  where v.id=target and hka_fitness.can_view(p.student_id) and (hka_fitness.founder() or v.approved_at is not null))
@@ -116,7 +141,7 @@ create function hka_fitness.file_editable(target_version uuid,target_template uu
  select hka_fitness.enabled() and auth.uid() is not null and
  ((target_template is not null and target_version is null and hka_fitness.founder() and exists(select 1 from public.hka_fitness_templates where id=target_template))
  or (target_template is null and exists(select 1 from public.hka_fitness_versions v join public.hka_fitness_programmes p on p.id=v.programme_id
- where v.id=target_version and ((p.source='hka' and hka_fitness.founder() and v.approved_at is null)
+ where v.id=target_version and p.archived_horse_id is null and ((p.source='hka' and hka_fitness.founder() and v.approved_at is null)
  or (p.source<>'hka' and hka_fitness.owner(p.student_id,p.horse_id) and p.current_version_id=v.id)))))
 $$;
 alter table public.hka_fitness_intakes enable row level security;
@@ -172,6 +197,7 @@ begin
   values(target_student,target_horse,new_kind,new_source,btrim(new_title)) returning * into p;
  else
   select * into p from public.hka_fitness_programmes where id=target_programme for update;
+  if p.archived_horse_id is not null then raise exception 'Removed horse programmes are read-only.'; end if;
   if p.id is null or p.student_id<>target_student or p.horse_id is distinct from target_horse or p.kind<>new_kind or p.source<>new_source then raise exception 'Programme subject and source cannot change.'; end if;
  end if;
  select coalesce(max(version_number),0)+1 into n from public.hka_fitness_versions where programme_id=p.id;
@@ -194,6 +220,7 @@ begin
  if p.id is null or p.source<>'hka' then raise exception 'HKA draft unavailable.'; end if;
  perform pg_advisory_xact_lock(hashtextextended(p.student_id::text||coalesce(p.horse_id::text,'rider')||p.source,0));
  select * into p from public.hka_fitness_programmes where id=target_programme for update;
+ if p.archived_horse_id is not null then raise exception 'Removed horse programmes are read-only.'; end if;
  if expected_draft is null or p.draft_version_id is distinct from expected_draft then raise exception 'Draft changed; reload and review before assigning.'; end if;
  if not public.hka_active(p.student_id) then raise exception 'Active member with required guardian consent needed.'; end if;
  select * into v from public.hka_fitness_versions where id=p.draft_version_id and programme_id=p.id;
@@ -214,7 +241,9 @@ begin
 end $$;
 create function hka_fitness.record(target_version uuid,target_key text,work_date date,new_status text,actual_minutes integer,recovery_notes text) returns uuid
 language plpgsql security definer set search_path='' as $$
-declare p public.hka_fitness_programmes; v public.hka_fitness_versions; s jsonb; r public.hka_fitness_progress; today date; log_id uuid;
+declare
+ p public.hka_fitness_programmes; v public.hka_fitness_versions; s jsonb;
+ r public.hka_fitness_progress; today date; log_id uuid; log_notes text; was_complete boolean;
 begin
  select * into v from public.hka_fitness_versions where id=target_version;
  select * into p from public.hka_fitness_programmes where id=v.programme_id for share;
@@ -227,21 +256,29 @@ begin
  if new_status is null or new_status not in ('complete','skipped') or actual_minutes is null or actual_minutes not between 0 and 240 or recovery_notes is null or length(recovery_notes)>5000 then raise exception 'Invalid progress details.'; end if;
  perform pg_advisory_xact_lock(hashtextextended(target_version::text||target_key||work_date::text,0));
  select * into r from public.hka_fitness_progress where version_id=target_version and session_key=target_key and session_date=work_date for update;
- if r.status='complete' and new_status<>'complete' then raise exception 'Completed work is retained in history.'; end if;
+ was_complete=coalesce(r.status='complete',false);
+ if was_complete and new_status<>'complete' then raise exception 'Completed work is retained in history.'; end if;
  insert into public.hka_fitness_progress(version_id,session_key,session_date,status,minutes,notes)
  values(target_version,target_key,work_date,new_status,actual_minutes,recovery_notes)
  on conflict(version_id,session_key,session_date) do update set status=excluded.status,minutes=excluded.minutes,notes=excluded.notes returning * into r;
  if p.kind='horse' and new_status='complete' then
-  log_id=coalesce(r.training_record_id,r.id);
-  insert into public.hka_training_records(id,student_id,horse_id,recorded_on,notes)
-  values(log_id,p.student_id,p.horse_id,work_date,'Fitness: '||(s->>'title')||' · '||actual_minutes||' minutes. '||recovery_notes)
-  on conflict(id) do update set notes=excluded.notes;
-  update public.hka_fitness_progress set training_record_id=log_id where id=r.id;
+  log_notes='Fitness: '||(s->>'title')||' · '||actual_minutes||' minutes. '||recovery_notes;
+  if r.training_record_id is not null then
+   update public.hka_training_records set notes=log_notes
+   where id=r.training_record_id and student_id=p.student_id and horse_id=p.horse_id and recorded_on=work_date;
+   if not found then raise exception 'The linked ride log details changed. Check its horse and date before saving.'; end if;
+  elsif not was_complete then
+   insert into public.hka_training_records(student_id,horse_id,recorded_on,notes)
+   values(p.student_id,p.horse_id,work_date,log_notes) returning id into log_id;
+   update public.hka_fitness_progress set training_record_id=log_id where id=r.id;
+  end if;
  end if;
  return r.id;
 end $$;
 
 -- Existing client calls these invoker wrappers; privileged implementation stays unexposed.
+create function public.hka_fitness_is_founder() returns boolean
+language sql stable security invoker set search_path='' as $$ select hka_fitness.founder() $$;
 create function public.hka_fitness_save_intake(target_student uuid,target_horse uuid,new_payload jsonb) returns uuid
 language sql security invoker set search_path='' as $$ select hka_fitness.save_intake(target_student,target_horse,new_payload) $$;
 create function public.hka_fitness_save_programme(target_programme uuid,target_student uuid,target_horse uuid,new_kind text,new_source text,new_title text,new_intake jsonb,new_sessions jsonb) returns uuid
@@ -250,17 +287,29 @@ create function public.hka_fitness_assign(target_programme uuid,expected_draft u
 language sql security invoker set search_path='' as $$ select hka_fitness.assign(target_programme,expected_draft) $$;
 create function public.hka_fitness_record(target_version uuid,target_key text,work_date date,new_status text,actual_minutes integer,recovery_notes text) returns uuid
 language sql security invoker set search_path='' as $$ select hka_fitness.record(target_version,target_key,work_date,new_status,actual_minutes,recovery_notes) $$;
-revoke all on all functions in schema hka_fitness from public,anon,authenticated;
-grant execute on all functions in schema hka_fitness to authenticated;
-revoke all on function public.hka_fitness_save_intake(uuid,uuid,jsonb),public.hka_fitness_save_programme(uuid,uuid,uuid,text,text,text,jsonb,jsonb),
+revoke all on all functions in schema hka_fitness from public,anon,authenticated,service_role;
+grant execute on function hka_fitness.enabled(),hka_fitness.founder(),hka_fitness.can_view(uuid),
+ hka_fitness.valid_sessions(jsonb),hka_fitness.version_visible(uuid),hka_fitness.file_editable(uuid,uuid),
+ hka_fitness.save_intake(uuid,uuid,jsonb),hka_fitness.save_programme(uuid,uuid,uuid,text,text,text,jsonb,jsonb),
+ hka_fitness.assign(uuid,uuid),hka_fitness.record(uuid,text,date,text,integer,text) to authenticated;
+revoke all on function public.hka_fitness_is_founder(),public.hka_fitness_save_intake(uuid,uuid,jsonb),public.hka_fitness_save_programme(uuid,uuid,uuid,text,text,text,jsonb,jsonb),
  public.hka_fitness_assign(uuid,uuid),public.hka_fitness_record(uuid,text,date,text,integer,text) from public,anon,authenticated;
-grant execute on function public.hka_fitness_save_intake(uuid,uuid,jsonb),public.hka_fitness_save_programme(uuid,uuid,uuid,text,text,text,jsonb,jsonb),
+grant execute on function public.hka_fitness_is_founder(),public.hka_fitness_save_intake(uuid,uuid,jsonb),public.hka_fitness_save_programme(uuid,uuid,uuid,text,text,text,jsonb,jsonb),
  public.hka_fitness_assign(uuid,uuid),public.hka_fitness_record(uuid,text,date,text,integer,text) to authenticated;
 
--- Additional policies are restricted to fitness/<UUID>; existing uploads remain unchanged.
+-- Immutable fitness originals, including under existing permissive Admin Storage policies.
+create policy fitness_storage_keep_original_on_delete on storage.objects as restrictive for delete to authenticated
+ using(bucket_id is distinct from 'hka-private' or name not like 'fitness/%');
+create policy fitness_storage_keep_original_on_update on storage.objects as restrictive for update to authenticated
+ using(bucket_id is distinct from 'hka-private' or name not like 'fitness/%')
+ with check(bucket_id is distinct from 'hka-private' or name not like 'fitness/%');
 create policy fitness_storage_read on storage.objects for select to authenticated using(bucket_id='hka-private' and exists(
- select 1 from public.hka_fitness_files f where f.path=name));
+ select 1 from public.hka_fitness_files f where f.path=objects.name));
 create policy fitness_storage_insert on storage.objects for insert to authenticated with check(bucket_id='hka-private' and exists(
- select 1 from public.hka_fitness_files f where f.path=name and f.uploaded_by=auth.uid() and hka_fitness.file_editable(f.version_id,f.template_id)));
+ select 1 from public.hka_fitness_files f
+ where f.path=objects.name and f.uploaded_by=auth.uid() and hka_fitness.file_editable(f.version_id,f.template_id)
+ and lower(objects.metadata->>'mimetype')=f.mime_type
+ and case when jsonb_typeof(objects.metadata->'size')='number'
+  then (objects.metadata->>'size')::numeric=f.size_bytes else false end));
 notify pgrst,'reload schema';
 commit;
