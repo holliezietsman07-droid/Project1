@@ -25,7 +25,7 @@ export function useFitness(sample: boolean, initialSampleRole: SampleRole = 'rid
   const roles=useRows('hka_account_roles',{},!sample), rides=useRows('hka_training_records',{},!sample);
   const healthRecords=useRows('hka_horse_records',{},!sample);
   const remote=useQuery({
-    queryKey:['fitness',profile?.id,profile?.role],enabled:!sample&&fitnessDatabaseEnabled&&Boolean(profile),retry:0,
+    queryKey:['fitness',profile?.id,profile?.role],enabled:!sample&&fitnessDatabaseEnabled&&Boolean(profile),retry:0,refetchInterval:30_000,
     queryFn:async()=>{
       const names=['hka_fitness_intakes','hka_fitness_programmes','hka_fitness_versions','hka_fitness_progress','hka_fitness_templates','hka_fitness_files'];
       const [result, founder] = await Promise.all([
@@ -201,3 +201,4 @@ export function useFitness(sample: boolean, initialSampleRole: SampleRole = 'rid
     error:sample?null:remote.error||profiles.error||horses.error||roles.error||rides.error||healthRecords.error,refresh,profile};
 }
 export type FitnessController = ReturnType<typeof useFitness>;
+

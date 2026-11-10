@@ -71,8 +71,8 @@ export function FitnessProfileWizard({c,subject,sampleLink,onClose}:{
     }
   }
 
-  return <WorkflowDialog open onOpenChange={open=>{if(!open)onClose();}} title={subject.kind==='horse'?subject.name+' · fitness profile':'Fitness profile'}
-    description='A few details to help tailor the programme.' dirty={intake!==initial.current} busy={busy} initialFocus={stepTitle}
+  return <WorkflowDialog open onOpenChange={open=>{if(!open)onClose();}} title={sendRequest?'Request a programme':subject.kind==='horse'?subject.name+' · fitness profile':'Fitness profile'}
+    description={sendRequest && subject.kind==='horse'?'Tell Hollie about your goals for '+subject.name+'.':'A few details to help tailor the programme.'} dirty={intake!==initial.current} busy={busy} initialFocus={stepTitle}
     contentClassName='gap-3 overflow-hidden sm:max-w-xl sm:rounded-2xl'>
     <form className='flex min-h-0 flex-1 flex-col' onSubmit={advance}>
       <div className='shrink-0 space-y-2 pb-3'>
@@ -99,7 +99,7 @@ export function FitnessProfileWizard({c,subject,sampleLink,onClose}:{
         </p>}
         {error&&<p role='alert' className='rounded-lg border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive'>{error}</p>}
       </div>
-      <footer className='flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-primary/15 pt-3'>
+      <footer className='flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-primary/15 pt-3 pb-[env(safe-area-inset-bottom)] sm:pb-0'>
         {index>0
           ? <Button type='button' variant='ghost' className='min-h-11 gap-2' disabled={busy} onClick={()=>setIndex(index-1)}><ArrowLeft className='size-4' aria-hidden='true'/>Back</Button>
           : <DialogClose asChild><Button type='button' variant='ghost' className='min-h-11' disabled={busy}>Cancel</Button></DialogClose>}
@@ -111,3 +111,4 @@ export function FitnessProfileWizard({c,subject,sampleLink,onClose}:{
     </form>
   </WorkflowDialog>;
 }
+
