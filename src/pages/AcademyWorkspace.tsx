@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { Download, FilePlus2, Library, RefreshCw, Save, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, BookOpen, ChevronRight, Download, FilePlus2, Library, MoreHorizontal, RefreshCw, Save, Search, Sparkles, Trash2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,15 @@ function CourseManager() {
  const { profile }=useSession(); const refresh=useRefreshAcademy(); const courses=useRows('hka_courses');
  const [searchParams,setSearchParams]=useSearchParams();
  const courseHeading=useRef<HTMLHeadingElement>(null);
+ const [courseSearch,setCourseSearch]=useState('');
  const submitting=useRef(false); const [selected,setSelected]=useState(()=>searchParams.get('course')??''); const [creating,setCreating]=useState(()=>searchParams.get('action')==='create'); const [materialLesson,setMaterialLesson]=useState(''); const [materialFile,setMaterialFile]=useState<File|null>(null); const [message,setMessage]=useState(''); const [busy,setBusy]=useState(false);
+ useEffect(()=>{
+  if(selected||creating||courses.isLoading)return;
+  const filter=searchParams.get('filter');
+  const rows=(courses.data??[]).filter(row=>!filter||filter==='all'||filter===(row.archived_at?'archived':row.published?'published':'drafts'));
+  const preferred=rows.find(row=>!row.published&&!row.archived_at)??rows.find(row=>!row.archived_at)??rows[0];
+  if(preferred)setSelected(String(preferred.id));
+ },[courses.data,courses.isLoading,creating,searchParams,selected]);
  const lessons=useQuery({queryKey:['manage-lessons',selected],enabled:Boolean(selected),queryFn:async()=>{const {data,error}=await db().from('hka_lessons').select('*').eq('course_id',selected).order('position');if(error)throw error;return (data??[]) as Row[];}});
  const modules=useQuery({queryKey:['manage-modules',selected],enabled:Boolean(selected),queryFn:async()=>{const {data,error}=await db().from('hka_modules').select('*').eq('course_id',selected).order('position');if(error)throw error;return (data??[]) as Row[];}});
  useEffect(()=>{setMaterialLesson('');setMaterialFile(null);},[selected]);
@@ -78,37 +86,109 @@ function CourseManager() {
  const quickLesson=lessonList.length===1&&!lessonList[0].published ? lessonList[0] : undefined;
  const canPublish=Boolean(quickLesson||lessonList.some(row=>row.published));
  const contentLoading=lessons.isLoading||modules.isLoading||Boolean(lessons.error||modules.error);
- return <div className={'grid gap-5 xl:grid-cols-[minmax(17rem,0.75fr)_minmax(0,1.25fr)]'}>
-  <section className={'paper-card p-6'}><div className={'flex flex-wrap items-start justify-between gap-4'}><div><p className={'eyebrow text-[#826e45]'}>Course Studio</p><h2 className={'mt-2 font-serif text-3xl'}>Course library</h2><p className={'mt-2 text-sm text-muted-foreground'}>Draft, preview, publish, duplicate or archive without deleting history.</p></div><Button type={'button'} onClick={()=>{setCreating(true);}}><FilePlus2/>New course</Button></div>
-   {courses.isLoading?<p className={'mt-5 text-sm'}>Loading…</p>:<ul className={'mt-5 max-h-80 space-y-2 overflow-y-auto pr-1'}>{(courses.data??[]).filter(c=>searchParams.get('filter')!=='drafts'||(!c.published&&!c.archived_at)).map(c=><li key={c.id}><button className={'w-full rounded-sm border p-4 text-left '+(selected===c.id?'border-primary bg-primary/5':'border-primary/15')} disabled={busy} onClick={()=>selectCourse(String(c.id))}><span className={'font-medium'}>{String(c.title)}</span><span className={'mt-1 block text-xs text-muted-foreground'}>{c.archived_at?'Archived':c.published?'Published':'Draft'} · {String(c.access_level??'free').toUpperCase()}</span></button></li>)}</ul>}
-   {searchParams.get('filter')==='drafts'&&<Button type='button' variant='ghost' className='mt-3' onClick={()=>{const next=new URLSearchParams(searchParams);next.delete('filter');setSearchParams(next);}}>Show all courses</Button>}
-  </section>
-  <div className={'min-w-0 space-y-7'}>{(lessons.error||modules.error)&&<p role='alert' className='text-sm text-destructive'>Course content could not be loaded. Publishing is unavailable.</p>}{!selected&&!creating&&<section className={'paper-card p-8'}><p className={'eyebrow text-[#826e45]'}>Studio overview</p><h2 className={'mt-3 font-serif text-3xl'}>Choose a course to manage</h2><p className={'mt-3 max-w-xl text-sm leading-6 text-muted-foreground'}>Review existing course structure, publication state and materials, or start a private draft when you are ready.</p><div className={'mt-6 grid gap-3 sm:grid-cols-2'}><div className={'rounded-lg border border-primary/15 p-4'}><p className={'font-serif text-3xl'}>{(courses.data??[]).filter(course=>course.published&&!course.archived_at).length}</p><p className={'text-xs text-muted-foreground'}>Published courses</p></div><div className={'rounded-lg border border-primary/15 p-4'}><p className={'font-serif text-3xl'}>{(courses.data??[]).filter(course=>!course.published&&!course.archived_at).length}</p><p className={'text-xs text-muted-foreground'}>Course drafts</p></div></div></section>}
+ const filter=searchParams.get('filter')??'all';
+ const visibleCourses=(courses.data??[]).filter(row=>{
+  const status=row.archived_at?'archived':row.published?'published':'drafts';
+  return (filter==='all'||filter===status)&&String(row.title).toLowerCase().includes(courseSearch.trim().toLowerCase());
+ });
+ function setCourseFilter(value:string){
+  const next=new URLSearchParams(searchParams);
+  if(value==='all')next.delete('filter');
+  else next.set('filter',value);
+  setSearchParams(next);
+ }
+ return <div className='grid min-w-0 items-start gap-4 xl:grid-cols-[minmax(15rem,17rem)_minmax(0,1fr)]'>
+  <aside aria-label='Course library' className='rounded-2xl border border-primary/15 bg-[#fffdf8] p-4 xl:sticky xl:top-20'>
+   <div className='flex flex-wrap items-center justify-between gap-2'>
+    <h2 className='font-serif text-xl text-primary'>Courses</h2>
+    <Button type='button' size='sm' className='min-h-10 rounded-lg' onClick={()=>setCreating(true)}><FilePlus2 aria-hidden='true'/>New course</Button>
+   </div>
+   <div className='mt-3 flex gap-2'>
+    <label className='relative min-w-0 flex-1'>
+     <Search aria-hidden='true' className='pointer-events-none absolute left-2.5 top-3 size-4 text-muted-foreground'/>
+     <Input aria-label='Search courses' placeholder='Search' className='h-10 rounded-lg pl-8' value={courseSearch} onChange={event=>setCourseSearch(event.target.value)}/>
+    </label>
+    <select aria-label='Filter courses' className='h-10 max-w-[8rem] rounded-lg border border-input bg-background px-2 text-sm' value={filter} onChange={event=>setCourseFilter(event.target.value)}>
+     <option value='all'>All</option><option value='drafts'>Drafts</option><option value='published'>Published</option><option value='archived'>Archived</option>
+    </select>
+   </div>
+   {courses.isLoading?<p role='status' className='mt-3 text-sm'>Loading courses…</p>:courses.error?<p role='alert' className='mt-3 text-sm text-destructive'>Could not load courses.</p>:<>
+    <select aria-label='Choose course' className='mt-3 h-11 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-sm xl:hidden' value={selected} disabled={busy} onChange={event=>selectCourse(event.target.value)}>
+     {(!course||!visibleCourses.some(row=>row.id===selected))&&<option value={selected}>{course?String(course.title):'Choose a course'}</option>}
+     {visibleCourses.map(row=><option key={row.id} value={row.id}>{String(row.title)}</option>)}
+    </select>
+    <ul className='mt-3 hidden max-h-[65dvh] space-y-1 overflow-y-auto xl:block'>
+     {visibleCourses.map(row=><li key={row.id}>
+      <button type='button' aria-current={row.id===selected?'true':undefined} disabled={busy} onClick={()=>selectCourse(row.id)} className={'flex w-full min-w-0 items-center gap-2 rounded-lg px-3 py-3 text-left transition-colors '+(row.id===selected?'bg-primary text-primary-foreground':'hover:bg-primary/5')}>
+       <span className='min-w-0 flex-1'><span className='block break-words text-sm font-medium'>{String(row.title)}</span><span className='mt-1 block text-xs opacity-80'>{row.archived_at?'Archived':row.published?'Published':'Draft'} · {String(row.access_level??'free').toUpperCase()}</span></span>
+       <ChevronRight className='size-4 shrink-0' aria-hidden='true'/>
+      </button>
+     </li>)}
+    </ul>
+    {!visibleCourses.length&&<p className='mt-3 text-sm text-muted-foreground'>No courses match.</p>}
+   </>}
+  </aside>
+  <div className='min-w-0 space-y-4'>
    {creating&&<FocusedForm title="New course draft" triggerLabel="Create course" feedback={message} onSubmit={createCourse} open={creating} onOpenChange={setCreating}><div><Label htmlFor={'course-title'}>Title</Label><Input id={'course-title'} name={'title'} required maxLength={150}/></div><div className={'grid gap-4 sm:grid-cols-2'}><div><Label>Pathway</Label><Select name={'pathway'} required><SelectTrigger><SelectValue placeholder={'Choose pathway'}/></SelectTrigger><SelectContent>{pathways.map(p=><SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>)}</SelectContent></Select></div><div><Label>Level</Label><Select name={'level'} defaultValue={'All levels'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['Beginner','Intermediate','Advanced','All levels'].map(x=><SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></div></div><div><Label htmlFor={'course-description'}>Introduction</Label><Textarea id={'course-description'} name={'description'} required/></div><div className={'grid gap-4 sm:grid-cols-3'}><div><Label htmlFor={'course-duration'}>Minutes</Label><Input id={'course-duration'} name={'duration'} type={'number'} min={0}/></div><div><Label>Access</Label><Select name={'access'} defaultValue={'free'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['free','basic','premium'].map(x=><SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></div><div><Label htmlFor={'course-eligibility'}>Eligibility</Label><Input id={'course-eligibility'} name={'eligibility'} defaultValue={'Active academy account'}/></div></div><div className={'flex flex-wrap gap-2'}><Button disabled={busy}><Save/>Save draft</Button></div></FocusedForm>}
-   {course&&<section className='paper-card space-y-4 p-5'>
-    <div>
-     <p className='eyebrow text-[#826e45]'>{course.archived_at?'Archived':course.published?'Published':'Draft'} · {String(course.access_level??'free')}</p>
-     <h2 ref={courseHeading} tabIndex={-1} className='mt-2 break-words font-serif text-3xl'>{String(course.title)}</h2>
-    </div>
-    <div className='flex flex-wrap items-center gap-2'>
-     {!course.published&&<Button className='min-h-11' disabled={busy||contentLoading||!canPublish} onClick={()=>void changeCourse(course.id,{published:true,archived_at:null},quickLesson?'Published lesson “'+String(quickLesson.title)+'” and course “'+String(course.title)+'”.':'Published course “'+String(course.title)+'”.',quickLesson)}>{quickLesson?'Publish lesson & course':'Publish course'}</Button>}
-     <CoursePreview key={course.id} course={course} lessons={lessonList} modules={modules.data??[]}/>
-     <details className='relative'>
-      <summary className='cursor-pointer rounded-md px-3 py-3 text-sm font-medium'>More actions</summary>
-      <div className='flex flex-wrap gap-2 p-2'>
-       {course.published&&<Button size='sm' variant='outline' disabled={busy} onClick={()=>void changeCourse(course.id,{published:false},'Unpublished course “'+String(course.title)+'”.')}>Unpublish</Button>}
-       <Button size='sm' variant='outline' disabled={busy} onClick={()=>void duplicate(course.id)}>Duplicate</Button>
-       {!course.archived_at&&<Button size='sm' variant='outline' disabled={busy} onClick={()=>void changeCourse(course.id,{published:false,archived_at:new Date().toISOString()},'Archived course “'+String(course.title)+'”.')}>Archive</Button>}
-      </div>
-     </details>
-    </div>
-    {!course.published&&!contentLoading&&!canPublish&&<p className='text-sm text-muted-foreground'>{lessonList.length?'Publish a lesson below to make this course ready.':'Add a lesson below to make this course ready.'}</p>}
-   </section>}
-   {selected&&<FocusedForm title="Course details" triggerLabel="Edit course" feedback={message} onSubmit={editCourse}><Input name={'title'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.title??'')} required/><Textarea name={'description'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.description??'')}/><div className={'grid gap-4 sm:grid-cols-2'}><Input name={'eligibility'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.eligibility??'Active academy account')}/><Select name={'access'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.access_level??'free')}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['free','basic','premium'].map(x=><SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></div><Button className={'w-fit'} disabled={busy}><Save/>Save course changes</Button></FocusedForm>}
-   {selected&&<><section className="paper-card p-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="font-serif text-3xl">Lessons</h2><FocusedForm title="Lessons" triggerLabel="Add lesson" feedback={message} onSubmit={addLesson}><div><Label>Module</Label><Select name={'module'}><SelectTrigger><SelectValue placeholder={'Optional module'}/></SelectTrigger><SelectContent>{(modules.data??[]).map(m=><SelectItem key={m.id} value={String(m.id)}>{String(m.title)}</SelectItem>)}</SelectContent></Select></div><div><Label htmlFor={'lesson-title'}>Lesson title</Label><Input id={'lesson-title'} name={'title'} required/></div><div><Label htmlFor={'lesson-description'}>Description</Label><Input id={'lesson-description'} name={'description'}/></div><div><Label htmlFor={'lesson-content'}>Formatted educational text</Label><Textarea id={'lesson-content'} name={'content'} className={'min-h-48'} /></div><div className={'grid gap-4 sm:grid-cols-3'}><div><Label>Type</Label><Select name={'kind'} defaultValue={'lesson'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['lesson','quiz','assignment'].map(x=><SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></div><div><Label htmlFor={'lesson-duration'}>Minutes</Label><Input id={'lesson-duration'} name={'duration'} type={'number'} min={0}/></div><label className={'flex items-end gap-2 pb-2 text-sm'}><input name={'free'} type={'checkbox'}/>Free introduction</label></div><Button disabled={busy} className={'w-fit'}><FilePlus2/>Add lesson draft</Button></FocusedForm></div><ol className={'space-y-2'}>{lessons.data?.map((l,i)=><li key={l.id} className={'rounded-sm border border-primary/15 p-3 text-sm'}>{i+1}. {String(l.title)} <span className={'text-muted-foreground'}>· {String(l.kind)} · {l.published?'Published':'Draft'}</span><Button type={'button'} size={'sm'} variant={'ghost'} disabled={i===0||busy} onClick={()=>void moveLesson(i,-1)}>↑</Button><Button type={'button'} size={'sm'} variant={'ghost'} disabled={i===(lessons.data?.length??1)-1||busy} onClick={()=>void moveLesson(i,1)}>↓</Button><Button type={'button'} size={'sm'} variant={'ghost'} disabled={busy} onClick={()=>void toggleLesson(l)}>{l.published?'Unpublish':'Publish'}</Button><CourseContentEditor row={l} kind='lesson' onSaved={reloadContent}/></li>)}</ol></section></>}
-   {selected&&<><section className="paper-card p-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="font-serif text-3xl">Modules</h2><FocusedForm title="Modules" triggerLabel="Add module" feedback={message} onSubmit={addModule}><Input name={'title'} placeholder={'Module title'} required/><Textarea name={'description'} placeholder={'Module description'}/><Button className={'w-fit'} disabled={busy}>Add module draft</Button></FocusedForm></div><div className={'space-y-2'}>{(modules.data??[]).map(m=><div key={m.id} className='flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-sm border border-primary/15 p-3 text-sm'><span className='break-words'>{String(m.title)} · {m.published?'Published':'Draft'}</span><CourseContentEditor row={m} kind='module' onSaved={reloadContent}/></div>)}</div></section></>}
-   {selected&&Boolean(lessons.data?.length)&&<FocusedForm title="Assessment question" triggerLabel="Add question" feedback={message} onSubmit={addQuestion}><Select name={'lesson'} required><SelectTrigger><SelectValue placeholder={'Choose quiz or assignment'}/></SelectTrigger><SelectContent>{(lessons.data??[]).filter(l=>l.kind!=='lesson').map(l=><SelectItem key={l.id} value={String(l.id)}>{String(l.title)}</SelectItem>)}</SelectContent></Select><Select name={'type'} defaultValue={'multiple_choice'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['multiple_choice','true_false','short_answer','long_answer','practical','riding_video'].map(x=><SelectItem key={x} value={x}>{x.replace('_',' ')}</SelectItem>)}</SelectContent></Select><Textarea name={'prompt'} placeholder={'Question or assignment prompt'} required/><Input name={'options'} placeholder={'Multiple-choice options, comma separated'}/><div className={'grid gap-4 sm:grid-cols-2'}><Input name={'answer'} placeholder={'Automated answer, when appropriate'}/><Input name={'points'} type={'number'} min={1} defaultValue={1}/></div><Textarea name={'criteria'} placeholder={'Marking criteria'}/><Textarea name={'explanation'} placeholder={'Automated explanation after submission'}/><label className={'flex items-center gap-2 text-sm'}><input name={'coach'} type={'checkbox'}/>Requires personal coach review</label><Button className={'w-fit'} disabled={busy}>Save assessment question</Button></FocusedForm>}
-   {selected&&<section className={'paper-card grid gap-4 p-6'}><h2 className={'font-serif text-3xl'}>Lesson materials</h2><Select value={materialLesson} onValueChange={setMaterialLesson}><SelectTrigger><SelectValue placeholder={'Choose lesson'}/></SelectTrigger><SelectContent>{(lessons.data??[]).map(l=><SelectItem key={l.id} value={String(l.id)}>{String(l.title)}</SelectItem>)}</SelectContent></Select><Input type={'file'} accept={'image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/webm'} onChange={(event:ChangeEvent<HTMLInputElement>)=>setMaterialFile(event.target.files?.[0]??null)}/><Button className={'w-fit'} disabled={busy||!materialLesson||!materialFile} onClick={()=>void uploadMaterial()}><FilePlus2/>Upload private material</Button></section>}
+   {!course&&!courses.isLoading&&!creating&&<div className='rounded-2xl border border-dashed border-primary/25 bg-[#fffdf8] p-6'>
+    <BookOpen className='size-5 text-primary' aria-hidden='true'/><h2 className='mt-2 font-serif text-2xl'>Choose a course</h2>
+    <p className='mt-2 text-sm text-muted-foreground'>Select a course or start a new draft.</p>
+   </div>}
+   {course&&<>
+    <header className='rounded-2xl border border-[#B79B62]/40 bg-[#2F4A3C] p-5 text-[#F6F1E7] sm:p-6'>
+     <p className='text-xs font-semibold uppercase tracking-wider text-[#DFCEA3]'>{course.archived_at?'Archived':course.published?'Published':'Draft'} · {String(course.access_level??'free')}</p>
+     <h2 ref={courseHeading} tabIndex={-1} className='mt-2 break-words font-serif text-3xl focus:outline-none'>{String(course.title)}</h2>
+     <p className='mt-2 text-sm text-[#F6F1E7]/85'>{lessonList.length} {lessonList.length===1?'lesson':'lessons'} · {lessonList.filter(row=>row.published).length} published</p>
+     <div className='mt-4 flex flex-wrap items-start gap-2'>
+      {!course.published&&<Button variant='secondary' className='min-h-11 rounded-lg' disabled={busy||contentLoading||!canPublish} onClick={()=>void changeCourse(course.id,{published:true,archived_at:null},quickLesson?'Published lesson “'+String(quickLesson.title)+'” and course “'+String(course.title)+'”.':'Published course “'+String(course.title)+'”.',quickLesson)}>{busy?'Working…':quickLesson?'Publish lesson & course':'Publish course'}</Button>}
+      <CoursePreview key={course.id} course={course} lessons={lessonList} modules={modules.data??[]} triggerClassName='min-h-11 rounded-lg bg-transparent text-[#F6F1E7] hover:bg-white/10 hover:text-white'/>
+      <details key={course.id} className='relative'>
+       <summary className='flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-lg border border-white/25 px-3 text-sm font-medium hover:bg-white/10 [&::-webkit-details-marker]:hidden'><MoreHorizontal className='size-4' aria-hidden='true'/>More actions</summary>
+       <div className='absolute left-0 top-full z-10 mt-1 grid min-w-40 gap-1 rounded-xl border border-primary/15 bg-[#fffdf8] p-2 text-primary shadow-lg'>
+        {course.published&&<Button variant='ghost' className='justify-start' disabled={busy} onClick={()=>void changeCourse(course.id,{published:false},'Unpublished course “'+String(course.title)+'”.')}>Unpublish</Button>}
+        <Button variant='ghost' className='justify-start' disabled={busy} onClick={()=>void duplicate(course.id)}>Duplicate</Button>
+        {!course.archived_at&&<Button variant='ghost' className='justify-start' disabled={busy} onClick={()=>void changeCourse(course.id,{published:false,archived_at:new Date().toISOString()},'Archived course “'+String(course.title)+'”.')}>Archive</Button>}
+       </div>
+      </details>
+     </div>
+     {!course.published&&!contentLoading&&!canPublish&&<p className='mt-3 text-sm text-[#F6F1E7]/85'>{lessonList.length?'Publish a lesson to make this course ready.':'Add a lesson to make this course ready.'}</p>}
+    </header>
+    {(lessons.error||modules.error)&&<p role='alert' className='text-sm text-destructive'>Could not load course content. Publishing is unavailable.</p>}
+    <Tabs key={course.id} defaultValue='lessons'>
+     <TabsList aria-label='Course tools' className='h-auto w-full flex-wrap justify-start gap-1 rounded-xl border border-primary/15 bg-[#fffdf8] p-1.5'>
+      <TabsTrigger className='min-h-10 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value='lessons'>Lessons</TabsTrigger>
+      <TabsTrigger className='min-h-10 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value='details'>Details</TabsTrigger>
+      <TabsTrigger className='min-h-10 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value='structure'>Modules &amp; quizzes</TabsTrigger>
+      <TabsTrigger className='min-h-10 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value='materials'>Materials</TabsTrigger>
+     </TabsList>
+     <TabsContent value='lessons'><section className="paper-card p-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="font-serif text-3xl">Lessons</h2><FocusedForm title="Add lesson" compactTrigger feedback={message} onSubmit={addLesson}><div><Label>Module</Label><Select name={'module'}><SelectTrigger><SelectValue placeholder={'Optional module'}/></SelectTrigger><SelectContent>{(modules.data??[]).map(m=><SelectItem key={m.id} value={String(m.id)}>{String(m.title)}</SelectItem>)}</SelectContent></Select></div><div><Label htmlFor={'lesson-title'}>Lesson title</Label><Input id={'lesson-title'} name={'title'} required/></div><div><Label htmlFor={'lesson-description'}>Description</Label><Input id={'lesson-description'} name={'description'}/></div><div><Label htmlFor={'lesson-content'}>Formatted educational text</Label><Textarea id={'lesson-content'} name={'content'} className={'min-h-48'} /></div><div className={'grid gap-4 sm:grid-cols-3'}><div><Label>Type</Label><Select name={'kind'} defaultValue={'lesson'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['lesson','quiz','assignment'].map(x=><SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></div><div><Label htmlFor={'lesson-duration'}>Minutes</Label><Input id={'lesson-duration'} name={'duration'} type={'number'} min={0}/></div><label className={'flex items-end gap-2 pb-2 text-sm'}><input name={'free'} type={'checkbox'}/>Free introduction</label></div><Button disabled={busy} className={'w-fit'}><FilePlus2/>Add lesson draft</Button></FocusedForm></div>{lessons.isLoading?<p role='status' className='text-sm text-muted-foreground'>Loading lessons…</p>
+ : !lessonList.length?<div className='rounded-xl border border-dashed border-primary/25 p-6 text-sm text-muted-foreground'>Add your first lesson to start building this course.</div>
+ : <ol className='divide-y divide-primary/10 rounded-xl border border-primary/15'>
+  {lessonList.map((lesson,index)=><li key={lesson.id} className='flex min-w-0 flex-wrap items-center gap-3 p-3 sm:p-4'>
+   <span aria-hidden='true' className='grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-sm font-semibold text-primary'>{index+1}</span>
+   <div className='min-w-0 flex-1'>
+    <p className='break-words text-sm font-semibold'>{String(lesson.title)}</p>
+    <p className='mt-1 text-xs capitalize text-muted-foreground'>{String(lesson.kind)} · {lesson.published?'Published':'Draft'}</p>
+   </div>
+   <div className='flex w-full flex-wrap items-center gap-1 sm:w-auto'>
+    <CourseContentEditor row={lesson} kind='lesson' onSaved={reloadContent}/>
+    <Button type='button' size='sm' variant='ghost' className='min-h-10' disabled={busy} onClick={()=>void toggleLesson(lesson)}>{lesson.published?'Unpublish lesson':'Publish lesson'}</Button>
+    {lessonList.length>1&&<div className='flex gap-1'>
+     <Button type='button' size='icon' variant='ghost' aria-label={'Move '+String(lesson.title)+' up'} disabled={index===0||busy} onClick={()=>void moveLesson(index,-1)}><ArrowUp aria-hidden='true'/></Button>
+     <Button type='button' size='icon' variant='ghost' aria-label={'Move '+String(lesson.title)+' down'} disabled={index===lessonList.length-1||busy} onClick={()=>void moveLesson(index,1)}><ArrowDown aria-hidden='true'/></Button>
+    </div>}
+   </div>
+  </li>)}
+ </ol>}</section></TabsContent>
+     <TabsContent value='details'><section className='paper-card space-y-3 p-5'>
+      <h3 className='font-serif text-2xl'>Course details</h3>
+      <p className='whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground'>{String(course.description||'Add an introduction to your course.')}</p>
+      {selected&&<FocusedForm title="Course details" triggerLabel="Edit course" feedback={message} onSubmit={editCourse}><Input name={'title'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.title??'')} required/><Textarea name={'description'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.description??'')}/><div className={'grid gap-4 sm:grid-cols-2'}><Input name={'eligibility'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.eligibility??'Active academy account')}/><Select name={'access'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.access_level??'free')}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['free','basic','premium'].map(x=><SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></div><Button className={'w-fit'} disabled={busy}><Save/>Save course changes</Button></FocusedForm>}
+     </section></TabsContent>
+     <TabsContent value='structure' className='space-y-4'><section className="paper-card p-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="font-serif text-3xl">Modules</h2><FocusedForm title="Add module" compactTrigger feedback={message} onSubmit={addModule}><Input name={'title'} placeholder={'Module title'} required/><Textarea name={'description'} placeholder={'Module description'}/><Button className={'w-fit'} disabled={busy}>Add module draft</Button></FocusedForm></div><div className={'space-y-2'}>{(modules.data??[]).map(m=><div key={m.id} className='flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-sm border border-primary/15 p-3 text-sm'><span className='break-words'>{String(m.title)} · {m.published?'Published':'Draft'}</span><CourseContentEditor row={m} kind='module' onSaved={reloadContent}/></div>)}</div></section>{selected&&Boolean(lessons.data?.length)&&<FocusedForm title="Assessment question" triggerLabel="Add question" feedback={message} onSubmit={addQuestion}><Select name={'lesson'} required><SelectTrigger><SelectValue placeholder={'Choose quiz or assignment'}/></SelectTrigger><SelectContent>{(lessons.data??[]).filter(l=>l.kind!=='lesson').map(l=><SelectItem key={l.id} value={String(l.id)}>{String(l.title)}</SelectItem>)}</SelectContent></Select><Select name={'type'} defaultValue={'multiple_choice'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['multiple_choice','true_false','short_answer','long_answer','practical','riding_video'].map(x=><SelectItem key={x} value={x}>{x.replace('_',' ')}</SelectItem>)}</SelectContent></Select><Textarea name={'prompt'} placeholder={'Question or assignment prompt'} required/><Input name={'options'} placeholder={'Multiple-choice options, comma separated'}/><div className={'grid gap-4 sm:grid-cols-2'}><Input name={'answer'} placeholder={'Automated answer, when appropriate'}/><Input name={'points'} type={'number'} min={1} defaultValue={1}/></div><Textarea name={'criteria'} placeholder={'Marking criteria'}/><Textarea name={'explanation'} placeholder={'Automated explanation after submission'}/><label className={'flex items-center gap-2 text-sm'}><input name={'coach'} type={'checkbox'}/>Requires personal coach review</label><Button className={'w-fit'} disabled={busy}>Save assessment question</Button></FocusedForm>}</TabsContent>
+     <TabsContent value='materials'>{selected&&<section className={'paper-card grid gap-4 p-6'}><h2 className={'font-serif text-3xl'}>Lesson materials</h2><Select value={materialLesson} onValueChange={setMaterialLesson}><SelectTrigger><SelectValue placeholder={'Choose lesson'}/></SelectTrigger><SelectContent>{(lessons.data??[]).map(l=><SelectItem key={l.id} value={String(l.id)}>{String(l.title)}</SelectItem>)}</SelectContent></Select><Input type={'file'} accept={'image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/webm'} onChange={(event:ChangeEvent<HTMLInputElement>)=>setMaterialFile(event.target.files?.[0]??null)}/><Button className={'w-fit'} disabled={busy||!materialLesson||!materialFile} onClick={()=>void uploadMaterial()}><FilePlus2/>Upload private material</Button></section>}</TabsContent>
+    </Tabs>
+   </>}
    <Notice text={message} good={message.includes('saved')||message.includes('published')||message.includes('duplicated')||message.includes('archived')||message.includes('uploaded')}/>
   </div>
  </div>;
@@ -172,5 +252,5 @@ export function AIStudio(){
 export default function AcademyWorkspace(){
  const {profile}=useSession();const [searchParams,setSearchParams]=useSearchParams();const allowed=profile?.role==='coach'||profile?.role==='admin';const defaultTab=useMemo(()=>profile?.role==='admin'?'courses':'reviews',[profile?.role]);
  if(!allowed)return <p className={'page-width py-16 text-sm text-destructive'}>Authorised coach or administrator access is required.</p>;
- return <section className={'page-width py-12 sm:py-16'}><div className={'mb-8'}><p className={'eyebrow mb-3 text-[#76633e]'}>Authorised workspace</p><h1 className={'section-heading'}>Visual Course Studio</h1></div><Tabs value={['courses','reviews'].includes(searchParams.get('tab')??'')?searchParams.get('tab')!:defaultTab} onValueChange={tab=>{const next=new URLSearchParams(searchParams);next.set('tab',tab);next.delete('submission');setSearchParams(next);}}><TabsList className={'mb-7 h-auto flex-wrap'}><TabsTrigger value={'courses'}><Library className={'mr-2 size-4'}/>Courses</TabsTrigger><TabsTrigger value={'reviews'}>Coach reviews</TabsTrigger><></></TabsList><TabsContent value={'courses'}><CourseManager/></TabsContent><TabsContent value={'reviews'}><ReviewQueue/></TabsContent><></></Tabs></section>;
+ return <section className='mx-auto w-full max-w-[96rem] px-4 py-5 sm:px-6 sm:py-7'><div className='mb-3'><h1 className='font-serif text-3xl text-primary sm:text-4xl'>Course Studio</h1></div><Tabs value={['courses','reviews'].includes(searchParams.get('tab')??'')?searchParams.get('tab')!:defaultTab} onValueChange={tab=>{const next=new URLSearchParams(searchParams);next.set('tab',tab);next.delete('submission');setSearchParams(next);}}><TabsList className='mb-3 h-auto flex-wrap'><TabsTrigger value={'courses'}><Library className={'mr-2 size-4'}/>Courses</TabsTrigger><TabsTrigger value={'reviews'}>Coach reviews</TabsTrigger><></></TabsList><TabsContent value={'courses'}><CourseManager/></TabsContent><TabsContent value={'reviews'}><ReviewQueue/></TabsContent><></></Tabs></section>;
 }

@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { WorkflowDialog } from '@/components/accounts/WorkflowDialog';
 import { errorText } from '@/lib/academy';
 
-export function FocusedForm({ title, description = 'Update this record, then save when ready.', triggerLabel, children, onSubmit, feedback, disabled = false, open: controlledOpen, onOpenChange }: {
-  title: string; description?: string; triggerLabel?: string; children: ReactNode; onSubmit:(event:FormEvent<HTMLFormElement>)=>Promise<boolean|void>;
+export function FocusedForm({ title, description = 'Update this record, then save when ready.', triggerLabel, compactTrigger = false, children, onSubmit, feedback, disabled = false, open: controlledOpen, onOpenChange }: {
+  title: string; description?: string; triggerLabel?: string; compactTrigger?: boolean; children: ReactNode; onSubmit:(event:FormEvent<HTMLFormElement>)=>Promise<boolean|void>;
   feedback?: string; disabled?: boolean; open?:boolean; onOpenChange?:(open:boolean)=>void;
 }) {
   const [localOpen,setLocalOpen]=useState(false),[busy,setBusy]=useState(false),[dirty,setDirty]=useState(false),[error,setError]=useState('');
@@ -13,7 +13,8 @@ export function FocusedForm({ title, description = 'Update this record, then sav
   const [submitted,setSubmitted]=useState(false);
   const open=controlledOpen??localOpen;
   const changeOpen=(next:boolean)=>{setLocalOpen(next);setSubmitted(false);onOpenChange?.(next);if(!next){setDirty(false);setError('');}};
-  return <><section className='paper-card p-5 sm:p-6'><div className='flex flex-wrap items-center justify-between gap-4'><div><h3 className='font-serif text-2xl'>{title}</h3><p className='mt-2 max-w-lg text-sm leading-6 text-muted-foreground'>{description}</p></div><Button type='button' variant='outline' disabled={disabled} onClick={()=>changeOpen(true)}>{triggerLabel||title}</Button></div></section>
+  const trigger = <Button type='button' variant={compactTrigger?'default':'outline'} disabled={disabled} onClick={()=>changeOpen(true)}>{triggerLabel||title}</Button>;
+  return <>{compactTrigger ? trigger : <section className='paper-card p-5 sm:p-6'><div className='flex flex-wrap items-center justify-between gap-4'><div><h3 className='font-serif text-2xl'>{title}</h3><p className='mt-2 max-w-lg text-sm leading-6 text-muted-foreground'>{description}</p></div>{trigger}</div></section>}
     <WorkflowDialog open={open} onOpenChange={changeOpen} title={title} description={description} dirty={dirty} busy={busy}>
       <form onChange={()=>setDirty(true)} className='grid min-w-0 gap-4 [&_input]:min-w-0 [&_textarea]:min-w-0' onSubmit={async event=>{
         event.preventDefault();if(lock.current)return;lock.current=true;setSubmitted(true);setBusy(true);setError('');
