@@ -10,6 +10,7 @@ import { errorText } from '@/lib/academy';
 import type { FitnessController } from '@/hooks/use-fitness';
 import { days, holdReason, programmeDate, programmeMatchesSubject, sessionDate, weekStart, type Programme, type SessionPlan, type Subject, type Version } from '@/lib/fitness/model';
 import { Field, IntakePanel, PlanEditor, selectClass } from './ProgrammeEditor';
+import { FitnessProfileWizard } from './FitnessProfileWizard';
 export function Materials({c,versionId,templateId,editable=false}:{c:FitnessController;versionId?:string;templateId?:string;editable?:boolean}){
  const [message,setMessage]=useState(''),[busy,setBusy]=useState(false);
  const files=c.data.files.filter(f=>versionId?f.version_id===versionId:f.template_id===templateId);
@@ -25,7 +26,7 @@ function SessionCard({c,p,v,s,date,editable}:{c:FitnessController;p:Programme;v:
  const rest=s.category==='rest';
  return <article className={'rounded-xl border p-5 '+(progress?.status==='complete'?'border-primary/30 bg-primary/5':rest?'border-primary/10 bg-[#F6F1E7]/60':'border-primary/15 bg-background')}><div className='mb-3 flex flex-wrap items-center justify-between gap-2'><p className='text-[11px] font-semibold uppercase tracking-[0.12em] text-[#826e45]'>{days[s.day]} · {date.slice(5)}</p><span className='rounded-full bg-primary/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider'>{progress?.status??(rest?'Rest day':s.category)}</span></div><h4 className='font-serif text-2xl'>{s.title}</h4><p className='mt-1 text-xs text-muted-foreground'>{rest?'Recovery matters':s.minutes+' minutes planned'}</p><p className='mt-4 whitespace-pre-line text-sm leading-7 text-muted-foreground'>{s.instructions}</p>{!rest&&<div className='mt-4 grid gap-3'><Field label={p.kind==='horse'?'Work duration · minutes':'Actual minutes'}><Input type='number' min={0} max={240} value={minutes} disabled={!editable||busy} onChange={e=>setMinutes(Number(e.target.value))}/></Field><Field label={p.kind==='horse'?'Recovery & work notes':'Session notes'}><Textarea value={notes} maxLength={5000} disabled={!editable||busy} onChange={e=>setNotes(e.target.value)} placeholder={p.kind==='horse'?'How did your horse respond and recover?':'How did the session feel?'}/></Field>{editable&&<div className='flex flex-wrap gap-2'><Button type='button' size='sm' disabled={busy||!c.writable||future} onClick={()=>void save('complete')}><Check className='mr-1 size-4'/>{progress?.status==='complete'?'Save notes':'Complete'}</Button><Button type='button' size='sm' variant='outline' disabled={busy||!c.writable||future||progress?.status==='complete'} onClick={()=>void save('skipped')}>Skip session</Button></div>}{future&&editable&&<p className='text-xs text-muted-foreground'>Log this session on its scheduled day or later.</p>}</div>}{message&&<p role='status' className='mt-3 text-xs'>{message}</p>}</article>;
 }
-export function WeeklyPlan({c,subject,p}:{c:FitnessController;subject:Subject;p:Programme}){
+export function WeeklyPlan({c,subject,p,requestId}:{c:FitnessController;subject:Subject;p:Programme;requestId?:string}){
  const [selected,setSelected]=useState((c.isFounder&&p.draft_version_id)||p.current_version_id||''),[week,setWeek]=useState(()=>weekStart(c.profile?.timezone||'Africa/Johannesburg')),[editing,setEditing]=useState(false),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
  useEffect(()=>{setSelected((c.isFounder&&p.draft_version_id)||p.current_version_id||'');},[c.isFounder,p.current_version_id,p.draft_version_id]);
  const versions=c.data.versions.filter(v=>v.programme_id===p.id).sort((a,b)=>b.version_number-a.version_number);
@@ -36,8 +37,21 @@ export function WeeklyPlan({c,subject,p}:{c:FitnessController;subject:Subject;p:
  const work=v.sessions.filter(s=>s.category!=='rest').length;
  const canEdit=!subject.archivedHorseId&&(c.isFounder&&p.source==='hka'||c.canRecord(subject)&&p.source!=='hka');
  if(editing&&canEdit)return <PlanEditor subject={subject} c={c} programme={p} version={v} close={()=>setEditing(false)}/>;
- async function approve(){setBusy(true);setMessage('');try{await c.assign(p.id);setSelected('');setMessage(c.sample?'Sample HKA programme assigned.':'HKA programme approved and assigned.');}catch(e){setMessage(errorText(e));}finally{setBusy(false);}}
- return <section className='space-y-5'><div className='paper-card p-5 sm:p-6'><div className='flex flex-col justify-between gap-4 sm:flex-row'><div><p className='eyebrow text-[#826e45]'>{p.source==='hka'?'HKA programme':p.source==='vet'?'Your vet’s instructions':'Your own programme'} · {p.status}</p><h3 className='mt-2 font-serif text-3xl'>{v.title}</h3><p className='mt-3 text-sm text-muted-foreground'>{v.intake.goals}</p></div><div className='flex flex-wrap items-start gap-2'>{canEdit&&<Button type='button' variant='outline' onClick={()=>setEditing(true)}>Revise programme</Button>}{!subject.archivedHorseId&&c.isFounder&&p.draft_version_id&&<Button type='button' disabled={busy||!c.writable} onClick={()=>void approve()}>Approve & assign draft</Button>}</div></div><div className='mt-5 grid gap-4 sm:grid-cols-2'><Field label='Version & history'><select className={selectClass} value={v.id} onChange={e=>setSelected(e.target.value)}>{versions.map(version=><option key={version.id} value={version.id}>Version {version.version_number} · {version.approved_at?'approved':'draft'}{version.id===p.current_version_id?' · current':''}</option>)}</select></Field><div className='self-end'><p className='mb-2 text-xs text-muted-foreground'>{done} of {work} sessions complete this week</p><ProgressBar value={work?Math.min(100,done/work*100):0}/></div></div>{v.intake.professionalInstructions&&<div className='mt-4 rounded-lg border border-[#B79B62]/35 p-4 text-sm leading-6'><strong>Professional instructions</strong><p className='whitespace-pre-line'>{v.intake.professionalInstructions}</p></div>}{holdReason(subject.kind,v.intake)&&<p role='status' className='mt-4 text-sm text-amber-800'>{holdReason(subject.kind,v.intake)}</p>}<div className='mt-5'><Materials c={c} versionId={v.id} editable={canEdit&&(p.source!=='hka'||!v.approved_at)}/></div>{message&&<p role='status' className='mt-4 text-sm'>{message}</p>}</div>
+ async function approve(){
+  if(busy)return;
+  setBusy(true);setMessage('');
+  try{
+   if(requestId){
+    await c.sendRequestedProgramme(requestId,v.id);
+    setMessage(c.sample?'Programme assigned and sent in the sample chat.':'Programme assigned and sent in chat.');
+   }else{
+    await c.assign(p.id);
+    setMessage(c.sample?'Sample HKA programme assigned.':'HKA programme approved and assigned.');
+   }
+   setSelected('');
+  }catch(e){setMessage(errorText(e));}finally{setBusy(false);}
+ }
+ return <section className='space-y-5'><div className='paper-card p-5 sm:p-6'><div className='flex flex-col justify-between gap-4 sm:flex-row'><div><p className='eyebrow text-[#826e45]'>{p.source==='hka'?'HKA programme':p.source==='vet'?'Your vet’s instructions':'Your own programme'} · {p.status}</p><h3 className='mt-2 font-serif text-3xl'>{v.title}</h3><p className='mt-3 text-sm text-muted-foreground'>{v.intake.goals}</p></div><div className='flex flex-wrap items-start gap-2'>{canEdit&&<Button type='button' variant='outline' onClick={()=>setEditing(true)}>Revise programme</Button>}{!subject.archivedHorseId&&c.isFounder&&p.draft_version_id&&<Button type='button' disabled={busy||!c.writable||Boolean(requestId&&v.id!==p.draft_version_id)} onClick={()=>void approve()}>{requestId?'Approve & send in chat':'Approve & assign draft'}</Button>}</div></div><div className='mt-5 grid gap-4 sm:grid-cols-2'><Field label='Version & history'><select className={selectClass} value={v.id} onChange={e=>setSelected(e.target.value)}>{versions.map(version=><option key={version.id} value={version.id}>Version {version.version_number} · {version.approved_at?'approved':'draft'}{version.id===p.current_version_id?' · current':''}</option>)}</select></Field><div className='self-end'><p className='mb-2 text-xs text-muted-foreground'>{done} of {work} sessions complete this week</p><ProgressBar value={work?Math.min(100,done/work*100):0}/></div></div>{v.intake.professionalInstructions&&<div className='mt-4 rounded-lg border border-[#B79B62]/35 p-4 text-sm leading-6'><strong>Professional instructions</strong><p className='whitespace-pre-line'>{v.intake.professionalInstructions}</p></div>}{holdReason(subject.kind,v.intake)&&<p role='status' className='mt-4 text-sm text-amber-800'>{holdReason(subject.kind,v.intake)}</p>}<div className='mt-5'><Materials c={c} versionId={v.id} editable={canEdit&&(p.source!=='hka'||!v.approved_at)}/></div>{message&&<p role='status' className='mt-4 text-sm'>{message}</p>}</div>
   <div className='flex flex-wrap items-center justify-between gap-3'><div><p className='eyebrow text-[#826e45]'>A little progress, every week</p><h3 className='mt-1 font-serif text-2xl'>Week of {new Date(week+'T12:00:00').toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'})}</h3></div><div className='flex items-center gap-1'><Button type='button' variant='outline' size='icon' aria-label='Previous week' onClick={()=>setWeek(sessionDate(week,-7))}>←</Button><Button type='button' variant='ghost' onClick={()=>setWeek(weekStart(c.profile?.timezone||'Africa/Johannesburg'))}>This week</Button><Button type='button' variant='outline' size='icon' aria-label='Next week' onClick={()=>setWeek(sessionDate(week,7))}>→</Button></div></div>
   {!editable&&<p className='text-xs text-muted-foreground'>{v.approved_at?'Read-only history or authorised overview.':'Draft · visible to Founder only.'}</p>}
   <div className='grid gap-4 md:grid-cols-2'>{[...v.sessions].sort((a,b)=>a.day-b.day).map(s=><SessionCard key={v.id+s.key+week} c={c} p={p} v={v} s={s} date={sessionDate(week,s.day)} editable={editable}/>)}</div>
@@ -148,12 +162,13 @@ function TrainingDashboard({c,subject,p,v}:{c:FitnessController;subject:Subject;
 
 export type FitnessPanel = 'today' | 'profile' | 'progress';
 
-export function MemberProgrammes({subject,c,panel='today',onPanelChange,management=false,initialProgrammeId=''}:{
+export function MemberProgrammes({subject,c,panel='today',onPanelChange,management=false,initialProgrammeId='',sampleProfileLink}:{
   subject:Subject; c:FitnessController; panel?:FitnessPanel; onPanelChange?:(panel:FitnessPanel)=>void;
-  management?:boolean; initialProgrammeId?:string;
+  management?:boolean; initialProgrammeId?:string; sampleProfileLink?:ReactNode;
 }){
   const [creating,setCreating]=useState(false);
   const [selected,setSelected]=useState(initialProgrammeId);
+  const [notice,setNotice]=useState('');
   const programmes=c.data.programmes.filter(programme=>programmeMatchesSubject(programme,subject));
   const history=management || panel==='progress' || Boolean(subject.archivedHorseId);
   const choices=history ? programmes : programmes.filter(programme=>programme.status==='assigned');
@@ -161,7 +176,9 @@ export function MemberProgrammes({subject,c,panel='today',onPanelChange,manageme
   const currentVersion=c.data.versions.find(version=>version.id===active?.current_version_id && version.approved_at);
   const editable=c.canRecord(subject);
 
-  if(panel==='profile' && !subject.archivedHorseId) return <IntakePanel subject={subject} c={c} standalone/>;
+  const awaitingRequest=editable&&c.requests?.some(request=>request.student_id===subject.student_id &&
+    request.horse_id===(subject.kind==='horse'?subject.id:null) && !request.reply_message_id &&
+    !c.data.programmes.some(programme=>programme.id===request.programme_id && programme.current_version_id));
   if(creating && editable) return <PlanEditor subject={subject} c={c} close={()=>setCreating(false)}/>;
 
   const picker=(choices.length>1 || management && choices.length>0) && <Field label='Programme'>
@@ -179,6 +196,11 @@ export function MemberProgrammes({subject,c,panel='today',onPanelChange,manageme
   </div>;
 
   return <div className='space-y-4'>
+    {panel==='profile'&&<FitnessProfileWizard c={c} subject={subject} sampleLink={sampleProfileLink} onClose={message=>{
+      if(message)setNotice(message);
+      onPanelChange?.('today');
+    }}/>}
+    {notice&&<p role='status' className='rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm'>{notice}</p>}
     {(currentVersion || programmes.length>0) && <nav aria-label='Fitness tools' className='flex flex-wrap gap-2'>
       {currentVersion && <Button type='button' variant='outline' className='min-h-11 rounded-lg' onClick={()=>onPanelChange?.('profile')}>Fitness profile</Button>}
       <Button type='button' variant='outline' className='min-h-11 rounded-lg' onClick={()=>onPanelChange?.('progress')}>Progress &amp; history</Button>
@@ -186,10 +208,10 @@ export function MemberProgrammes({subject,c,panel='today',onPanelChange,manageme
     {picker}
     {active && currentVersion
       ? <TrainingDashboard key={currentVersion.id} c={c} subject={subject} p={active} v={currentVersion}/>
-      : <TodayCard kind={subject.kind} title={subject.profileSaved?'Fitness profile ready':'Build your fitness profile'}>
+      : <TodayCard kind={subject.kind} title={awaitingRequest?'Programme request sent':subject.profileSaved?'Fitness profile ready':'Build your fitness profile'}>
         <p className='text-sm leading-6 text-[#F6F1E7]/90'>
-          {subject.profileSaved && editable && !c.sample
-            ? 'Use Message Hollie to ask about a programme.'
+          {awaitingRequest ? 'Hollie has your details. Your programme will appear here after she assigns it.'
+            : subject.profileSaved && editable && !c.sample && !c.requestsEnabled ? 'Use Message Hollie to ask about a programme.'
             : 'An assigned programme will appear here when it’s ready.'}
         </p>
         <Button type='button' variant='secondary' className='min-h-11 rounded-lg focus-visible:ring-[#DFCEA3]' onClick={()=>onPanelChange?.('profile')}>

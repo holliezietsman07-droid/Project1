@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronDown } from 'lucide-react';
 import { PrivatePhoto } from '@/components/accounts/StudentDashboard';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,9 @@ type FitnessMode = typeof previewViews[number]['id'] | 'preview';
 
 export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
   const [params,setParams]=useSearchParams();
+  const location=useLocation();
+  const navigate=useNavigate();
+  const routeState=location.state as {fitnessReturnTo?:string;fitnessPanel?:FitnessPanel}|null;
   const route=useParams();
   const sample=mode==='preview'||params.get('sample')==='1';
   const previewView=previewViews.find(view=>view.id===params.get('view'))?.id??'rider';
@@ -53,43 +56,60 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
   const requestedPanel=params.get('panel');
   const panel:FitnessPanel=current!=='manage'&&!subject?.archivedHorseId&&(requestedPanel==='profile'||requestedPanel==='progress')?requestedPanel:'today';
   const title=current==='manage'?'Programme Management':kind==='horse'?'Fitness & Conditioning':'Rider Fitness & Mobility';
-  const heading=panel==='profile'?'Fitness profile':panel==='progress'?'Progress & history':title;
+  const heading=panel==='progress'?'Progress & history':title;
   useEffect(()=>{if(mode==='preview')document.title=heading+' · sample preview | HKA Equestrian';},[heading,mode]);
+  const showingProgress=panel==='progress';
+  const samplePath='/dashboard/fitness-preview?view='+current;
+  const sampleState={fitnessReturnTo:location.pathname};
+  const returnTo=typeof routeState?.fitnessReturnTo==='string' &&
+    /^\/dashboard\/(?:programmes|fitness\/(?:rider|horse)(?:\/[^/?#]+)?)$/.test(routeState.fitnessReturnTo)
+    ? routeState.fitnessReturnTo : undefined;
   const dashboard=c.profile?.role==='admin'?'/dashboard/admin':c.profile?.role==='coach'?'/dashboard/coach':c.profile?.role==='guardian'?'/dashboard/parent':'/dashboard/student';
   const headingRef=useRef<HTMLHeadingElement>(null);
-  const lastPanel=useRef<FitnessPanel>('today');
+  const lastProgress=useRef(false);
 
   useEffect(()=>{
-    if (lastPanel.current!==panel || panel!=='today') {
+    if (lastProgress.current!==showingProgress || showingProgress) {
       window.scrollTo({top:0,left:0,behavior:'instant'});
       headingRef.current?.focus({preventScroll:true});
     }
-    lastPanel.current=panel;
-  },[panel]);
+    lastProgress.current=showingProgress;
+  },[showingProgress]);
 
   function changePanel(next:FitnessPanel){
+    if(next==='today'&&routeState?.fitnessPanel===panel){navigate(-1);return;}
     const search=new URLSearchParams(params);
     if(next==='today')search.delete('panel');
     else search.set('panel',next);
-    setParams(search);
+    setParams(search,{replace:next==='today',state:{...routeState,fitnessPanel:next==='today'?undefined:next}});
+  }
+
+  function changeRequest(id?:string){
+    const search=new URLSearchParams(params);
+    if(id)search.set('request',id);
+    else search.delete('request');
+    setParams(search,{state:routeState});
   }
 
   return <section className='page-width space-y-4 pb-24 pt-5 sm:space-y-5 sm:pt-7'>
     <header className='flex flex-wrap items-end justify-between gap-3'>
       <div>
-        {panel==='today'
+        {!showingProgress
           ? <nav aria-label='Breadcrumb' className='mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground'><Link to={dashboard} className='hover:underline'>Dashboard</Link><span aria-hidden='true'>/</span><span>{title}</span></nav>
           : <Button type='button' variant='ghost' className='mb-2 min-h-11 gap-2 px-2' onClick={()=>changePanel('today')}><ArrowLeft className='size-4' aria-hidden='true'/>Back to fitness</Button>}
         <h1 ref={headingRef} tabIndex={-1} className='font-serif text-3xl tracking-tight text-primary focus:outline-none sm:text-4xl'>{heading}</h1>
       </div>
+      {sample&&<Button asChild variant='outline' className='min-h-11 gap-2 rounded-lg'>
+        <Link to={returnTo??'/dashboard'}><ArrowLeft className='size-4' aria-hidden='true'/>{returnTo?'Back to my fitness':'Back to dashboard'}</Link>
+      </Button>}
       {!sample&&!c.writable&&<div className='flex flex-wrap items-center gap-2 text-xs'>
         <span className='rounded-full bg-primary/10 px-3 py-1.5 font-medium'>Preview mode</span>
-        <Link to={'/dashboard/fitness-preview?view='+current} className='inline-flex min-h-11 items-center underline underline-offset-4'>View sample programme</Link>
+        <Link to={samplePath} state={sampleState} className='inline-flex min-h-11 items-center underline underline-offset-4'>View sample programme</Link>
       </div>}
     </header>
 
     {sample&&<aside aria-label='Sample preview controls' className='rounded-xl border border-[#B79B62]/35 bg-[#fffdf8] px-3 sm:px-4'>
-      {panel==='today' ? <details className='group'>
+      {!showingProgress ? <details className='group'>
         <summary className='flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-2 text-xs [&::-webkit-details-marker]:hidden'>
           <span className='rounded-full bg-primary/10 px-2.5 py-1 font-medium'>Preview mode</span>
           <span className='inline-flex items-center gap-1.5 font-medium'>Sample controls<ChevronDown className='size-4 group-open:rotate-180' aria-hidden='true'/></span>
@@ -104,7 +124,7 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
           </label>
           <nav aria-label='Sample programme views' className='flex flex-wrap gap-1.5'>
             {previewViews.map(view=><Button key={view.id} variant={current===view.id?'default':'outline'} size='sm' className='min-h-10 rounded-lg' aria-current={current===view.id?'page':undefined} asChild>
-              <Link to={'/dashboard/fitness-preview?view='+view.id}>{view.label}</Link>
+              <Link to={'/dashboard/fitness-preview?view='+view.id} state={{fitnessReturnTo:returnTo}}>{view.label}</Link>
             </Button>)}
           </nav>
         </div>
@@ -113,7 +133,7 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
 
     {c.loading ? <p role='status'>Opening programme records…</p>
       : c.error ? <div role='alert' className='paper-card space-y-4 p-6'><p>{errorText(c.error)}</p><Button variant='outline' onClick={()=>void c.refresh()}>Try again</Button></div>
-      : current==='manage' ? <ProgrammeManagement key={c.sampleRole} c={c}/>
+      : current==='manage' ? <ProgrammeManagement key={c.sampleRole} c={c} requestId={params.get('request')??undefined} onRequestChange={changeRequest}/>
       : subject ? <>
         {(showHorse||chooseSubject)&&<div className='flex flex-wrap items-center justify-between gap-4'>
           {showHorse&&<div className='flex min-w-0 items-center gap-3'>
@@ -126,7 +146,9 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
             </select></Field>
           </div>}
         </div>}
-        <MemberProgrammes key={subject.id+c.sampleRole} subject={subject} c={c} panel={panel} onPanelChange={changePanel}/>
+        <MemberProgrammes key={subject.id+':'+c.sampleRole+':'+(params.get('programme')??'')} subject={subject} c={c}
+          panel={panel} onPanelChange={changePanel} initialProgrammeId={params.get('programme')??''}
+          sampleProfileLink={!sample&&!c.writable?<Link to={samplePath+'&panel=profile'} state={sampleState} className='inline-flex min-h-11 items-center font-medium underline underline-offset-4'>Try sample setup</Link>:undefined}/>
       </>
       : <p role='status' className='paper-card p-6'>No authorised {kind==='horse'?'horse':'rider'} records are available for this account.</p>}
 

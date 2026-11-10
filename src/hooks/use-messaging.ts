@@ -36,7 +36,10 @@ export function useMessaging() {
     if (!session?.user.id) return;
     const channel = db().channel('academy-messages:' + session.user.id)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'hka_messages' },
-        () => { void cache.invalidateQueries({ queryKey: ['academy', session.user.id, 'hka_messages'] }); })
+        () => {
+          void cache.invalidateQueries({ queryKey: ['academy', session.user.id, 'hka_messages'] });
+          void cache.invalidateQueries({ queryKey: ['academy', session.user.id, 'fitness-requests'] });
+        })
       .subscribe();
     return () => { void db().removeChannel(channel); };
   }, [session?.user.id, cache]);

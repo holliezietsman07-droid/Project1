@@ -2,10 +2,12 @@ import { useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/contexts/SessionContext';
 import { useRows } from '@/hooks/use-academy';
+import { useFitnessRequests } from '@/hooks/use-fitness-requests';
 import { db, rpc, type Row } from '@/lib/academy';
 import { riderPreferences } from '@/lib/dashboard-workspace';
 import { ageFromBirth, emptyIntake, type FitnessData, type FitnessKind, type Intake, type Material, type ProgrammeSource, type SessionPlan, type Subject } from '@/lib/fitness/model';
 import { createSampleData, sampleAssign, sampleRecord, sampleSave, sampleVisible, type SampleRole } from '@/lib/fitness/sample';
+import { fitnessRequestsEnabled, type ProgrammeRequestDetails } from '@/lib/fitness/requests';
 
 // Founder enables this only after separately approving and applying the prepared schema.
 // Default preview cannot write fitness data, files, or ride logs to the connected live project.
@@ -17,6 +19,8 @@ export function useFitness(sample: boolean, initialSampleRole: SampleRole = 'rid
   const [revision, setRevision] = useState(0);
   const fixture = useRef(createSampleData());
   const sampleFiles = useRef(new Map<string, File>());
+  const sampleRequests = useRef<ProgrammeRequestDetails[]>([]);
+  const requestInbox = useFitnessRequests(!sample);
   const profiles=useRows('hka_profiles',{},!sample), horses=useRows('hka_horses',{},!sample);
   const roles=useRows('hka_account_roles',{},!sample), rides=useRows('hka_training_records',{},!sample);
   const healthRecords=useRows('hka_horse_records',{},!sample);
@@ -67,18 +71,67 @@ export function useFitness(sample: boolean, initialSampleRole: SampleRole = 'rid
   const isFounder=sample?sampleRole==='founder':profile?.role==='admin'&&remote.data?.isFounder===true;
   const canRecord=(subject:Subject)=>!subject.archivedHorseId&&(sample?sampleRole==='rider':profile?.id===subject.student_id);
   const writable=sample||fitnessDatabaseEnabled;
+  const requestsEnabled=sample||fitnessRequestsEnabled;
+  const requests=sample
+    ? (sampleRole==='rider'||sampleRole==='founder' ? sampleRequests.current.map(({intake,...card})=>card) : [])
+    : requestInbox.data??[];
   function requireSaving(){if(!sample&&!fitnessDatabaseEnabled)throw new Error('Database saving is pending Founder approval of the prepared database update.');}
   async function refresh(){if(sample)setRevision(v=>v+1);else await remote.refetch();}
+  function refreshRequests(){
+    if(sample)return;
+    void cache.invalidateQueries({queryKey:['academy',profile?.id,'fitness-requests']});
+    void cache.invalidateQueries({queryKey:['academy',profile?.id,'hka_messages']});
+  }
   async function saveIntake(subject:Subject,payload:Intake){
     requireSaving();
     if(sample){if(!canRecord(subject))throw new Error('Only the member can update their intake.');const item=fixture.current.subjects.find(s=>s.id===subject.id)!;item.intake=structuredClone(payload);item.profileSaved=true;}
     else {const {error}=await db().rpc('hka_fitness_save_intake',{target_student:subject.student_id,target_horse:subject.kind==='horse'?subject.id:null,new_payload:payload});if(error)throw error;}
     await refresh();
   }
-  async function saveProgramme(subject:Subject,source:ProgrammeSource,title:string,intake:Intake,sessions:SessionPlan[],existingId?:string){
+  async function sendRequest(id:string,subject:Subject,intake:Intake){
+    if(!requestsEnabled||!canRecord(subject))throw new Error('Programme requests require the active rider or horse owner.');
+    if(sample){
+      if(sampleRequests.current.some(request=>request.id===id))return;
+      const saved=fixture.current.subjects.find(item=>item.id===subject.id);
+      if(!saved)throw new Error('Sample profile unavailable.');
+      saved.intake=structuredClone(intake);
+      saved.profileSaved=true;
+      sampleRequests.current.unshift({
+        id,student_id:subject.student_id,founder_id:'sample-founder',
+        horse_id:subject.kind==='horse'?subject.id:null,horse_name:subject.kind==='horse'?subject.name:null,
+        kind:subject.kind,intake:structuredClone(intake),message_id:crypto.randomUUID(),
+        programme_id:null,reply_message_id:null,created_at:new Date().toISOString()
+      });
+    }else{
+      await rpc('hka_fitness_send_request',{request_id:id,target_horse:subject.kind==='horse'?subject.id:null,new_intake:intake});
+    }
+    refreshRequests();
+    await refresh();
+  }
+  async function openRequest(id:string):Promise<ProgrammeRequestDetails>{
+    if(!requestsEnabled||!isFounder)throw new Error('Founder access required.');
+    if(sample){
+      const request=sampleRequests.current.find(item=>item.id===id);
+      if(!request)throw new Error('Sample request unavailable.');
+      return structuredClone(request);
+    }
+    const {data,error}=await db().from('hka_fitness_requests').select('*').eq('id',id).single();
+    if(error)throw error;
+    return data as ProgrammeRequestDetails;
+  }
+  async function saveProgramme(subject:Subject,source:ProgrammeSource,title:string,intake:Intake,sessions:SessionPlan[],existingId?:string,requestId?:string){
     requireSaving();let id:string;
     if(subject.archivedHorseId)throw new Error('Removed horse programmes are read-only.');
-    if(sample) id=sampleSave(fixture.current,sampleRole,subject.id,source,title,intake,sessions,existingId);
+    if(requestId){
+      if(!requestsEnabled||!isFounder)throw new Error('Founder access required.');
+      if(sample){
+        const request=sampleRequests.current.find(item=>item.id===requestId);
+        if(!request||(request.horse_id??request.student_id)!==subject.id)throw new Error('Sample request unavailable.');
+        id=request.programme_id??sampleSave(fixture.current,sampleRole,subject.id,'hka',title,intake,sessions);
+        request.programme_id=id;
+      }else id=String(await rpc('hka_fitness_save_request_draft',{request_id:requestId,new_title:title,new_intake:intake,new_sessions:sessions}));
+      refreshRequests();
+    }else if(sample) id=sampleSave(fixture.current,sampleRole,subject.id,source,title,intake,sessions,existingId);
     else id=String(await rpc('hka_fitness_save_programme',{target_programme:existingId||null,target_student:subject.student_id,target_horse:subject.kind==='horse'?subject.id:null,new_kind:subject.kind,new_source:source,new_title:title,new_intake:intake,new_sessions:sessions}));
     await refresh();return id;
   }
@@ -86,6 +139,25 @@ export function useFitness(sample: boolean, initialSampleRole: SampleRole = 'rid
     requireSaving();
     if(sample)sampleAssign(fixture.current,sampleRole,programmeId);
     else await rpc('hka_fitness_assign',{target_programme:programmeId,expected_draft:data.programmes.find(p=>p.id===programmeId)?.draft_version_id});
+    await refresh();
+  }
+  async function sendRequestedProgramme(requestId:string,expectedDraft:string|null){
+    if(!requestsEnabled||!isFounder)throw new Error('Founder access required.');
+    if(sample){
+      const request=sampleRequests.current.find(item=>item.id===requestId);
+      const programme=fixture.current.programmes.find(item=>item.id===request?.programme_id);
+      if(!request||!programme)throw new Error('Save a draft for this request first.');
+      if(request.reply_message_id)return;
+      if(expectedDraft){
+        if(programme.draft_version_id!==expectedDraft)throw new Error('Review the latest draft before sending.');
+        sampleAssign(fixture.current,sampleRole,programme.id);
+      }
+      if(programme.status!=='assigned'||programme.draft_version_id)throw new Error('Approve the programme before sending.');
+      request.reply_message_id=crypto.randomUUID();
+    }else{
+      await rpc('hka_fitness_send_requested_programme',{request_id:requestId,expected_draft:expectedDraft});
+    }
+    refreshRequests();
     await refresh();
   }
   async function record(versionId:string,key:string,date:string,status:'complete'|'skipped',minutes:number,notes:string){
@@ -124,6 +196,7 @@ export function useFitness(sample: boolean, initialSampleRole: SampleRole = 'rid
     const {data:link,error}=await db().storage.from('hka-private').createSignedUrl(file.path,60);if(error)throw error;return link.signedUrl;
   }
   return {data,isFounder,canRecord,writable,sample,sampleRole,setSampleRole,revision,saveIntake,saveProgramme,assign,record,saveTemplate,upload,fileUrl,
+    requestsEnabled,requests,requestsLoading:!sample&&requestInbox.isLoading,requestsError:sample?null:requestInbox.error,sendRequest,openRequest,sendRequestedProgramme,
     loading:!sample&&(profiles.isLoading||horses.isLoading||roles.isLoading||rides.isLoading||healthRecords.isLoading||remote.isLoading&&fitnessDatabaseEnabled),
     error:sample?null:remote.error||profiles.error||horses.error||roles.error||rides.error||healthRecords.error,refresh,profile};
 }
