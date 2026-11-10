@@ -8,14 +8,25 @@ export type Intake = {
 export type SessionPlan = { key: string; day: number; title: string; category: string; minutes: number; instructions: string };
 export type Programme = {
   id: string; student_id: string; horse_id: string | null; kind: FitnessKind; source: ProgrammeSource;
+  archived_horse_id?: string | null; archived_horse_name?: string | null;
   title: string; status: 'draft' | 'assigned' | 'archived'; current_version_id: string | null; draft_version_id: string | null;
 };
 export type Version = { id: string; programme_id: string; version_number: number; title: string; intake: Intake; sessions: SessionPlan[]; approved_at: string | null; created_at: string };
 export type Progress = { id: string; version_id: string; session_key: string; session_date: string; status: 'complete' | 'skipped'; minutes: number; notes: string };
 export type Material = { id: string; version_id: string | null; template_id: string | null; original_name: string; path: string };
 export type Template = { id: string; kind: FitnessKind; title: string; age_group: 'adult' | 'young' | 'horse'; sessions: SessionPlan[] };
-export type Subject = { id: string; name: string; student_id: string; kind: FitnessKind; intake: Intake };
+export type Subject = {
+  id: string; name: string; student_id: string; kind: FitnessKind; intake: Intake;
+  archivedHorseId?: string; photoPath?: string; profileSaved?: boolean;
+};
 export type FitnessData = { subjects: Subject[]; programmes: Programme[]; versions: Version[]; progress: Progress[]; templates: Template[]; files: Material[] };
+export function programmeMatchesSubject(programme: Programme, subject: Subject) {
+  if (programme.student_id !== subject.student_id || programme.kind !== subject.kind) return false;
+  if (subject.kind === 'rider') return true;
+  return subject.archivedHorseId
+    ? programme.archived_horse_id === subject.archivedHorseId
+    : programme.horse_id === subject.id;
+}
 export const disciplineOptions = ['Dressage', 'Show jumping', 'Eventing', 'Endurance', 'Western', 'Leisure', 'Other'];
 export const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 export function emptyIntake(): Intake {
@@ -44,10 +55,13 @@ export function validateSessions(sessions: SessionPlan[]) {
   }
   return sessions;
 }
-export function weekStart(timezone: string, now = new Date()) {
+export function programmeDate(timezone: string, now = new Date()) {
   const date = new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(now);
   const get = (key: string) => date.find(p => p.type === key)?.value;
-  const monday = new Date(get('year') + '-' + get('month') + '-' + get('day') + 'T12:00:00Z');
+  return `${get('year')}-${get('month')}-${get('day')}`;
+}
+export function weekStart(timezone: string, now = new Date()) {
+  const monday = new Date(programmeDate(timezone, now) + 'T12:00:00Z');
   monday.setUTCDate(monday.getUTCDate() - (monday.getUTCDay() + 6) % 7);
   return monday.toISOString().slice(0, 10);
 }

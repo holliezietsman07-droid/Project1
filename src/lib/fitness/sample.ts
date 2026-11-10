@@ -1,4 +1,4 @@
-import { emptyIntake, templateDraft, validateSessions, type FitnessData, type Intake, type Programme, type SessionPlan } from './model';
+import { emptyIntake, templateDraft, validateSessions, type FitnessData, type Intake, type Programme, type SessionPlan, type Version } from './model';
 export type SampleRole = 'founder' | 'rider' | 'coach' | 'guardian' | 'unrelated' | 'unapproved-coach' | 'unverified-guardian';
 export function createSampleData(): FitnessData {
   const rider = { ...emptyIntake(), age: 28, disciplines: ['Dressage','Show jumping'], condition: 'Returning to regular movement', goals: 'More stable balance and comfortable mobility', equipment: 'Stable chair, comfortable shoes' };
@@ -8,11 +8,20 @@ export function createSampleData(): FitnessData {
     { id:'sample-rider-plan',student_id:'sample-rider',horse_id:null,kind:'rider',source:'hka',title:'Your balanced foundations',status:'assigned',current_version_id:'sample-rider-v1',draft_version_id:null },
     ...['Willow','Atlas'].map((name,i): Programme => ({id:'sample-horse-plan-'+i, student_id:'sample-rider',horse_id:'sample-horse-'+i,kind:'horse',source:'owner',title:name+' · owner’s programme',status:'assigned',current_version_id:'sample-horse-v'+i,draft_version_id:null})),
   ];
+  const versions:Version[] = programmes.map((p,i)=>({id:p.current_version_id!,programme_id:p.id,version_number:1,title:p.title,intake:i===0?rider:horse,sessions:templateDraft(p.kind,i===0?rider:horse),approved_at:now,created_at:now}));
+  programmes.push({
+    id:'sample-hka-draft',student_id:'sample-rider',horse_id:null,kind:'rider',source:'hka',
+    title:'Balance & mobility',status:'draft',current_version_id:null,draft_version_id:'sample-hka-draft-v1'
+  });
+  versions.push({
+    id:'sample-hka-draft-v1',programme_id:'sample-hka-draft',version_number:1,title:'Balance & mobility',
+    intake:rider,sessions:templateDraft('rider',rider),approved_at:null,created_at:now
+  });
   return {
     subjects:[{id:'sample-rider',student_id:'sample-rider',kind:'rider',name:'Alex · test rider',intake:rider},
       ...['Willow','Atlas'].map((name,i)=>({id:'sample-horse-'+i,student_id:'sample-rider',kind:'horse' as const,name,intake:{...horse,age:9+i*3}}))],
     programmes,
-    versions:programmes.map((p,i)=>({id:p.current_version_id!,programme_id:p.id,version_number:1,title:p.title,intake:i===0?rider:horse,sessions:templateDraft(p.kind,i===0?rider:horse),approved_at:now,created_at:now})),
+    versions,
     progress:[],files:[],
     templates:[{id:'sample-template-adult',kind:'rider',title:'Adult · movement foundations',age_group:'adult',sessions:templateDraft('rider',rider)},
       {id:'sample-template-young',kind:'rider',title:'Young rider · supported movement',age_group:'young',sessions:templateDraft('rider',{...rider,age:12})},

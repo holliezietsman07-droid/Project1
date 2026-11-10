@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "results": [
+    {
+      "name": "A non-Founder session sees the Programme Management access message",
+      "status": "PASS"
+    },
+    {
+      "name": "An owner can read archived history and attachments",
+      "status": "PASS"
+    },
+    {
+      "name": "Archived draft controls stay hidden for the Founder",
+      "status": "PASS"
+    },
+    {
+      "name": "Attachment picker accepts the reviewed PDF, PNG and JPEG formats",
+      "status": "PASS"
+    }
+  ]
+}
