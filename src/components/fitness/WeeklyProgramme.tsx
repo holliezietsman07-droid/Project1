@@ -97,6 +97,9 @@ export function WeeklyPlan({c,subject,p,requestId,historyOnly=false}:{c:FitnessC
      <SessionCard c={c} p={p} v={v} s={session} date={row.session_date} editable={editable}/>
     </details>;
    })}
+    {subject.kind==='rider'&&<figure className='flex justify-center rounded-xl border border-[#B79B62]/35 bg-[#2F4A3C] px-4'>
+      <img src={quoteGraphic} alt='HKA Equestrian. Train with purpose. Ride with confidence.' width={1600} height={900} className='h-24 w-auto object-contain sm:h-28'/>
+    </figure>}
   </section> : <>
   <div className='flex flex-wrap items-center justify-between gap-3'><div><p className='eyebrow text-[#826e45]'>A little progress, every week</p><h3 className='mt-1 font-serif text-2xl'>Week of {new Date(week+'T12:00:00').toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'})}</h3></div><div className='flex items-center gap-1'><Button type='button' variant='outline' size='icon' aria-label='Previous week' onClick={()=>setWeek(sessionDate(week,-7))}>←</Button><Button type='button' variant='ghost' onClick={()=>setWeek(weekStart(c.profile?.timezone||'Africa/Johannesburg'))}>This week</Button><Button type='button' variant='outline' size='icon' aria-label='Next week' onClick={()=>setWeek(sessionDate(week,7))}>→</Button></div></div>
   {!editable&&<p className='text-xs text-muted-foreground'>{v.approved_at?'Read-only history or authorised overview.':'Draft · visible to Founder only.'}</p>}
@@ -199,9 +202,6 @@ function TrainingDashboard({c,subject,p,v,actions}:{c:FitnessController;subject:
       <summary className='min-h-11 cursor-pointer py-2 text-sm font-medium'>Programme downloads</summary>
       <Materials c={c} versionId={v.id}/>
     </details>}
-    {subject.kind==='rider'&&<figure className='flex justify-center rounded-xl border border-[#B79B62]/35 bg-[#2F4A3C] px-4'>
-      <img src={quoteGraphic} alt='HKA Equestrian. Train with purpose. Ride with confidence.' width={1600} height={900} className='h-24 w-auto object-contain sm:h-28'/>
-    </figure>}
     {hold && <p role='status' className='rounded-lg border border-amber-600/30 bg-amber-50 p-4 text-sm text-amber-900'>{hold}</p>}
     <Dialog open={Boolean(openDay)} onOpenChange={open=>{if(!open)setOpenDay(null);}}>
       {openDay && <DialogContent className='max-h-[90dvh] max-w-2xl overflow-y-auto p-4 sm:p-6' onCloseAutoFocus={event=>{
