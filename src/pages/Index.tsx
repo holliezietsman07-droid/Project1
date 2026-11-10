@@ -87,6 +87,15 @@ export default function Index() {
           </div>
         </div>
       </section>
+      <section className="page-width pb-16">
+        <details className="rounded-lg border border-primary/20 bg-card px-5 py-3">
+          <summary className="min-h-11 cursor-pointer py-2 font-medium text-primary">Install HKA on your phone</summary>
+          <ul className="space-y-2 pb-3 text-sm leading-6 text-muted-foreground">
+            <li><strong>iPhone:</strong> In Safari, tap Share, then Add to Home Screen. Turn on Open as Web App if shown.</li>
+            <li><strong>Android:</strong> In Chrome, open the menu and choose Install app or Add to Home screen.</li>
+          </ul>
+        </details>
+      </section>
     </>
   );
 }

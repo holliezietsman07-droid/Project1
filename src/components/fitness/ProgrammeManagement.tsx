@@ -110,7 +110,7 @@ export function StudentFitnessProgrammes({studentId}:{studentId:string}){
   if(c.error)return <p role='alert' className='paper-card p-5'>{errorText(c.error)}</p>;
   if(!c.writable)return <div className='paper-card space-y-3 p-5'>
     <p>Fitness programmes open when fitness is activated.</p>
-    <Link to='/dashboard/fitness-preview?view=manage' className='text-link'>View sample programmes</Link>
+    {import.meta.env.VITE_HKA_PUBLIC_SITE!=='true'&&<Link to='/dashboard/fitness-preview?view=manage' className='text-link'>View sample programmes</Link>}
   </div>;
   return <div className='space-y-4'>
     {c.isFounder&&<p className='text-sm leading-6 text-muted-foreground'>Choose the rider or one of their horses. Save a draft, then attach the personalised file under Private programme materials.</p>}

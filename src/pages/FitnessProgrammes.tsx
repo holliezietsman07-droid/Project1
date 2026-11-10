@@ -32,7 +32,8 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
   const navigate=useNavigate();
   const routeState=location.state as {fitnessReturnTo?:string;fitnessPanel?:FitnessPanel}|null;
   const route=useParams();
-  const sample=mode==='preview'||params.get('sample')==='1';
+  const sampleAvailable=import.meta.env.VITE_HKA_PUBLIC_SITE!=='true';
+  const sample=sampleAvailable&&(mode==='preview'||params.get('sample')==='1');
   const previewView=previewViews.find(view=>view.id===params.get('view'))?.id??'rider';
   const c=useFitness(sample,previewView==='manage'?'founder':'rider');
   const [selected,setSelected]=useState('');
@@ -98,7 +99,7 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
         {showingProgress
           ? <Button type='button' variant='ghost' className='min-h-11 gap-2 px-0' onClick={()=>changePanel('today')}><ArrowLeft className='size-4' aria-hidden='true'/>Back to fitness</Button>
           : !sample||returnTo ? <Link to={returnTo??dashboard} className='inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary hover:underline'><ArrowLeft className='size-4' aria-hidden='true'/>{returnTo?'Back to my fitness':'Dashboard'}</Link> : null}
-        {!sample&&!c.writable&&<Link to={samplePath} state={sampleState} className='inline-flex min-h-11 items-center text-sm underline underline-offset-4'>View sample programme</Link>}
+        {sampleAvailable&&!sample&&!c.writable&&<Link to={samplePath} state={sampleState} className='inline-flex min-h-11 items-center text-sm underline underline-offset-4'>View sample programme</Link>}
       </div>
       {sample&&<nav aria-label='Fitness views' className='inline-flex gap-1 rounded-xl border border-primary/10 bg-primary/5 p-1'>
         {previewViews.filter(view=>view.id!=='manage').map(view=><Button key={view.id} variant={current===view.id?'default':'ghost'} className='min-h-11 min-w-24 rounded-lg' aria-current={current===view.id?'page':undefined} asChild>
@@ -122,7 +123,7 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
         </div>}
         <MemberProgrammes key={subject.id+':'+c.sampleRole+':'+(params.get('programme')??'')} subject={subject} c={c}
           panel={panel} onPanelChange={changePanel} initialProgrammeId={params.get('programme')??''}
-          sampleProfileLink={!sample&&!c.writable?<Link to={samplePath+'&panel=profile'} state={sampleState} className='inline-flex min-h-11 items-center font-medium underline underline-offset-4'>Try sample setup</Link>:undefined}/>
+          sampleProfileLink={sampleAvailable&&!sample&&!c.writable?<Link to={samplePath+'&panel=profile'} state={sampleState} className='inline-flex min-h-11 items-center font-medium underline underline-offset-4'>Try sample setup</Link>:undefined}/>
       </>
       : <p role='status' className='paper-card p-6'>No authorised {kind==='horse'?'horse':'rider'} records are available for this account.</p>}
 
@@ -153,4 +154,3 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
     {panel==='today'&&(kind==='rider'||route.horseId)&&c.data.subjects.some(subject=>subject.archivedHorseId)&&<Link className='text-link' to='/dashboard/fitness/horse'>Horse programme history</Link>}
   </section>;
 }
-

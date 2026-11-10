@@ -18,7 +18,7 @@ export default function Memberships() {
       <section className="page-width pb-16">
         <div id="membership-availability" role="note" className="mb-8 flex gap-3 border border-primary/15 bg-[#e9e7dc] px-5 py-4 text-xs leading-6">
           <LockKeyhole aria-hidden="true" className="mt-1 size-4 shrink-0" />
-          <p><strong className="font-semibold">Enrolment is coming soon.</strong> These are the planned packages and inclusions. Accounts, learning access and checkout are not available yet. No payments are being accepted.</p>
+          <p><strong className="font-semibold">Memberships are coming soon.</strong> Explore the planned packages and inclusions. Paid enrolment will open once secure checkout is available.</p>
         </div>
         <div className="grid gap-5 lg:grid-cols-3">
           {memberships.map((membership, index) => (
@@ -31,7 +31,7 @@ export default function Memberships() {
                 {membership.features.map((feature) => <li key={feature} className="flex gap-3 text-[13px] leading-6"><Check className="mt-1 size-4 shrink-0 text-[#76633e]" strokeWidth={1.5} aria-hidden="true" /><span>{feature}</span></li>)}
               </ul>
               <p className="mb-7 mt-6 text-xs leading-6 text-muted-foreground">{membership.note}</p>
-              <Button disabled aria-describedby="membership-availability" className="mt-auto h-12 w-full rounded-sm disabled:opacity-70">Enrolment opens soon <LockKeyhole aria-hidden="true" /></Button>
+              <Button disabled aria-describedby="membership-availability" className="mt-auto h-12 w-full rounded-sm disabled:opacity-70">Coming soon <LockKeyhole aria-hidden="true" /></Button>
             </article>
           ))}
         </div>
