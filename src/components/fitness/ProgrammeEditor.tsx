@@ -9,9 +9,8 @@ import type { FitnessController } from '@/hooks/use-fitness';
 import { days, disciplineOptions, holdReason, templateDraft, validateSessions, type Intake, type Programme, type ProgrammeSource, type SessionPlan, type Subject, type Version } from '@/lib/fitness/model';
 export const selectClass='min-h-11 w-full rounded-md border border-primary/20 bg-background px-3 py-2 text-sm';
 export function Field({label,children}:{label:string;children:ReactNode}){return <label className='grid gap-2 text-sm font-medium'><span>{label}</span>{children}</label>;}
-export type IntakeStep = 'goals' | 'schedule' | 'workload' | 'wellbeing';
+export type IntakeStep = 'goals' | 'profile' | 'disciplines' | 'schedule' | 'duration' | 'workload' | 'wellbeing' | 'guidance';
 const presetMinutes = [10, 15, 20, 30, 45];
-const detailClass = 'rounded-lg border border-primary/15 bg-background/70 p-3';
 
 export function IntakeFields({value,onChange,kind,step}:{
   value:Intake; onChange:(value:Intake)=>void; kind:'rider'|'horse'; step?:IntakeStep;
@@ -21,12 +20,13 @@ export function IntakeFields({value,onChange,kind,step}:{
   const healthFlags = horse ? ['Lameness', 'Injury', 'Rehabilitation'] : ['Pain', 'Injury', 'Returning from injury'];
   const [customDuration,setCustomDuration] = useState(!presetMinutes.includes(value.minutes));
   const ageLimit = horse ? 50 : 110;
-  const invalidAge = value.age!==null && (value.age<0 || value.age>ageLimit);
-  const details = <>
+  const profileFields = <>
     <div className='grid gap-4 sm:grid-cols-2'>
       <Field label={horse ? 'Horse age' : 'Rider age'}><Input type='number' min={0} max={ageLimit} value={value.age ?? ''} onChange={e=>update({age:e.target.value === '' ? null : Number(e.target.value)})}/></Field>
       <Field label={horse ? 'Current condition' : 'Current fitness & experience'}><Input value={value.condition} maxLength={500} onChange={e=>update({condition:e.target.value})}/></Field>
     </div>
+  </>;
+  const disciplineFields = (
     <fieldset>
       <legend className='mb-2 text-sm font-medium'>Disciplines · choose all that apply</legend>
       <div className='flex flex-wrap gap-2'>
@@ -35,83 +35,52 @@ export function IntakeFields({value,onChange,kind,step}:{
         </label>)}
       </div>
     </fieldset>
-  </>;
-  const goal = <Field label='Goals for this programme'><Textarea value={value.goals} maxLength={3000} onChange={e=>update({goals:e.target.value})} placeholder='What would you like this programme to help with?'/></Field>;
+  );;
+  const goal = <Field label='Goals for this programme'><Textarea rows={3} className='min-h-0' value={value.goals} maxLength={3000} onChange={e=>update({goals:e.target.value})} placeholder='What would you like this programme to help with?'/></Field>;
   const duration = <Field label='Minutes available per session'><Input type='number' min={5} max={240} value={step&&!value.minutes?'':value.minutes} required={Boolean(step)} onChange={e=>update({minutes:Number(e.target.value)})}/></Field>;
   const equipment = <Field label={horse ? 'Facilities & equipment' : 'Available equipment'}><Input value={value.equipment} maxLength={1000} onChange={e=>update({equipment:e.target.value})}/></Field>;
   const workload = <>
-    <Field label='Recent workload · prefilled from ride logs'><Textarea value={value.recentWork} maxLength={5000} onChange={e=>update({recentWork:e.target.value})}/></Field>
+    <Field label='Recent workload · prefilled from ride logs'><Textarea rows={2} className='min-h-0' value={value.recentWork} maxLength={5000} onChange={e=>update({recentWork:e.target.value})}/></Field>
     <Field label='Time off · enter None if no break'><Input value={value.timeOff} maxLength={1000} onChange={e=>update({timeOff:e.target.value})}/></Field>
   </>;
-  const guidance = <Field label={horse ? 'Instructions supplied by your vet' : 'Guidance supplied by your health professional'}><Textarea value={value.professionalInstructions} maxLength={5000} onChange={e=>update({professionalInstructions:e.target.value})} placeholder='Record provider, date, permitted work, limits and review date.'/></Field>;
+  const guidance = <Field label={horse ? 'Instructions supplied by your vet' : 'Guidance supplied by your health professional'}><Textarea rows={3} className='min-h-0' value={value.professionalInstructions} maxLength={5000} onChange={e=>update({professionalInstructions:e.target.value})} placeholder='Record provider, date, permitted work, limits and review date.'/></Field>;
 
-  return <div className='grid min-w-0 gap-6'>
-    {(!step || step==='goals') && <fieldset className='grid min-w-0 gap-4'>
-      <legend className={step?'sr-only':'mb-3 font-serif text-2xl'}>Goals</legend>
-      {step ? <>
-        {goal}
-        <details className={detailClass} open={invalidAge||undefined} onInvalid={event=>{event.currentTarget.open=true;}}>
-          <summary className='min-h-8 cursor-pointer text-sm font-medium'>
-            Review profile details
-            <span className='mt-1 block break-words text-xs font-normal leading-5 text-muted-foreground'>
-              {[value.age===null?'':value.age+' years',value.condition,...value.disciplines].filter(Boolean).join(' · ')||'Add age, experience and disciplines.'}
-            </span>
-          </summary>
-          <div className='mt-3 grid gap-4 border-t border-primary/10 pt-3'>{details}</div>
-        </details>
-      </> : <>{details}{goal}</>}
-    </fieldset>}
-    {(!step || step==='schedule') && <fieldset className='grid min-w-0 gap-4'>
-      <legend className={step?'sr-only':'mb-3 font-serif text-2xl'}>Schedule &amp; equipment</legend>
-      <fieldset>
-        <legend className='mb-2 text-sm font-medium'>Available days</legend>
-        <div className={'flex flex-wrap '+(step?'gap-2':'gap-3')}>
-          {days.map(day=><label key={day} className={step
-            ? 'flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border px-2.5 text-xs font-medium focus-within:ring-2 focus-within:ring-primary '+(value.days.includes(day)?'border-primary bg-primary text-primary-foreground':'border-primary/20 bg-background')
-            : 'flex min-h-10 items-center gap-2 text-xs'}>
-            <input type='checkbox' aria-label={day} className={step?'sr-only':undefined} checked={value.days.includes(day)} onChange={e=>update({days:e.target.checked?[...value.days,day]:value.days.filter(d=>d!==day)})}/>{day.slice(0,3)}
-          </label>)}
-        </div>
-      </fieldset>
-      {step ? <>
-        <fieldset>
-          <legend className='mb-2 text-sm font-medium'>Session length</legend>
-          <div className='flex flex-wrap gap-2'>
-            {presetMinutes.map(minutes=><Button key={minutes} type='button' variant={!customDuration&&value.minutes===minutes?'default':'outline'} aria-pressed={!customDuration&&value.minutes===minutes} className='min-h-11 rounded-lg' onClick={()=>{setCustomDuration(false);update({minutes});}}>{minutes} min</Button>)}
-            <Button type='button' variant={customDuration?'default':'outline'} aria-pressed={customDuration} className='min-h-11 rounded-lg' onClick={()=>setCustomDuration(true)}>Custom</Button>
-          </div>
-          {customDuration && <div className='mt-3 max-w-xs'>{duration}</div>}
-        </fieldset>
-        <details className={detailClass} open={Boolean(value.equipment)||undefined}>
-          <summary className='min-h-8 cursor-pointer text-sm font-medium'>Equipment <span className='text-xs font-normal text-muted-foreground'>· optional</span></summary>
-          <div className='pt-2'>{equipment}</div>
-        </details>
-      </> : <>
-        <div className='grid gap-4 sm:grid-cols-2'>{duration}{equipment}</div>
-        {horse&&workload}
-      </>}
-    </fieldset>}
-    {step==='workload' && <div className='grid gap-3'>
-      {workload}
-      <Button type='button' variant='outline' className='min-h-11 w-fit rounded-lg' aria-pressed={value.timeOff.trim().toLowerCase()==='none'} onClick={()=>update({timeOff:'None'})}>No recent break</Button>
-    </div>}
-    {(!step || step==='wellbeing') && <fieldset className='grid min-w-0 gap-4'>
-      <legend className={step?'sr-only':'mb-3 font-serif text-2xl'}>Wellbeing</legend>
-      <fieldset className='rounded-lg border border-[#B79B62]/40 bg-[#F6F1E7] p-4'>
-        <legend className='px-1 text-sm font-medium'>Health &amp; wellbeing</legend>
-        <div className='grid gap-2 sm:grid-cols-2'>
-          {healthFlags.map(flag=><label key={flag} className={'flex min-h-11 items-center gap-2 text-sm '+(step?'cursor-pointer rounded-lg border border-primary/15 px-3':'')}>
-            <input type='checkbox' checked={value.health.includes(flag)} onChange={e=>update({health:e.target.checked?[...value.health,flag]:value.health.filter(v=>v!==flag)})}/>{flag}
-          </label>)}
-        </div>
-        {value.health.filter(flag=>!healthFlags.includes(flag)).map(flag=><p key={flag} className='mt-2 text-xs'>{flag} · review existing records with Hollie.</p>)}
-        <p className='mt-3 text-xs leading-6 text-muted-foreground'>Flagged concerns hold standard suggestions. Professional instructions can still be recorded and tracked.</p>
-      </fieldset>
-      {step ? <details className={detailClass} open={Boolean(value.health.length||value.professionalInstructions)||undefined}>
-        <summary className='min-h-8 cursor-pointer text-sm font-medium'>{horse?'Vet guidance':'Professional guidance'} <span className='text-xs font-normal text-muted-foreground'>· optional</span></summary>
-        <div className='pt-2'>{guidance}</div>
-      </details> : guidance}
-    </fieldset>}
+  const availableDays = <fieldset>
+    <legend className='mb-2 text-sm font-medium'>Available days</legend>
+    <div className='grid grid-cols-4 gap-2 sm:grid-cols-7'>
+      {days.map(day=><label key={day} className={'flex min-h-11 min-w-0 cursor-pointer items-center justify-center rounded-lg border text-xs focus-within:ring-2 focus-within:ring-primary '+(value.days.includes(day)?'border-primary bg-primary text-primary-foreground':'border-primary/20 bg-background')}>
+        <input type='checkbox' aria-label={day} className='sr-only' checked={value.days.includes(day)} onChange={e=>update({days:e.target.checked?[...value.days,day]:value.days.filter(d=>d!==day)})}/>{day.slice(0,3)}
+      </label>)}
+    </div>
+  </fieldset>;
+  const health = <fieldset className='space-y-2'>
+    <legend className='mb-2 text-sm font-medium'>Health &amp; wellbeing</legend>
+    {healthFlags.map(flag=><label key={flag} className='flex min-h-11 items-center gap-2 rounded-lg border border-primary/15 px-3 text-sm'>
+      <input type='checkbox' checked={value.health.includes(flag)} onChange={e=>update({health:e.target.checked?[...value.health,flag]:value.health.filter(v=>v!==flag)})}/>{flag}
+    </label>)}
+    {value.health.some(flag=>!healthFlags.includes(flag))&&<p className='text-xs'>Your existing health notes are included for Hollie to review.</p>}
+  </fieldset>;
+
+  if(step==='goals')return goal;
+  if(step==='profile')return <div className='grid gap-3 sm:grid-cols-2'>{profileFields}</div>;
+  if(step==='disciplines')return disciplineFields;
+  if(step==='schedule')return availableDays;
+  if(step==='duration')return <div className='grid gap-3'>
+    <fieldset>
+      <legend className='mb-2 text-sm font-medium'>Minutes per session</legend>
+      <div className='flex flex-wrap gap-2'>
+        {presetMinutes.map(minutes=><Button key={minutes} type='button' variant={!customDuration&&value.minutes===minutes?'default':'outline'} aria-pressed={!customDuration&&value.minutes===minutes} className='min-h-11 rounded-lg' onClick={()=>{setCustomDuration(false);update({minutes});}}>{minutes}</Button>)}
+        <Button type='button' variant={customDuration?'default':'outline'} aria-pressed={customDuration} className='min-h-11 rounded-lg' onClick={()=>setCustomDuration(true)}>Custom</Button>
+      </div>
+      {customDuration&&<div className='mt-2'>{duration}</div>}
+    </fieldset>
+    {equipment}
+  </div>;
+  if(step==='workload')return <div className='grid gap-3'>{workload}<Button type='button' variant='outline' className='min-h-11 w-fit rounded-lg' aria-pressed={value.timeOff.trim().toLowerCase()==='none'} onClick={()=>update({timeOff:'None'})}>No recent break</Button></div>;
+  if(step==='wellbeing')return health;
+  if(step==='guidance')return guidance;
+  return <div className='grid gap-4'>
+    {profileFields}{disciplineFields}{goal}{availableDays}{duration}{equipment}{horse&&workload}{health}{guidance}
   </div>;
 }
 export function IntakePanel({subject,c}:{subject:Subject;c:FitnessController}){

@@ -38,13 +38,16 @@ export function CoachingWorkspace() {
   const loading=appointments.isLoading||((admin||student||coach)&&ready&&requests.isLoading)||(admin&&availability.isLoading)||(!admin&&!student&&links.isLoading);
   const loadError=Boolean(appointments.error||((admin||student||coach)&&requests.error)||(admin&&availability.error)||(!admin&&!student&&links.error));
   useEffect(() => {
-    const requestId=searchParams.get('request'), schedule=searchParams.get('action')==='schedule';
-    const link=requestId||(schedule?'schedule':'');
-    if(!link||loading||loadError||handledLink.current===link)return;
+    const requestId=searchParams.get('request');
+    const action=searchParams.get('action');
+    const link=requestId||action;
+    if(!link){handledLink.current='';return;}
+    if(loading||loadError||handledLink.current===link)return;
     if(requestId){const row=visibleRequests.find(item=>item.id===requestId);if(!row)return;setDetail(row);}
-    else if(admin)setAction({day:dayInTimezone(new Date(),timezone),mode:'schedule'});
+    else if(action==='schedule'&&admin)setAction({day:dayInTimezone(new Date(),timezone),mode:'schedule'});
+    else if(action==='request'&&student)setAction({day:dayInTimezone(new Date(),timezone),mode:'request'});
     handledLink.current=link;
-  }, [searchParams,loading,loadError,admin,visibleRequests,timezone]);
+  }, [searchParams,loading,loadError,admin,student,visibleRequests,timezone]);
   const displayedRequests=searchParams.get('filter')==='pending'?visibleRequests.filter(row=>['pending','reschedule_requested','cancellation_requested'].includes(String(row.status))):visibleRequests;
   async function save(data:LessonDraft) {
     if(!profile||!action)throw new Error('Sign in again to save.');

@@ -240,9 +240,10 @@ export function MemberProgrammes({subject,c,panel='today',onPanelChange,manageme
   const currentVersion=c.data.versions.find(version=>version.id===active?.current_version_id && version.approved_at);
   const editable=c.canRecord(subject);
 
-  const awaitingRequest=editable&&c.requests?.some(request=>request.student_id===subject.student_id &&
+  const awaitingRequest=editable&&c.requests?.find(request=>request.student_id===subject.student_id &&
     request.horse_id===(subject.kind==='horse'?subject.id:null) && !request.reply_message_id &&
     !c.data.programmes.some(programme=>programme.id===request.programme_id && programme.current_version_id));
+  const introTitle=subject.kind==='horse'?'Build fitness for '+subject.name:'Build strength and confidence in the saddle';
   if(creating && editable) return <PlanEditor subject={subject} c={c} close={()=>setCreating(false)}/>;
 
   const picker=(choices.length>1 || management && choices.length>0) && <Field label='Programme'>
@@ -273,16 +274,21 @@ export function MemberProgrammes({subject,c,panel='today',onPanelChange,manageme
     {picker}
     {active && currentVersion
       ? <TrainingDashboard key={currentVersion.id} c={c} subject={subject} p={active} v={currentVersion} actions={actions}/>
-      : <TodayCard title={awaitingRequest?'Programme request sent':subject.profileSaved?'Fitness profile ready':'Build your fitness profile'}>
-        <p className='text-sm leading-6 text-[#F6F1E7]/90'>
-          {awaitingRequest ? 'Hollie has your details. Your programme will appear here after she assigns it.'
-            : subject.profileSaved && editable && !c.sample && !c.requestsEnabled ? 'Use Message Hollie to ask about a programme.'
-            : 'An assigned programme will appear here when it’s ready.'}
-        </p>
-        <Button type='button' variant='secondary' className='min-h-11 rounded-lg focus-visible:ring-[#DFCEA3]' onClick={()=>onPanelChange?.('profile')}>
-          {requestLabel}
-        </Button>
-      </TodayCard>}
+      : <>
+        <TodayCard title={awaitingRequest?(awaitingRequest.programme_id?'Programme under review':'Programme request sent'):introTitle}>
+          <p className='max-w-xl text-sm leading-6 text-[#F6F1E7]/90'>
+            {awaitingRequest?'Hollie has your goals. Your plan and its first session will appear here when it’s ready.'
+              : subject.kind==='horse'?'Get a conditioning plan tailored to your horse’s goals, workload and available time.'
+              : 'Work on balance, mobility and strength with a programme Hollie tailors to your riding goals, experience and available time.'}
+          </p>
+          {!awaitingRequest&&<Button type='button' variant='secondary' className='min-h-11 rounded-lg focus-visible:ring-[#DFCEA3]' onClick={()=>onPanelChange?.('profile')}>
+            {editable&&c.requestsEnabled?(subject.kind==='horse'?'Request a conditioning plan':'Request my programme'):requestLabel}
+          </Button>}
+        </TodayCard>
+        {!awaitingRequest&&editable&&c.requestsEnabled&&<ol aria-label='How programmes work' className='grid gap-2 sm:grid-cols-3'>
+          {['Tell Hollie your goals','Hollie reviews your request','Follow your plan at your pace'].map((label,index)=><li key={label} className='paper-card flex items-center gap-3 px-4 py-3 text-sm'><span className='grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-semibold'>{index+1}</span>{label}</li>)}
+        </ol>}
+      </>}
     {!currentVersion&&actions}
     {subject.kind==='horse' && <div className='space-y-3 rounded-lg border border-[#B79B62]/35 bg-[#F6F1E7] p-4'>
       <p className='max-w-xl text-sm leading-6'>When workload changes, review feeding with your usual adviser.</p>
