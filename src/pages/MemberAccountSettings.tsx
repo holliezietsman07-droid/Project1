@@ -1,4 +1,5 @@
 import { showSuccess } from '@/utils/toast';
+import { memberTheme, memberThemes, type MemberTheme } from '@/lib/member-theme';
 import { scheduleRegion } from '@/lib/schedule-region';
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
@@ -25,6 +26,8 @@ const preferenceLabels: Record<string, { title: string; description: string }> =
 
 export default function MemberAccountSettings() {
   const { profile, session, refreshProfile } = useSession();
+  const [savingTheme, setSavingTheme] = useState(false);
+  const currentTheme = memberTheme(session?.user.user_metadata?.hka_theme);
   const [editing, setEditing] = useState(false);
   const [dirty,setDirty]=useState(false);
   const [busy, setBusy] = useState(false);
@@ -81,11 +84,27 @@ export default function MemberAccountSettings() {
     }
   }
 
+  async function saveTheme(theme: MemberTheme) {
+    if (!session || savingTheme || theme === currentTheme) return;
+    setSavingTheme(true);
+    setMessage('');
+    try {
+      const { error } = await db().auth.updateUser({ data: { hka_theme: theme } });
+      if (error) throw error;
+      setMessage(showSuccess('Theme colour saved.'));
+    } catch (failure) {
+      setMessage(errorText(failure));
+    } finally {
+      setSavingTheme(false);
+    }
+  }
+
   if (!profile) return null;
 
   return <section className='dashboard-shell page-width py-8 lg:py-10'>
     <h1 className='font-serif text-3xl text-primary sm:text-4xl'>Account Settings</h1><p className='mt-2 text-sm text-muted-foreground'>Manage your profile, preferences, security and authorised account relationships.</p>
-    <div className='mt-8 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]'>
+    <Link to='/install' className='mt-3 inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4'>Install HKA</Link>
+    <div className='mt-4 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]'>
       <aside className='space-y-6'>
         <section className='paper-card p-6 sm:p-8'>
           <p className='eyebrow text-[#826e45]'>Profile overview</p>
@@ -105,6 +124,14 @@ export default function MemberAccountSettings() {
         </section>
       </aside>
       <div className='space-y-6'>
+        <section className='paper-card p-6 sm:p-8'>
+          <h2 className='font-serif text-2xl'>Theme colour</h2>
+          <div className='mt-4 flex flex-wrap gap-2' role='group' aria-label='Theme colour'>
+            {(Object.keys(memberThemes) as MemberTheme[]).map(theme => <Button key={theme} type='button' variant={theme === currentTheme ? 'default' : 'outline'} aria-pressed={theme === currentTheme} disabled={savingTheme} onClick={() => void saveTheme(theme)}>
+              <span className='size-4 rounded-full border border-current' style={{ backgroundColor: memberThemes[theme].swatch }} aria-hidden='true' />{memberThemes[theme].label}
+            </Button>)}
+          </div>
+        </section>
         <section className='paper-card p-6 sm:p-8'>
           <div className='flex items-start gap-3'><Bell className='mt-1 size-5 text-[#826e45]' /><div><h2 className='font-serif text-3xl'>Notifications</h2><p className='mt-2 text-sm text-muted-foreground'>Changes save immediately and roll back if saving fails.</p></div></div>
           <div className='mt-6 divide-y divide-primary/10'>

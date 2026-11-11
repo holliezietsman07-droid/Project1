@@ -15,6 +15,8 @@ import Memberships from "@/pages/Memberships";
 import About from "@/pages/About";
 import AccountPage from "@/pages/AccountPage";
 import { DashboardIndex, DashboardPage } from "@/pages/Dashboard";
+import InstallHKA from '@/pages/InstallHKA';
+import RideTracker from '@/pages/RideTracker';
 import MemberAccountSettings from '@/pages/MemberAccountSettings';
 import NotFound from "@/pages/NotFound";
 import { AccessGate } from "@/components/accounts/AccessGate";
@@ -142,12 +144,13 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/sign-in" element={<AccountPage key="sign-in" mode="sign-in" />} />
               <Route path="/sign-up" element={<AccountPage key="sign-up" mode="sign-up" />} />
+              <Route path="/install" element={<InstallHKA />} />
               <Route path="/password-reset" element={<AccountPage key="password-reset" mode="password-reset" />} />
               <Route path="/update-password" element={<AccountPage key="update-password" mode="update-password" />} />
               <Route path={'/learning-pathways/:pathwayId'} element={<PathwayDetail />} />
               <Route element={<AccessGate />}><Route path="/dashboard/fitness/rider/:studentId?" element={<FitnessProgrammes mode="rider" />} /><Route path="/dashboard/fitness/horse/:horseId?" element={<FitnessProgrammes mode="horse" />} /><Route element={<AccessGate roles={["admin"]} />}><Route path="/dashboard/programmes" element={<FitnessProgrammes mode="manage" />} /></Route>
                 <Route path="/dashboard" element={<DashboardIndex />} /><Route path='/dashboard/account' element={<MemberAccountSettings/>}/>
-                <Route element={<AccessGate roles={["student"]} />}><Route path="/dashboard/student" element={<DashboardPage role="student" />} /></Route>
+                <Route element={<AccessGate roles={["student"]} />}><Route path="/dashboard/student" element={<DashboardPage role="student" />} /><Route path="/dashboard/rides" element={<RideTracker />} /></Route>
                 <Route element={<AccessGate roles={["guardian"]} />}><Route path="/dashboard/parent" element={<DashboardPage role="guardian" />} /></Route>
                 <Route element={<AccessGate roles={["coach"]} />}><Route path="/dashboard/coach" element={<DashboardPage role="coach" />} /></Route>
                 <Route element={<AccessGate roles={["admin"]} />}><Route path="/dashboard/admin" element={<DashboardPage role="admin" />} /></Route>
