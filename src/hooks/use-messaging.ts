@@ -1,3 +1,4 @@
+import { showSuccess } from '@/utils/toast';
 import { useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from '@/contexts/SessionContext';
@@ -55,6 +56,7 @@ export function useMessaging() {
       cache.setQueryData(['academy', session.user.id, 'message-contacts'], currentContacts);
       if (!allowed(studentId, recipientId, currentContacts)) throw new Error('This contact is no longer available for messaging. Founder contact requires no coaching assignment; external Coaches need an approved relationship. Your draft is kept.');
       await saveRow('hka_messages', { student_id: studentId || null, sender_id: session.user.id, recipient_id: recipientId, body: body.trim() });
+      showSuccess('Message sent.');
       // A confirmed insert must never be reported as failed because refresh fails.
       void refresh();
     } catch (error) { throw new Error(messageFailure(error)); }

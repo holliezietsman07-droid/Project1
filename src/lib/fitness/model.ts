@@ -5,7 +5,7 @@ export type Intake = {
   equipment: string; age: number | null; recentWork: string; timeOff: string; health: string[];
   professionalInstructions: string;
 };
-export type SessionPlan = { key: string; day: number; title: string; category: string; minutes: number; instructions: string };
+export type SessionPlan = { key: string; day: number; title: string; category: string; minutes: number; instructions: string; demonstrationUrl?: string };
 export type Programme = {
   id: string; student_id: string; horse_id: string | null; kind: FitnessKind; source: ProgrammeSource;
   archived_horse_id?: string | null; archived_horse_name?: string | null;
@@ -46,11 +46,22 @@ export function holdReason(kind: FitnessKind, intake: Intake): string {
   if (kind === 'horse' && (intake.age < 5 || intake.age >= 18 || intake.timeOff.trim() !== 'None')) return 'Ask Hollie for an individual review of age and time off before using standard conditioning.';
   return '';
 }
+export function demonstrationLink(value?: string) {
+  if (typeof value !== 'string' || !value.trim() || value.length > 2048) return undefined;
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === 'https:' && !url.username && !url.password ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function validateSessions(sessions: SessionPlan[]) {
   if (!sessions.length || sessions.length > 35) throw new Error('Add between 1 and 35 sessions.');
   const keys = new Set<string>();
   for (const s of sessions) {
     if (!s.key || keys.has(s.key) || !Number.isInteger(s.day) || s.day < 0 || s.day > 6 || !s.title.trim() || !s.instructions.trim() || !Number.isInteger(s.minutes) || s.minutes < 0 || s.minutes > 240) throw new Error('Each session needs a unique key, day, instructions and duration between 0 and 240 minutes.');
+    if (s.demonstrationUrl?.trim() && !demonstrationLink(s.demonstrationUrl)) throw new Error('Use a valid HTTPS link for each video demonstration.');
     keys.add(s.key);
   }
   return sessions;
@@ -86,3 +97,4 @@ export function templateDraft(kind: FitnessKind, intake: Intake): SessionPlan[] 
     return { key: 'day-' + i, day: i, title: !active ? 'Rest & recover' : kind === 'horse' ? 'Easy foundation work' : young ? 'Movement & balance play' : category[0].toUpperCase() + category.slice(1) + ' foundations', category, minutes: active ? duration : 0, instructions: instruction };
   });
 }
+

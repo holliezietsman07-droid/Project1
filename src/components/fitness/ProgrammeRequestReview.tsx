@@ -1,3 +1,4 @@
+import { showSuccess } from '@/utils/toast';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -30,7 +31,7 @@ export function ProgrammeRequestReview({c,request,onBack}:{
     if(sending)return;
     setSending(true);
     setMessage('');
-    try{await c.sendRequestedProgramme(request.id,null);}
+    try{await c.sendRequestedProgramme(request.id,null);showSuccess(c.sample?'Programme sent in the sample chat.':'Programme sent in chat.');}
     catch(error){setMessage(errorText(error));}
     finally{setSending(false);}
   }

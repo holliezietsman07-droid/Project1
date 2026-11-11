@@ -120,14 +120,14 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
+      <Sonner position="top-right" closeButton richColors />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
-          <Route path='/dashboard/fitness-preview' element={<FitnessPreviewSessionProvider>
+          <Route path='/dashboard/fitness-preview' element={import.meta.env.VITE_HKA_PUBLIC_SITE==='true' ? <Navigate to='/' replace/> : <FitnessPreviewSessionProvider>
             <div className='min-h-screen bg-background'>
-              <header className='border-b border-primary/15 bg-[#F6F1E7]'><div className='page-width flex flex-wrap items-center justify-between gap-4 py-4'>
-                <Link to='/' aria-label='HKA home'><img src={brandLogo.src} alt={brandLogo.alt} className='h-auto w-36' /></Link>
-                <div className='text-right'><p className='eyebrow text-[#826e45]'>Fitness preview</p><p className='mt-1 text-xs text-muted-foreground'>Sample data only · migration & activation pending approval</p></div>
+              <header className='border-b border-primary/15 bg-[#F6F1E7]'><div className='page-width flex items-center justify-between gap-3 py-2 sm:py-3'>
+                <Link to='/' aria-label='HKA home'><img src={brandLogo.src} alt={brandLogo.alt} className='h-auto w-24 sm:w-28' /></Link>
+                <div className='text-right'><p className='eyebrow text-[#826e45]'>Fitness preview</p><p className='mt-0.5 text-xs text-muted-foreground'>Sample data only</p></div>
               </div></header>
               <main id='main-content'><FitnessProgrammes mode='preview' /></main>
             </div>

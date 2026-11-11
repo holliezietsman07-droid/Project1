@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button';
 import { errorText } from '@/lib/academy';
 import { useFitness } from '@/hooks/use-fitness';
 import type { SampleRole } from '@/lib/fitness/sample';
-import { Field, selectClass } from '@/components/fitness/ProgrammeEditor';
+import { selectClass } from '@/components/fitness/ProgrammeEditor';
 import { MemberProgrammes, type FitnessPanel } from '@/components/fitness/WeeklyProgramme';
 import { ProgrammeManagement } from '@/components/fitness/ProgrammeManagement';
 
 const previewViews = [
-  {id:'rider',label:'Rider programme'},
-  {id:'horse',label:'Horse programmes'},
+  {id:'rider',label:'Rider'},
+  {id:'horse',label:'Horse'},
   {id:'manage',label:'Programme Management'},
 ] as const;
 const sampleIdentities: {id:SampleRole;label:string}[] = [
@@ -32,7 +32,8 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
   const navigate=useNavigate();
   const routeState=location.state as {fitnessReturnTo?:string;fitnessPanel?:FitnessPanel}|null;
   const route=useParams();
-  const sample=mode==='preview'||params.get('sample')==='1';
+  const sampleAvailable=import.meta.env.VITE_HKA_PUBLIC_SITE!=='true';
+  const sample=sampleAvailable&&(mode==='preview'||params.get('sample')==='1');
   const previewView=previewViews.find(view=>view.id===params.get('view'))?.id??'rider';
   const c=useFitness(sample,previewView==='manage'?'founder':'rider');
   const [selected,setSelected]=useState('');
@@ -41,6 +42,7 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
     if(mode==='preview'){
       setSampleRole(previewView==='manage'?'founder':'rider');
       setSelected('');
+      window.scrollTo(0,0);
     }
   },[mode,previewView,setSampleRole]);
   const current=mode==='preview'?previewView:mode;
@@ -56,7 +58,7 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
   const requestedPanel=params.get('panel');
   const panel:FitnessPanel=current!=='manage'&&!subject?.archivedHorseId&&(requestedPanel==='profile'||requestedPanel==='progress')?requestedPanel:'today';
   const title=current==='manage'?'Programme Management':kind==='horse'?'Fitness & Conditioning':'Rider Fitness & Mobility';
-  const heading=panel==='progress'?'Progress & history':title;
+  const heading=panel==='progress'?'Programme history':title;
   useEffect(()=>{if(mode==='preview')document.title=heading+' · sample preview | HKA Equestrian';},[heading,mode]);
   const showingProgress=panel==='progress';
   const samplePath='/dashboard/fitness-preview?view='+current;
@@ -92,26 +94,44 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
   }
 
   return <section className='page-width space-y-4 pb-24 pt-5 sm:space-y-5 sm:pt-7'>
-    <header className='flex flex-wrap items-end justify-between gap-3'>
-      <div>
-        {!showingProgress
-          ? <nav aria-label='Breadcrumb' className='mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground'><Link to={dashboard} className='hover:underline'>Dashboard</Link><span aria-hidden='true'>/</span><span>{title}</span></nav>
-          : <Button type='button' variant='ghost' className='mb-2 min-h-11 gap-2 px-2' onClick={()=>changePanel('today')}><ArrowLeft className='size-4' aria-hidden='true'/>Back to fitness</Button>}
-        <h1 ref={headingRef} tabIndex={-1} className='font-serif text-3xl tracking-tight text-primary focus:outline-none sm:text-4xl'>{heading}</h1>
+    <header className='space-y-2'>
+      <div className='flex flex-wrap items-center justify-between gap-x-3'>
+        {showingProgress
+          ? <Button type='button' variant='ghost' className='min-h-11 gap-2 px-0' onClick={()=>changePanel('today')}><ArrowLeft className='size-4' aria-hidden='true'/>Back to fitness</Button>
+          : !sample||returnTo ? <Link to={returnTo??dashboard} className='inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary hover:underline'><ArrowLeft className='size-4' aria-hidden='true'/>{returnTo?'Back to my fitness':'Dashboard'}</Link> : null}
+        {sampleAvailable&&!sample&&!c.writable&&<Link to={samplePath} state={sampleState} className='inline-flex min-h-11 items-center text-sm underline underline-offset-4'>View sample programme</Link>}
       </div>
-      {sample&&<Button asChild variant='outline' className='min-h-11 gap-2 rounded-lg'>
-        <Link to={returnTo??'/dashboard'}><ArrowLeft className='size-4' aria-hidden='true'/>{returnTo?'Back to my fitness':'Back to dashboard'}</Link>
-      </Button>}
-      {!sample&&!c.writable&&<div className='flex flex-wrap items-center gap-2 text-xs'>
-        <span className='rounded-full bg-primary/10 px-3 py-1.5 font-medium'>Preview mode</span>
-        <Link to={samplePath} state={sampleState} className='inline-flex min-h-11 items-center underline underline-offset-4'>View sample programme</Link>
-      </div>}
+      {sample&&<nav aria-label='Fitness views' className='inline-flex gap-1 rounded-xl border border-primary/10 bg-primary/5 p-1'>
+        {previewViews.filter(view=>view.id!=='manage').map(view=><Button key={view.id} variant={current===view.id?'default':'ghost'} className='min-h-11 min-w-24 rounded-lg' aria-current={current===view.id?'page':undefined} asChild>
+          <Link to={'/dashboard/fitness-preview?view='+view.id} state={{fitnessReturnTo:returnTo}}>{view.label}</Link>
+        </Button>)}
+      </nav>}
+      <h1 ref={headingRef} tabIndex={-1} className='font-serif text-3xl tracking-tight text-primary focus:outline-none sm:text-4xl'>{heading}</h1>
     </header>
 
+    {c.loading ? <p role='status'>Opening programme records…</p>
+      : c.error ? <div role='alert' className='paper-card space-y-4 p-6'><p>{errorText(c.error)}</p><Button variant='outline' onClick={()=>void c.refresh()}>Try again</Button></div>
+      : current==='manage' ? <ProgrammeManagement key={c.sampleRole} c={c} requestId={params.get('request')??undefined} onRequestChange={changeRequest}/>
+      : subject ? <>
+        {(showHorse||chooseSubject)&&<div className='flex items-center gap-3'>
+          {showHorse&&<PrivatePhoto path={subject.photoPath} label={subject.name} horse className='size-10 shrink-0 sm:size-12'/>}
+          {chooseSubject
+            ? <select aria-label={kind==='horse'?'Select horse':'Select rider'} className={selectClass+' min-h-11 min-w-0 max-w-56'} value={subject.id} onChange={event=>setSelected(event.target.value)}>
+                {subjects.map(option=><option key={option.id} value={option.id}>{option.name}{option.archivedHorseId?' · archived':''}</option>)}
+              </select>
+            : <h2 className='min-w-0 break-words font-serif text-xl'>{subject.name}</h2>}
+        </div>}
+        <MemberProgrammes key={subject.id+':'+c.sampleRole+':'+(params.get('programme')??'')} subject={subject} c={c}
+          panel={panel} onPanelChange={changePanel} initialProgrammeId={params.get('programme')??''}
+          sampleProfileLink={sampleAvailable&&!sample&&!c.writable?<Link to={samplePath+'&panel=profile'} state={sampleState} className='inline-flex min-h-11 items-center font-medium underline underline-offset-4'>Try sample setup</Link>:undefined}/>
+      </>
+      : <p role='status' className='paper-card p-6'>No authorised {kind==='horse'?'horse':'rider'} records are available for this account.</p>}
+
+
     {sample&&<aside aria-label='Sample preview controls' className='rounded-xl border border-[#B79B62]/35 bg-[#fffdf8] px-3 sm:px-4'>
-      {!showingProgress ? <details className='group'>
+      <details className='group'>
         <summary className='flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-2 text-xs [&::-webkit-details-marker]:hidden'>
-          <span className='rounded-full bg-primary/10 px-2.5 py-1 font-medium'>Preview mode</span>
+          <span className='text-muted-foreground'>Sample data only</span>
           <span className='inline-flex items-center gap-1.5 font-medium'>Sample controls<ChevronDown className='size-4 group-open:rotate-180' aria-hidden='true'/></span>
         </summary>
         <div className='flex flex-wrap items-end justify-between gap-3 border-t border-primary/10 py-3'>
@@ -123,34 +143,13 @@ export default function FitnessProgrammes({mode='rider'}:{mode?:FitnessMode}){
             </select>
           </label>
           <nav aria-label='Sample programme views' className='flex flex-wrap gap-1.5'>
-            {previewViews.map(view=><Button key={view.id} variant={current===view.id?'default':'outline'} size='sm' className='min-h-10 rounded-lg' aria-current={current===view.id?'page':undefined} asChild>
+            {previewViews.filter(view=>view.id==='manage').map(view=><Button key={view.id} variant={current===view.id?'default':'outline'} size='sm' className='min-h-10 rounded-lg' aria-current={current===view.id?'page':undefined} asChild>
               <Link to={'/dashboard/fitness-preview?view='+view.id} state={{fitnessReturnTo:returnTo}}>{view.label}</Link>
             </Button>)}
           </nav>
         </div>
-      </details> : <p className='py-2.5 text-xs text-muted-foreground'>Preview mode · Fictional profile</p>}
+      </details>
     </aside>}
-
-    {c.loading ? <p role='status'>Opening programme records…</p>
-      : c.error ? <div role='alert' className='paper-card space-y-4 p-6'><p>{errorText(c.error)}</p><Button variant='outline' onClick={()=>void c.refresh()}>Try again</Button></div>
-      : current==='manage' ? <ProgrammeManagement key={c.sampleRole} c={c} requestId={params.get('request')??undefined} onRequestChange={changeRequest}/>
-      : subject ? <>
-        {(showHorse||chooseSubject)&&<div className='flex flex-wrap items-center justify-between gap-4'>
-          {showHorse&&<div className='flex min-w-0 items-center gap-3'>
-            <PrivatePhoto path={subject.photoPath} label={subject.name} horse className='size-14 shrink-0 sm:size-16'/>
-            <div className='min-w-0'><p className='eyebrow text-[#826e45]'>Horse</p><h2 className='break-words font-serif text-2xl'>{subject.name}</h2></div>
-          </div>}
-          {chooseSubject&&<div className='w-full min-w-0 sm:w-56'>
-            <Field label={kind==='horse'?'Select horse':'Select rider'}><select className={selectClass} value={subject.id} onChange={event=>setSelected(event.target.value)}>
-              {subjects.map(option=><option key={option.id} value={option.id}>{option.name}{option.archivedHorseId?' · archived':''}</option>)}
-            </select></Field>
-          </div>}
-        </div>}
-        <MemberProgrammes key={subject.id+':'+c.sampleRole+':'+(params.get('programme')??'')} subject={subject} c={c}
-          panel={panel} onPanelChange={changePanel} initialProgrammeId={params.get('programme')??''}
-          sampleProfileLink={!sample&&!c.writable?<Link to={samplePath+'&panel=profile'} state={sampleState} className='inline-flex min-h-11 items-center font-medium underline underline-offset-4'>Try sample setup</Link>:undefined}/>
-      </>
-      : <p role='status' className='paper-card p-6'>No authorised {kind==='horse'?'horse':'rider'} records are available for this account.</p>}
 
     {panel==='today'&&(kind==='rider'||route.horseId)&&c.data.subjects.some(subject=>subject.archivedHorseId)&&<Link className='text-link' to='/dashboard/fitness/horse'>Horse programme history</Link>}
   </section>;

@@ -1,3 +1,4 @@
+import { showSuccess } from '@/utils/toast';
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
@@ -14,7 +15,7 @@ export function MemberNavigation({ mobile = false, sidebar = false, onSignIn }: 
     setError(""); setBusy(true);
     try { await signOut(); navigate('/', { replace: true }); } catch (failure) { setError(errorText(failure)); } finally { setBusy(false); }
   }
-  async function switchDashboard(purpose:string){setError('');setBusy(true);try{const path=await rpc('hka_switch_dashboard',{requested_purpose:purpose});await refreshProfile();navigate(String(path),{replace:true});}catch(failure){setError(errorText(failure));}finally{setBusy(false);}}
+  async function switchDashboard(purpose:string){setError('');setBusy(true);try{const path=await rpc('hka_switch_dashboard',{requested_purpose:purpose});await refreshProfile();showSuccess('Dashboard switched.');navigate(String(path),{replace:true});}catch(failure){setError(errorText(failure));}finally{setBusy(false);}}
   return <div className={sidebar ? "grid gap-3" : mobile ? "mt-3 flex flex-col gap-3 border-t pt-4" : "flex flex-wrap items-center gap-4"}>
     {sidebar && session ? <div className="min-w-0"><p className="truncate text-sm font-medium text-[#F6F1E7]">{profile?.full_name}</p><p className="text-[10px] capitalize text-[#F6F1E7]/65">{profile?.role}</p></div> : <Link to={session ? "/dashboard" : "/sign-in"} className="py-3 text-[13px] font-medium hover:underline">{session ? "My dashboard" : "Sign in"}</Link>}
     {session&&<Link to='/dashboard/account' className={sidebar?'text-xs text-[#F6F1E7] underline underline-offset-4':'text-xs underline underline-offset-4'}>Account settings</Link>}

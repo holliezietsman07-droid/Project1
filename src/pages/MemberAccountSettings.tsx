@@ -1,3 +1,4 @@
+import { showSuccess } from '@/utils/toast';
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Bell, LockKeyhole, Pencil, ShieldCheck, SlidersHorizontal, UserRound } from 'lucide-react';
@@ -51,7 +52,7 @@ export default function MemberAccountSettings() {
       if (error) throw error;
       await refreshProfile();
       setEditing(false);
-      setMessage('Profile details saved.');
+      setMessage(showSuccess('Profile details saved.'));
     } catch (failure) {
       setMessage(errorText(failure));
     } finally {
@@ -70,7 +71,7 @@ export default function MemberAccountSettings() {
       const { error } = await db().from('hka_profiles').update({ notification_preferences: next }).eq('id', profile.id).select('id').single();
       if (error) throw error;
       await refreshProfile();
-      setMessage('Notification preference saved.');
+      setMessage(showSuccess('Notification preference saved.'));
     } catch (failure) {
       setPreferences(previous);
       setMessage(errorText(failure));

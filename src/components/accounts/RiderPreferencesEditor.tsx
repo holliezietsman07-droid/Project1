@@ -1,3 +1,4 @@
+import { showSuccess } from '@/utils/toast';
 import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +29,7 @@ export function RiderPreferencesEditor({ open, onOpenChange }: { open?: boolean;
         experience_level: form.get('experience_level'), riding_goals: String(form.get('riding_goals')).trim(),
         learning_pathway: pathway || null,
       } });
-      await refresh(); setMessage('Rider preferences saved.'); return true;
+      await refresh(); setMessage(showSuccess('Rider preferences saved.')); return true;
     } catch (error) { setMessage(errorText(error)); return false; }
   }
   if (roles.isLoading) return <p role='status' className='text-sm text-muted-foreground'>Loading rider preferences…</p>;
