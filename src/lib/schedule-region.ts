@@ -14,5 +14,5 @@ const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
 export function scheduleRegion(timeZone: string) {
   const region = regionByTimeZone[timeZone];
-  return region ? regionNames.of(region) ?? timeZone : timeZone.replaceAll('_', ' ');
+  return region ? regionNames.of(region) ?? timeZone : timeZone.replace(/_/g, ' ');
 }
