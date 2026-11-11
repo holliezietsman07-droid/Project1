@@ -23,6 +23,11 @@ export function ProgrammeManagement({c,studentId,requestId,onRequestChange}:{
   const [target,setTarget]=useState('');
   const [reviewing,setReviewing]=useState('');
   const [creating,setCreating]=useState(false);
+  if(!c.sample&&c.profile?.role==='admin'){
+    if(!c.writable)return <p role='status' className='paper-card p-6'>Live programme management is awaiting activation. You can explore the sample programme in the meantime.</p>;
+    if(c.loading)return <p role='status' className='paper-card p-6'>Checking Founder access…</p>;
+    if(c.error)return <p role='alert' className='paper-card p-6'>Programme Management could not be loaded. Refresh the page to try again.</p>;
+  }
   if(!c.isFounder)return <p role='alert' className='paper-card p-6'>Programme Management requires Founder access.</p>;
   if(requestId&&c.requestsEnabled){
     const request=c.requests.find(item=>item.id===requestId);

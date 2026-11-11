@@ -6,6 +6,7 @@ import { useRows } from '@/hooks/use-academy';
 import { FounderLinkApprovals, FounderRoleApprovals } from '@/components/accounts/AccountRoles';
 import { founderDay } from '@/lib/dashboard-workspace';
 import { formatCoachingTime } from '@/lib/coaching';
+import { scheduleRegion } from '@/lib/schedule-region';
 
 export function FounderDailyWorkspace() {
   const { profile }=useSession();
@@ -31,7 +32,7 @@ export function FounderDailyWorkspace() {
   return <div className='space-y-6'>
     <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-5'>{cards.map(card=><Link key={card.title} to={card.to} className='paper-card flex min-h-28 flex-col justify-between p-5 transition hover:border-[#B79B62] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'><span className='flex items-start justify-between gap-2 text-xs text-muted-foreground'>{card.title}<ArrowRight aria-hidden='true' className='size-4 shrink-0'/></span><strong className='mt-3 font-serif text-3xl'>{card.count}</strong></Link>)}</div>
     <div className='grid gap-6 lg:grid-cols-2'>
-      <section className='paper-card p-6'><div className='flex flex-wrap items-center justify-between gap-3'><h2 className='font-serif text-3xl'>Today’s Schedule</h2><span className='text-xs text-muted-foreground'>{profile.timezone}</span></div>
+      <section className='paper-card p-6'><div className='flex flex-wrap items-center justify-between gap-3'><h2 className='font-serif text-3xl'>Today’s Schedule</h2><Link to='/dashboard/account' title={'Schedule time zone '+profile.timezone} className='rounded-full bg-primary/5 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/10'>{scheduleRegion(profile.timezone)}</Link></div>
         {day.today.length?<ol className='mt-5 space-y-3'>{day.today.map(row=><li key={row.id}><Link to={'/dashboard/admin?section=coaching&appointment='+row.id} className='block rounded-lg border border-primary/15 p-4 hover:bg-primary/5'><strong className='text-sm'>{String(row.title)}</strong><span className='mt-1 block text-xs text-muted-foreground'>{name(row.student_id)} · {formatCoachingTime(row.starts_at,profile.timezone)} · {String(row.duration_minutes)} min</span>{row.location&&<span className='mt-1 block text-xs'>{String(row.location)}</span>}</Link></li>)}</ol>:<p className='mt-4 text-sm text-muted-foreground'>No confirmed lessons today.</p>}
         {day.upcoming.find(row=>!day.today.some(today=>today.id===row.id))&&<p className='mt-4 text-xs leading-6 text-muted-foreground'>Next lesson: {formatCoachingTime(day.upcoming.find(row=>!day.today.some(today=>today.id===row.id))!.starts_at,profile.timezone)}</p>}
       </section>

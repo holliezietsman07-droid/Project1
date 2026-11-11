@@ -1,4 +1,5 @@
 import { showSuccess } from '@/utils/toast';
+import { scheduleRegion } from '@/lib/schedule-region';
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Bell, LockKeyhole, Pencil, ShieldCheck, SlidersHorizontal, UserRound } from 'lucide-react';
@@ -115,7 +116,7 @@ export default function MemberAccountSettings() {
         </section>
         <div className='grid gap-6 md:grid-cols-2'>
           <section className='paper-card p-6'><div className='flex items-start gap-3'><UserRound className='mt-1 size-5 text-[#826e45]' /><div><h2 className='font-serif text-2xl'>Personal information</h2><p className='mt-2 text-sm text-muted-foreground'>{profile.full_name}<br />{profile.timezone}</p></div></div></section>
-          <section className='paper-card p-6'><div className='flex items-start gap-3'><SlidersHorizontal className='mt-1 size-5 text-[#826e45]' /><div><h2 className='font-serif text-2xl'>Preferences</h2><p className='mt-2 text-sm text-muted-foreground'>Times display using {profile.timezone}. Academy styling follows HKA defaults.</p></div></div></section>
+          <section className='paper-card p-6'><div className='flex items-start gap-3'><SlidersHorizontal className='mt-1 size-5 text-[#826e45]' /><div><h2 className='font-serif text-2xl'>Preferences</h2><p className='mt-2 text-sm text-muted-foreground'>Times display using {scheduleRegion(profile.timezone)}. Academy styling follows HKA defaults.</p></div></div></section>
         </div>
         <section className='paper-card p-6 sm:p-8'>
           <div className='mb-6 flex items-start gap-3'><ShieldCheck className='mt-1 size-5 text-[#826e45]' /><div><h2 className='font-serif text-3xl'>Account roles & linked relationships</h2><p className='mt-2 text-sm text-muted-foreground'>Only authorised roles and verified relationships can access linked records.</p></div></div>
@@ -126,7 +127,24 @@ export default function MemberAccountSettings() {
     {message && <p className='fixed bottom-5 left-1/2 z-40 w-[90vw] max-w-md -translate-x-1/2 rounded-lg border border-[#B79B62]/40 bg-[#fffdf8] px-5 py-3 text-sm shadow-xl' role='status'>{message}</p>}
     <WorkflowDialog open={editing} onOpenChange={value=>{if(!busy){setEditing(value);if(!value)setDirty(false);}}} title='Edit personal information' description='Update only details that need changing.' dirty={dirty} busy={busy}><form onChange={()=>setDirty(true)} id='profile-editor' className='grid gap-4' onSubmit={saveProfile}>
           <div><Label htmlFor='settings-full-name'>Full name</Label><Input id='settings-full-name' name='full_name' autoComplete='name' defaultValue={profile.full_name} required maxLength={100} /></div>
-          <div><Label htmlFor='settings-timezone'>Timezone</Label><Input id='settings-timezone' name='timezone' autoComplete='off' defaultValue={profile.timezone} required maxLength={100} /></div>
+          <div className='space-y-2'>
+            <Label htmlFor='settings-timezone'>Schedule time zone</Label>
+            <Input id='settings-timezone' name='timezone' autoComplete='off' defaultValue={profile.timezone} required maxLength={100} list='hka-schedule-timezones' />
+            <datalist id='hka-schedule-timezones'>
+              <option value='Africa/Lusaka'>Zambia</option>
+              <option value='Africa/Johannesburg'>South Africa</option>
+              <option value='Africa/Harare'>Zimbabwe</option>
+              <option value='Europe/London'>United Kingdom</option>
+            </datalist>
+            <Button type='button' variant='outline' size='sm' onClick={event=>{
+              const field = event.currentTarget.form?.elements.namedItem('timezone');
+              if(field instanceof HTMLInputElement){
+                field.value=Intl.DateTimeFormat().resolvedOptions().timeZone;
+                setDirty(true);
+              }
+            }}>Use device time zone</Button>
+            <p className='text-xs text-muted-foreground'>Choose Africa/Lusaka for Zambia. Your saved choice sets your lesson times.</p>
+          </div>
         </form><DialogFooter><DialogClose asChild><Button type='button' variant='outline' disabled={busy}>Cancel</Button></DialogClose><Button type='submit' form='profile-editor' disabled={busy}>{busy ? 'Saving…' : 'Save changes'}</Button></DialogFooter></WorkflowDialog>
   </section>;
 }

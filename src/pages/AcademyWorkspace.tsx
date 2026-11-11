@@ -2,6 +2,7 @@
 import { ArrowDown, ArrowUp, BookOpen, ChevronRight, Download, FilePlus2, Library, MoreHorizontal, RefreshCw, Save, Search, Sparkles, Trash2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +27,31 @@ function CourseManager() {
  const [searchParams,setSearchParams]=useSearchParams();
  const courseHeading=useRef<HTMLHeadingElement>(null);
  const [courseSearch,setCourseSearch]=useState('');
+ const [deleting,setDeleting]=useState<{id:string;kind:'course'|'lesson'|'module';label:string;title:string}|null>(null);
+ const [deleteError,setDeleteError]=useState('');
+ function confirmDeletion(row:Row,kind:'course'|'lesson'|'module'){
+  setDeleteError('');
+  setDeleting({id:row.id,kind,label:kind==='lesson'&&['quiz','assignment'].includes(String(row.kind))?String(row.kind):kind,title:String(row.title)});
+ }
+ async function deleteItem(){
+  if(!deleting||busy||submitting.current)return;
+  submitting.current=true;
+  setBusy(true);
+  setDeleteError('');
+  try{
+   const removed=await rpc('hka_course_studio_delete_draft',{item_type:deleting.kind,item_id:deleting.id});
+   if(removed!==deleting.id)throw new Error('Deletion could not be confirmed.');
+   await Promise.all([reloadContent(),courses.refetch()]);
+   if(deleting.kind==='course')setSelected('');
+   showSuccess('Deleted '+deleting.label+' “'+deleting.title+'”.');
+   setDeleting(null);
+  }catch(error){
+   setDeleteError(errorText(error));
+  }finally{
+   submitting.current=false;
+   setBusy(false);
+  }
+ }
  const submitting=useRef(false); const [selected,setSelected]=useState(()=>searchParams.get('course')??''); const [creating,setCreating]=useState(()=>searchParams.get('action')==='create'); const [materialLesson,setMaterialLesson]=useState(''); const [materialFile,setMaterialFile]=useState<File|null>(null); const [message,setMessage]=useState(''); const [busy,setBusy]=useState(false);
  useEffect(()=>{
   if(selected||creating||courses.isLoading)return;
@@ -134,24 +160,39 @@ function CourseManager() {
     <BookOpen className='size-5 text-primary' aria-hidden='true'/><h2 className='mt-2 font-serif text-2xl'>Choose a course</h2>
     <p className='mt-2 text-sm text-muted-foreground'>Select a course or start a new draft.</p>
    </div>}
+   <AlertDialog open={Boolean(deleting)} onOpenChange={open=>{if(!open&&!busy)setDeleting(null);}}>
+    <AlertDialogContent>
+     <AlertDialogHeader>
+      <AlertDialogTitle>Delete {deleting?.label}?</AlertDialogTitle>
+      <AlertDialogDescription>“{deleting?.title}” will be permanently removed if it has no protected records.</AlertDialogDescription>
+     </AlertDialogHeader>
+     {deleteError&&<p role='alert' className='text-sm text-destructive'>{deleteError}</p>}
+     <AlertDialogFooter>
+      <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+      <Button type='button' variant='destructive' disabled={busy} onClick={()=>void deleteItem()}>{busy?'Deleting…':'Delete '+deleting?.label}</Button>
+     </AlertDialogFooter>
+    </AlertDialogContent>
+   </AlertDialog>
    {course&&<>
     <header className='rounded-2xl border border-[#B79B62]/40 bg-[#2F4A3C] p-5 text-[#F6F1E7] sm:p-6'>
      <p className='text-xs font-semibold uppercase tracking-wider text-[#DFCEA3]'>{course.archived_at?'Archived':course.published?'Published':'Draft'} · {String(course.access_level??'free')}</p>
      <h2 ref={courseHeading} tabIndex={-1} className='mt-2 break-words font-serif text-3xl focus:outline-none'>{String(course.title)}</h2>
      <p className='mt-2 text-sm text-[#F6F1E7]/85'>{lessonList.length} {lessonList.length===1?'lesson':'lessons'} · {lessonList.filter(row=>row.published).length} published</p>
      <div className='mt-4 flex flex-wrap items-start gap-2'>
-      {!course.published&&<Button variant='secondary' className='min-h-11 rounded-lg' disabled={busy||contentLoading||!canPublish} onClick={()=>void changeCourse(course.id,{published:true,archived_at:null},quickLesson?'Published lesson “'+String(quickLesson.title)+'” and course “'+String(course.title)+'”.':'Published course “'+String(course.title)+'”.',quickLesson)}>{busy?'Working…':quickLesson?'Publish lesson & course':'Publish course'}</Button>}
-      <CoursePreview key={course.id} course={course} lessons={lessonList} modules={modules.data??[]} triggerClassName='min-h-11 rounded-lg bg-transparent text-[#F6F1E7] hover:bg-white/10 hover:text-white'/>
-      <details key={course.id} className='relative'>
+      {course.archived_at&&<Button variant='secondary' className='min-h-11 rounded-lg' disabled={busy} onClick={()=>void changeCourse(course.id,{published:false,archived_at:null},'Restored course “'+String(course.title)+'” as a draft.')}>Restore as draft</Button>}
+      {!course.archived_at&&!course.published&&<Button variant='secondary' className='min-h-11 rounded-lg' disabled={busy||contentLoading||!canPublish} onClick={()=>void changeCourse(course.id,{published:true,archived_at:null},quickLesson?'Published lesson “'+String(quickLesson.title)+'” and course “'+String(course.title)+'”.':'Published course “'+String(course.title)+'”.',quickLesson)}>{busy?'Working…':quickLesson?'Publish lesson & course':'Publish course'}</Button>}
+      <CoursePreview key={'preview:'+course.id} course={course} lessons={lessonList} modules={modules.data??[]} triggerClassName='min-h-11 rounded-lg bg-transparent text-[#F6F1E7] hover:bg-white/10 hover:text-white'/>
+      <details key={'actions:'+course.id} className='relative'>
        <summary className='flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-lg border border-white/25 px-3 text-sm font-medium hover:bg-white/10 [&::-webkit-details-marker]:hidden'><MoreHorizontal className='size-4' aria-hidden='true'/>More actions</summary>
        <div className='absolute left-0 top-full z-10 mt-1 grid min-w-40 gap-1 rounded-xl border border-primary/15 bg-[#fffdf8] p-2 text-primary shadow-lg'>
         {course.published&&<Button variant='ghost' className='justify-start' disabled={busy} onClick={()=>void changeCourse(course.id,{published:false},'Unpublished course “'+String(course.title)+'”.')}>Unpublish</Button>}
         <Button variant='ghost' className='justify-start' disabled={busy} onClick={()=>void duplicate(course.id)}>Duplicate</Button>
+        {profile?.role==='admin'&&!course.published&&<Button variant='ghost' className='justify-start text-destructive hover:text-destructive' disabled={busy} onClick={()=>confirmDeletion(course,'course')}>Delete course</Button>}
         {!course.archived_at&&<Button variant='ghost' className='justify-start' disabled={busy} onClick={()=>void changeCourse(course.id,{published:false,archived_at:new Date().toISOString()},'Archived course “'+String(course.title)+'”.')}>Archive</Button>}
        </div>
       </details>
      </div>
-     {!course.published&&!contentLoading&&!canPublish&&<p className='mt-3 text-sm text-[#F6F1E7]/85'>{lessonList.length?'Publish a lesson to make this course ready.':'Add a lesson to make this course ready.'}</p>}
+     {!course.archived_at&&!course.published&&!contentLoading&&!canPublish&&<p className='mt-3 text-sm text-[#F6F1E7]/85'>{lessonList.length?'Publish a lesson to make this course ready.':'Add a lesson to make this course ready.'}</p>}
     </header>
     {(lessons.error||modules.error)&&<p role='alert' className='text-sm text-destructive'>Could not load course content. Publishing is unavailable.</p>}
     <Tabs key={course.id} defaultValue='lessons'>
@@ -172,7 +213,8 @@ function CourseManager() {
    </div>
    <div className='flex w-full flex-wrap items-center gap-1 sm:w-auto'>
     <CourseContentEditor row={lesson} kind='lesson' onSaved={reloadContent}/>
-    <Button type='button' size='sm' variant='ghost' className='min-h-10' disabled={busy} onClick={()=>void toggleLesson(lesson)}>{lesson.published?'Unpublish lesson':'Publish lesson'}</Button>
+    {profile?.role==='admin'&&(!lesson.published||course.archived_at)&&<Button type='button' size='icon' variant='ghost' className='size-11 text-destructive hover:text-destructive' aria-label={'Delete '+String(lesson.title)} disabled={busy} onClick={()=>confirmDeletion(lesson,'lesson')}><Trash2 className='size-4' aria-hidden='true'/></Button>}
+    <Button type='button' size='sm' variant='ghost' className='min-h-11' disabled={busy||Boolean(course.archived_at)} onClick={()=>void toggleLesson(lesson)}>{lesson.published?'Unpublish lesson':'Publish lesson'}</Button>
     {lessonList.length>1&&<div className='flex gap-1'>
      <Button type='button' size='icon' variant='ghost' aria-label={'Move '+String(lesson.title)+' up'} disabled={index===0||busy} onClick={()=>void moveLesson(index,-1)}><ArrowUp aria-hidden='true'/></Button>
      <Button type='button' size='icon' variant='ghost' aria-label={'Move '+String(lesson.title)+' down'} disabled={index===lessonList.length-1||busy} onClick={()=>void moveLesson(index,1)}><ArrowDown aria-hidden='true'/></Button>
@@ -185,7 +227,7 @@ function CourseManager() {
       <p className='whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground'>{String(course.description||'Add an introduction to your course.')}</p>
       {selected&&<FocusedForm title="Course details" triggerLabel="Edit course" feedback={message} onSubmit={editCourse}><Input name={'title'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.title??'')} required/><Textarea name={'description'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.description??'')}/><div className={'grid gap-4 sm:grid-cols-2'}><Input name={'eligibility'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.eligibility??'Active academy account')}/><Select name={'access'} defaultValue={String((courses.data??[]).find(c=>c.id===selected)?.access_level??'free')}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['free','basic','premium'].map(x=><SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></div><Button className={'w-fit'} disabled={busy}><Save/>Save course changes</Button></FocusedForm>}
      </section></TabsContent>
-     <TabsContent value='structure' className='space-y-4'><section className="paper-card p-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="font-serif text-3xl">Modules</h2><FocusedForm title="Add module" compactTrigger feedback={message} onSubmit={addModule}><Input name={'title'} placeholder={'Module title'} required/><Textarea name={'description'} placeholder={'Module description'}/><Button className={'w-fit'} disabled={busy}>Add module draft</Button></FocusedForm></div><div className={'space-y-2'}>{(modules.data??[]).map(m=><div key={m.id} className='flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-sm border border-primary/15 p-3 text-sm'><span className='break-words'>{String(m.title)} · {m.published?'Published':'Draft'}</span><CourseContentEditor row={m} kind='module' onSaved={reloadContent}/></div>)}</div></section>{selected&&Boolean(lessons.data?.length)&&<FocusedForm title="Assessment question" triggerLabel="Add question" feedback={message} onSubmit={addQuestion}><Select name={'lesson'} required><SelectTrigger><SelectValue placeholder={'Choose quiz or assignment'}/></SelectTrigger><SelectContent>{(lessons.data??[]).filter(l=>l.kind!=='lesson').map(l=><SelectItem key={l.id} value={String(l.id)}>{String(l.title)}</SelectItem>)}</SelectContent></Select><Select name={'type'} defaultValue={'multiple_choice'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['multiple_choice','true_false','short_answer','long_answer','practical','riding_video'].map(x=><SelectItem key={x} value={x}>{x.replace('_',' ')}</SelectItem>)}</SelectContent></Select><Textarea name={'prompt'} placeholder={'Question or assignment prompt'} required/><Input name={'options'} placeholder={'Multiple-choice options, comma separated'}/><div className={'grid gap-4 sm:grid-cols-2'}><Input name={'answer'} placeholder={'Automated answer, when appropriate'}/><Input name={'points'} type={'number'} min={1} defaultValue={1}/></div><Textarea name={'criteria'} placeholder={'Marking criteria'}/><Textarea name={'explanation'} placeholder={'Automated explanation after submission'}/><label className={'flex items-center gap-2 text-sm'}><input name={'coach'} type={'checkbox'}/>Requires personal coach review</label><Button className={'w-fit'} disabled={busy}>Save assessment question</Button></FocusedForm>}</TabsContent>
+     <TabsContent value='structure' className='space-y-4'><section className="paper-card p-6"><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="font-serif text-3xl">Modules</h2><FocusedForm title="Add module" compactTrigger feedback={message} onSubmit={addModule}><Input name={'title'} placeholder={'Module title'} required/><Textarea name={'description'} placeholder={'Module description'}/><Button className={'w-fit'} disabled={busy}>Add module draft</Button></FocusedForm></div><div className={'space-y-2'}>{(modules.data??[]).map(m=><div key={m.id} className='flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-sm border border-primary/15 p-3 text-sm'><span className='break-words'>{String(m.title)} · {m.published?'Published':'Draft'}</span><div className='flex items-center gap-2'><CourseContentEditor row={m} kind='module' onSaved={reloadContent}/>{profile?.role==='admin'&&(!m.published||course.archived_at)&&<Button type='button' size='icon' variant='ghost' className='size-11 text-destructive hover:text-destructive' aria-label={'Delete '+String(m.title)} disabled={busy} onClick={()=>confirmDeletion(m,'module')}><Trash2 className='size-4' aria-hidden='true'/></Button>}</div></div>)}</div></section>{selected&&Boolean(lessons.data?.length)&&<FocusedForm title="Assessment question" triggerLabel="Add question" feedback={message} onSubmit={addQuestion}><Select name={'lesson'} required><SelectTrigger><SelectValue placeholder={'Choose quiz or assignment'}/></SelectTrigger><SelectContent>{(lessons.data??[]).filter(l=>l.kind!=='lesson').map(l=><SelectItem key={l.id} value={String(l.id)}>{String(l.title)}</SelectItem>)}</SelectContent></Select><Select name={'type'} defaultValue={'multiple_choice'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{['multiple_choice','true_false','short_answer','long_answer','practical','riding_video'].map(x=><SelectItem key={x} value={x}>{x.replace('_',' ')}</SelectItem>)}</SelectContent></Select><Textarea name={'prompt'} placeholder={'Question or assignment prompt'} required/><Input name={'options'} placeholder={'Multiple-choice options, comma separated'}/><div className={'grid gap-4 sm:grid-cols-2'}><Input name={'answer'} placeholder={'Automated answer, when appropriate'}/><Input name={'points'} type={'number'} min={1} defaultValue={1}/></div><Textarea name={'criteria'} placeholder={'Marking criteria'}/><Textarea name={'explanation'} placeholder={'Automated explanation after submission'}/><label className={'flex items-center gap-2 text-sm'}><input name={'coach'} type={'checkbox'}/>Requires personal coach review</label><Button className={'w-fit'} disabled={busy}>Save assessment question</Button></FocusedForm>}</TabsContent>
      <TabsContent value='materials'>{selected&&<section className={'paper-card grid gap-4 p-6'}><h2 className={'font-serif text-3xl'}>Lesson materials</h2><Select value={materialLesson} onValueChange={setMaterialLesson}><SelectTrigger><SelectValue placeholder={'Choose lesson'}/></SelectTrigger><SelectContent>{(lessons.data??[]).map(l=><SelectItem key={l.id} value={String(l.id)}>{String(l.title)}</SelectItem>)}</SelectContent></Select><Input type={'file'} accept={'image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/webm'} onChange={(event:ChangeEvent<HTMLInputElement>)=>setMaterialFile(event.target.files?.[0]??null)}/><Button className={'w-fit'} disabled={busy||!materialLesson||!materialFile} onClick={()=>void uploadMaterial()}><FilePlus2/>Upload private material</Button></section>}</TabsContent>
     </Tabs>
    </>}
