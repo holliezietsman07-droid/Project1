@@ -126,7 +126,7 @@ const App = () => (
       <Sonner position="top-right" closeButton richColors />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
-          <Route path='/vision-2-preview' element={import.meta.env.VITE_HKA_PUBLIC_SITE==='true' ? <Navigate to='/' replace /> : <HkaVisionPreview />} />
+          <Route path='/vision-2-preview' element={<HkaVisionPreview />} />
           <Route path='/dashboard/fitness-preview' element={import.meta.env.VITE_HKA_PUBLIC_SITE==='true' ? <Navigate to='/' replace/> : <FitnessPreviewSessionProvider>
             <div className='min-h-screen bg-background'>
               <header className='border-b border-primary/15 bg-[#F6F1E7]'><div className='page-width flex items-center justify-between gap-3 py-2 sm:py-3'>
