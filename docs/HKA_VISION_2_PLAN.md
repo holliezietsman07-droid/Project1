@@ -25,7 +25,7 @@ Design: #2F4A3C forest green, #F6F1E7 ivory, #B79B62 antique gold; airy, timeles
 ## Stage 0 — Design preview (this branch)
 
 - New `src/pages/HkaVisionPreview.tsx` is a local-only React sample interface.
-- A route at `/vision-2-preview` is available only when `VITE_HKA_PUBLIC_SITE` is not `true`; production-public builds redirect to `/`.
+- The `/vision-2-preview` route is accessible for review on this isolated branch. **Before production merge, remove the route or guard it using a deliberately configured non-production/founder-only flag.**
 - Screens: public welcome, example role dashboards, Academy pathways, illustrative lesson quiz, training, horses, and student/child workspace.
 - Role and responsive-device controls change the sample display; learning quiz answer feedback works locally.
 - Sample records are explicitly marked as fictitious and there are no backend reads/writes.
